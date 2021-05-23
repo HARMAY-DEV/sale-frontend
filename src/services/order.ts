@@ -47,15 +47,6 @@ class OrderService {
   }
 
   /**
-   * 创建大订单
-   * @param id 订单ID
-   * @returns 
-   */
-  createBigOrder(id: string) {
-    return http.get(`/order/bigorder/${id}`);
-  }
-
-  /**
    * 同步订单都收钱吧
    * @param id 订单ID
    * @returns 

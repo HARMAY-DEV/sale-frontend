@@ -41,20 +41,19 @@
         </el-form-item>
       </el-tooltip>
 
-      <el-form-item prop="address">
+      <el-form-item prop="shopId">
         <span class="svg-container">
           <i class="el-icon-office-building" />
         </span>
         <el-select
-          ref="address"
-          v-model="loginForm.address"
+          v-model="loginForm.shopId"
           placeholder="请选择地址"
-          name="address"
+          name="shopId"
           tabindex="3"
           autocomplete="on"
           style="width: calc(100% - 30px);"
         >
-          <el-option v-for="item in addresses" :key="item.value" :label="item.label" :value="item.value" />
+          <el-option v-for="item in shopList" :key="item.value" :label="item.label" :value="item.value" />
         </el-select>
       </el-form-item>
 
@@ -64,6 +63,9 @@
 </template>
 
 <script>
+import { mapActions } from 'vuex';
+import { Notification } from 'element-ui';
+
 export default {
   name: 'Login',
   data() {
@@ -73,27 +75,27 @@ export default {
       loginForm: {
         username: '',
         password: '',
-        address: '',
+        shopId: '',
       },
       loginRules: {
         username: [requiredRule('必须输入账号！'), lengthRule(5, '账号长度大于等于5位字符！')],
         password: [requiredRule('必须输入密码！'), lengthRule(6, '密码长度大于等于6位字符！')],
-        address: [requiredRule('必须选择地址！')],
+        shopId: [requiredRule('必须选择地址！')],
       },
       // 大写锁定是否已打开
       capsTooltip: false,
-      addresses: [
+      shopList: [
         {
-          label: '北京三里屯1',
-          value: 'address1'
+          label: '北京三里屯',
+          value: '2003'
         },
         {
           label: '北京三里屯2',
-          value: 'address2'
+          value: '2004'
         },
         {
           label: '北京三里屯3',
-          value: 'address3',
+          value: '2005',
         },
       ],
       loading: false,
@@ -107,21 +109,27 @@ export default {
     }
   },
   methods: {
+    ...mapActions('user', ['login']),
+
     checkCapslock({ key }) {
       this.capsTooltip = key && key.length === 1 && (key >= 'A' && key <= 'Z');
     },
+    
     handleLogin() {
       this.$refs.loginForm.validate(valid => {
-        if (valid) {
-          this.loading = true;
-          setTimeout(() => {
-            this.$router.push({ path: '/' });
-            this.loading = false;
-          }, 3000);
-        } else {
-          console.log('error submit!!');
+        if (!valid) {
           return false;
         }
+
+        this.loading = true;
+
+        this.login(this.loginForm).then(() => {
+          this.$router.replace({ path: '/' });
+        }).catch((error) => {
+          this.$notify.error({ title: '登录失败', message: error.message });
+        }).finally(() => {
+          this.loading = false;
+        });
       });
     },
   },

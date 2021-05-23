@@ -58,8 +58,8 @@ export default {
 }
 
 .main-content {
-  flex: auto;
-
+  flex: 1 1 100%;
+  
   > div {
     box-sizing: border-box;
     height: 100%;

@@ -1,20 +1,23 @@
 <template>
-  <div class="shopping-cart">
+  <div class="cart-container">
     <div class="input-container">
-      <el-input type="search" clearable v-model="text">
+      <el-input ref="searchInput" type="search" clearable v-model="searchGoodsNo">
         <el-button slot="append" icon="el-icon-search" @click="search()"></el-button>
       </el-input>
     </div>
-    <div class="goods-list">
+    <div v-if="goodsList.length" class="goods-list">
       <goods-card v-for="goods in goodsList" :key="goods.id" v-bind="goods"></goods-card>
     </div>
+    <div v-else class="goods-list">
+      <h2 class="empty-goods">暂无商品，扫码添加</h2>
+    </div>
     <div class="footer">
-      <el-button type="danger">清除购物车</el-button>
-      <div class="goods-summary">
+      <el-button :disabled="!goodsList.length" style="margin-right: auto;" type="danger" @click="clearCart()">清除购物车</el-button>
+      <div v-show="goodsList.length" class="goods-summary">
         <div>{{ goodsCount }} 件</div>
         <div>￥ {{ goodsValue }}</div>
       </div>
-      <el-button type="success">付款</el-button>
+      <el-button :disabled="!goodsList.length" type="success">付款</el-button>
     </div>
 
     <el-drawer
@@ -25,7 +28,8 @@
       size="70%"
       custom-class="search-panel"
     >
-      <goods-card v-bind="searchGoods" from-search></goods-card>
+      <goods-card v-if="searchGoods" v-bind="searchGoods" from-search @close-panel="searchPanelVisible = false"></goods-card>
+      <p v-else>找不到该商品，请核实</p>
     </el-drawer>
 
     <el-dialog :visible.sync="payDialogVisible">
@@ -35,6 +39,8 @@
 </template>
 
 <script>
+import { mapState, mapGetters, mapActions, mapMutations } from 'vuex';
+
 import GoodsCard from '@/components/goods-card.vue';
 
 const PAY_STATUS = new Map([
@@ -45,38 +51,34 @@ const PAY_STATUS = new Map([
 ]);
 
 export default {
-  name: 'ShoppingCart',
+  name: 'Cart',
   components: { GoodsCard },
   data() {
     return {
       searchPanelVisible: false,
       payDialogVisible: false,
-      text: '',
-      goodsCount: 0,
-      goodsValue: 0,
-      searchGoods: {
-        id: '123',
-        name: '舒肤佳',
-        price: 299,
-        stock: 23,
-        picture: '',
-        specs: '200ml',
-      },
-      goodsList: [
-        {
-          id: '123',
-          name: '舒肤佳',
-          price: 299,
-          stock: 23,
-          picture: '',
-          specs: '200ml',
-        }
-      ]
+      searchGoodsNo: '',
     };
   },
+  computed: {
+    ...mapState('cart', ['searchGoods', 'goodsList']),
+    ...mapGetters('cart', ['goodsCount', 'goodsValue']),
+  },
+  created() {
+    this.getCartGoodsList();
+  },
   methods: {
-    search() {
+    ...mapMutations('cart', ['clearCart']),
+    ...mapActions('cart', ['getGoodsInfo', 'getCartGoodsList']),
+    async search() {
+      if (!this.searchGoodsNo) {
+        this.$refs.searchInput.focus();
+        return;
+      }
+
+      await this.getGoodsInfo(this.searchGoodsNo);
       this.searchPanelVisible = true;
+      this.searchGoodsNo = '';
     }
   }
 }
@@ -89,22 +91,28 @@ export default {
 </style>
 
 <style lang="scss" scoped>
-.shopping-cart {
+.cart-container {
   position: relative;
   display: flex;
   flex-direction: column;
 
   .goods-list {
+    display: flex;
+    flex-direction: column;
     flex: auto;
     overflow-y: auto;
     margin: 12px 0;
+
+    .empty-goods {
+      margin: auto;
+      text-align: center;
+    }
   }
 
   .footer {
     display: flex;
 
     .goods-summary {
-      margin-left: auto;
       margin-right: 12px;
       display: flex;
       flex-direction: column;

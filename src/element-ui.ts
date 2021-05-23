@@ -13,9 +13,13 @@ import {
   Avatar,
   Dialog,
   Drawer,
+  Message,
+  Notification,
 } from 'element-ui';
 
 export function useElementComponent() {
+  Vue.prototype.$message = Message;
+  Vue.prototype.$notify = Notification;
   Vue.use(Form);
   Vue.use(FormItem);
   Vue.use(Input);

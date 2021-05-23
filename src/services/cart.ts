@@ -1,10 +1,10 @@
 import http from './http';
 
-export interface GoodsInfo {
+export interface GoodsInfoResponse {
   goods_id: string;
   goods_name: string;
   goods_no: string;
-  price: string;
+  price: number;
   spec_id: string;
   spec_name: string;
   spec_no: string;
@@ -13,8 +13,8 @@ export interface GoodsInfo {
   stock: number;
 }
 
-export interface GoodsList {
-  shopCartGoods: Array<{
+export interface GoodsListResponse {
+  shopCartGoods: [Array<{
     id: number,
     shop_cart_id: string;
     goods_no: string;
@@ -22,10 +22,28 @@ export interface GoodsList {
     img_url: string;
     goods_name: string;
     spec_name: string;
-    num: 3,
+    num: number,
     created_at: string;
     updated_at: string;
-  }>;
+  }>, number];
+}
+
+function goodsInfoTransformer(data: any) {
+  return {
+    id: data.goods_id || data.goods_no,
+    name: data.goods_name,
+    price: data.price || 0,
+    stock: data.stock || 0,
+    picture: data.img_url,
+    spec: data.spec_name,
+    quantity: data.num || 0,
+  };
+}
+
+function cartAction({ shopCartGoods: [list] }: GoodsListResponse) {
+  const cartId = list[0].shop_cart_id;
+  const goodsList = list.map(goodsInfoTransformer);
+  return { cartId, goodsList };
 }
 
 class CartService {
@@ -34,8 +52,9 @@ class CartService {
    * @param id 购物车id
    * @returns 商品列表
    */
-  getShoppingCartGoodsList(id: string): Promise<GoodsList['shopCartGoods']> {
-    return http.get<GoodsList>(`/shop_cart?shop_cart=${id}`).then(({ shopCartGoods }) => shopCartGoods);
+  getShoppingCartGoodsList(id: string) {
+    return http.get<GoodsListResponse>(`/shop_cart?shop_cart=${id}`)
+      .then(({ shopCartGoods: [list] }) => list.map(goodsInfoTransformer));
   }
   
   /**
@@ -44,7 +63,7 @@ class CartService {
    * @returns 商品详情
    */
   getGoodsInfo(id: string) {
-    return http.get<GoodsInfo>(`/goods/${id}`);
+    return http.get<GoodsInfoResponse>(`/goods/${id}`).then(goodsInfoTransformer);
   }
 
   /**
@@ -55,11 +74,12 @@ class CartService {
    * @returns null
    */
   addGoodsToShoppingCart(goodsId: string, cartId: string, quantity: number) {
-    return http.post('/shop_cart', {
+    console.log(goodsId, typeof goodsId);
+    return http.post<GoodsListResponse>('/shop_cart', {
       goods_no: goodsId,
       shop_cart_id: cartId,
       num: quantity,
-    });
+    }).then(cartAction);
   }
   
   /**
@@ -69,12 +89,12 @@ class CartService {
    * @param quantity 删除的数量
    * @returns null
    */
-  deleteGoodsFromShoppingCart(goodsId: string, cartId: string, quantity: number) {
-    return http.delete('/shop_cart', {
+  removeGoodsFromShoppingCart(goodsId: string, cartId: string, quantity: number) {
+    return http.delete<GoodsListResponse>('/shop_cart', {
       goods_no: goodsId,
       shop_cart_id: cartId,
       num: quantity,
-    });
+    }).then(cartAction);
   }
 }
 

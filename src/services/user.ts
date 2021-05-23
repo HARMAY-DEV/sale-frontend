@@ -1,5 +1,11 @@
 import http from './http';
 
+export interface LoginResponse {
+  userId: number;
+  username: string;
+  access_token: string;
+}
+
 class UserService {
   /**
    * 用户登录
@@ -9,7 +15,9 @@ class UserService {
    * @returns 
    */
   login(username: string, password: string, shopId: string) {
-    return http.post('/auth/login', { username, password });
+    return http.post<LoginResponse>('/auth/login', { username, password, shopId }).then((data) => {
+      http.setAuthorizationToken(data.access_token);
+    });
   }
 
   /**
@@ -27,7 +35,7 @@ class UserService {
    * @returns 
    */
   getShopList() {
-    return http.get('/');
+    return http.get('/shop');
   }
 }
 

@@ -5,11 +5,11 @@ class FlowService {
    * 创建支付流水
    * @param tid 订单ID  
    * @param payMode 支付方式
-   * @param amount 数量
-   * @param subject 
-   * @returns 
+   * @param amount 金额 单位为分
+   * @param subject? 可不填
+   * @returns 流水ID
    */
-  createFlow(tid: string, payMode: string, amount: number, subject: string) {
+  createFlow(tid: string, payMode: string, amount: number, subject?: string) {
     return http.post('/flow', {});
   }
 
