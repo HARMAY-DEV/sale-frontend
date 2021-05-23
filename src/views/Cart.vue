@@ -17,7 +17,7 @@
         <div>{{ goodsCount }} 件</div>
         <div>￥ {{ goodsValue }}</div>
       </div>
-      <el-button :disabled="!goodsList.length" type="success">付款</el-button>
+      <el-button :disabled="!goodsList.length" type="success" @click="pay()">付款</el-button>
     </div>
 
     <el-drawer
@@ -32,8 +32,9 @@
       <p v-else>找不到该商品，请核实</p>
     </el-drawer>
 
-    <el-dialog :visible.sync="payDialogVisible">
-      <span slot="title"><i class="el-icon-arrow-left"></i>返回点单</span>
+    <el-dialog :visible.sync="payDialogVisible" :show-close="false" :close-on-click-modal="false" width="60%">
+      <span slot="title" @click="backCart()"><i class="el-icon-arrow-left"></i>返回点单</span>
+      <order-process></order-process>
     </el-dialog>
   </div>
 </template>
@@ -42,17 +43,13 @@
 import { mapState, mapGetters, mapActions, mapMutations } from 'vuex';
 
 import GoodsCard from '@/components/goods-card.vue';
-
-const PAY_STATUS = new Map([
-  ['WAITING', Symbol('WAITING')], // 等待支付
-  ['PAYING', Symbol('PAYING')], // 支付中
-  ['FINISHED', Symbol('FINISHED')], // 支付完成
-  ['PRINT', Symbol('PRINT')], // 打印小票
-]);
+import OrderProcess from '@/components/order-process.vue';
+import { OrderStatus } from '@/utils/consts';
 
 export default {
   name: 'Cart',
-  components: { GoodsCard },
+  components: { GoodsCard, OrderProcess },
+
   data() {
     return {
       searchPanelVisible: false,
@@ -60,16 +57,22 @@ export default {
       searchGoodsNo: '',
     };
   },
+
   computed: {
+    ...mapState('order', ['orderStatus']),
     ...mapState('cart', ['searchGoods', 'goodsList']),
     ...mapGetters('cart', ['goodsCount', 'goodsValue']),
   },
+
   created() {
     this.getCartGoodsList();
   },
+
   methods: {
     ...mapMutations('cart', ['clearCart']),
     ...mapActions('cart', ['getGoodsInfo', 'getCartGoodsList']),
+    ...mapActions('order', ['createOrder']),
+
     async search() {
       if (!this.searchGoodsNo) {
         this.$refs.searchInput.focus();
@@ -79,6 +82,25 @@ export default {
       await this.getGoodsInfo(this.searchGoodsNo);
       this.searchPanelVisible = true;
       this.searchGoodsNo = '';
+    },
+
+    async pay() {
+      await this.createOrder();
+      this.payDialogVisible = true;
+    },
+
+    backCart() {
+      if (this.orderStatus === OrderStatus.PAYING) {
+        this.$confirm('确认要退出支付流程吗？', '提示', {
+          showClose: false,
+          closeOnClickModal: false,
+          type: 'warning',
+        }).then(() => {
+          this.payDialogVisible = false;
+        }).catch(() => {});
+      } else {
+        this.payDialogVisible = false;
+      }
     }
   }
 }

@@ -15,11 +15,18 @@ import {
   Drawer,
   Message,
   Notification,
+  Steps,
+  Step,
+  Loading,
+  MessageBox,
 } from 'element-ui';
 
 export function useElementComponent() {
   Vue.prototype.$message = Message;
   Vue.prototype.$notify = Notification;
+  Vue.prototype.$alert = MessageBox.alert;
+  Vue.prototype.$confirm = MessageBox.confirm;
+  Vue.prototype.$prompt = MessageBox.prompt;
   Vue.use(Form);
   Vue.use(FormItem);
   Vue.use(Input);
@@ -33,4 +40,7 @@ export function useElementComponent() {
   Vue.use(Avatar);
   Vue.use(Dialog);
   Vue.use(Drawer);
+  Vue.use(Steps);
+  Vue.use(Step);
+  Vue.use(Loading);
 };

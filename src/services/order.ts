@@ -1,5 +1,16 @@
 import http from './http';
 
+interface CreateOrderResponse {
+  tid: string;
+  created_at: string;
+  paid: string;
+  pay_type: string;
+  pay_status: string;
+  pay_time: string;
+  refund_amount: string;
+  status: string;
+}
+
 class OrderService {
   /**
    * 创建订单
@@ -8,7 +19,8 @@ class OrderService {
    * @returns 
    */
   createOrder(shopId: string, goodsList: any[]) {
-    return http.post('/order', { shop_no: shopId, goods_list: goodsList });
+    return http.post<CreateOrderResponse>('/order', { shop_no: shopId, goods_list: goodsList })
+      .then(data => data.tid);
   }
 
   /**

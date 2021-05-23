@@ -1,5 +1,9 @@
 @import "~@icon-park/vue/styles/index.css";
 
+html {
+  touch-action: manipulation;
+}
+
 html, body, #app {
   height: 100%;
 }

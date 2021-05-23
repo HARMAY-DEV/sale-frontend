@@ -17,6 +17,7 @@ class UserService {
   login(username: string, password: string, shopId: string) {
     return http.post<LoginResponse>('/auth/login', { username, password, shopId }).then((data) => {
       http.setAuthorizationToken(data.access_token);
+      return data.userId;
     });
   }
 

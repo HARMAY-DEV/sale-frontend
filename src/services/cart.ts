@@ -74,7 +74,6 @@ class CartService {
    * @returns null
    */
   addGoodsToShoppingCart(goodsId: string, cartId: string, quantity: number) {
-    console.log(goodsId, typeof goodsId);
     return http.post<GoodsListResponse>('/shop_cart', {
       goods_no: goodsId,
       shop_cart_id: cartId,

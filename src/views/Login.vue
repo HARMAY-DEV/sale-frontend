@@ -63,8 +63,7 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex';
-import { Notification } from 'element-ui';
+import { mapActions, mapState } from 'vuex';
 
 export default {
   name: 'Login',
@@ -75,7 +74,7 @@ export default {
       loginForm: {
         username: '',
         password: '',
-        shopId: '',
+        shopId: this.shopId,
       },
       loginRules: {
         username: [requiredRule('必须输入账号！'), lengthRule(5, '账号长度大于等于5位字符！')],
@@ -100,6 +99,9 @@ export default {
       ],
       loading: false,
     };
+  },
+  computed: {
+    ...mapState('user', ['shopId']),
   },
   mounted() {
     if (this.loginForm.username === '') {

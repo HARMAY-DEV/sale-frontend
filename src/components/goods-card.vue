@@ -10,9 +10,9 @@
     </div>
     <div class="goods-price">￥ {{ price }}</div>
     <div v-if="!fromSearch" class="actions" :style="{marginRight: marginRight + 'px'}">
-      <el-button type="primary" size="mini" icon="el-icon-minus" @click.stop="removeFromCart({ goodsId: id })" round></el-button>
+      <el-button type="primary" size="mini" icon="el-icon-minus" @click="removeFromCart({ goodsId: id })" round></el-button>
       <span class="goods-quantity">{{ quantity }}</span>
-      <el-button type="primary" size="mini" icon="el-icon-plus" @click.stop="addToCart({ goodsId: id })" round :disabled="quantity >= stock"></el-button>
+      <el-button type="primary" size="mini" icon="el-icon-plus" @click="addToCart({ goodsId: id })" round :disabled="stock <= 0"></el-button>
     </div>
     <div v-if="fromSearch" class="actions">
       <el-button type="primary" @click="addGoodsToCart()">加入购物车</el-button>

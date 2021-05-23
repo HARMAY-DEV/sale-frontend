@@ -3,6 +3,7 @@ import type { ActionTree, GetterTree, Module, MutationTree } from 'vuex';
 import { CartService } from '@/services';
 import { StorageKey } from '@/utils/consts';
 import { Storage } from '@/utils/storage';
+import { RootState } from './root';
 
 interface GoodsInfo {
   id: string;
@@ -20,7 +21,7 @@ interface CartData {
   quantity?: number;
 }
 
-interface CartState {
+export interface CartState {
   cartId: string;
   searchGoods: Nullable<GoodsInfo>;
   goodsList: GoodsInfo[];
@@ -32,7 +33,7 @@ const state: CartState = {
   searchGoods: null,
 };
 
-const getters: GetterTree<CartState, {}> = {
+const getters: GetterTree<CartState, RootState> = {
   goodsCount(state) {
     return state.goodsList.reduce((acc, cur) => acc += cur.quantity, 0);
   },
@@ -63,7 +64,7 @@ const mutations: MutationTree<CartState> = {
   },
 };
 
-const actions: ActionTree<CartState, {}> = {
+const actions: ActionTree<CartState, RootState> = {
   async getGoodsInfo({ commit }, id: string) {
     const result = await CartService.getGoodsInfo(id);
     commit('updateGoodsInfo', result);
@@ -92,7 +93,7 @@ const actions: ActionTree<CartState, {}> = {
   }
 };
 
-export const CartStore: Module<CartState, {}> = {
+export const CartStore: Module<CartState, RootState> = {
   namespaced: true,
   state,
   getters,

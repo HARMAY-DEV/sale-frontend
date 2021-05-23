@@ -1,4 +1,9 @@
 import http from './http';
+import { PaymentMethod } from '@/utils/consts';
+
+interface CreateFlowResponse {
+  id: string;
+}
 
 class FlowService {
   /**
@@ -9,8 +14,18 @@ class FlowService {
    * @param subject? 可不填
    * @returns 流水ID
    */
-  createFlow(tid: string, payMode: string, amount: number, subject?: string) {
-    return http.post('/flow', {});
+  createFlow(tid: string, pay_mode: PaymentMethod, amount: number, subject?: string) {
+    return http.post<CreateFlowResponse>('/flow', { tid, pay_mode, amount, subject });
+  }
+
+  /**
+   * 支付流水
+   * @param flowId 创建流水后返回的流水ID
+   * @param dynamic_id 扫码枪输出的ID
+   * @returns 
+   */
+  payFlow(flowId: string, dynamic_id: string) {
+    return http.post(`/flow/pay/${flowId}`, { dynamic_id });
   }
 
   /**

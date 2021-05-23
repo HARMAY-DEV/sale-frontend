@@ -14,6 +14,8 @@ declare module 'axios' {
 // 过期时间 10 分钟
 const EXPIRE_TIME = 10 * 60 * 1000;
 
+const HEADER_PREFIX = 'Bearer'
+
 export enum CancelType {
   CANCEL,
   CACHE,
@@ -68,8 +70,7 @@ instance.interceptors.response.use(({ data: { data, code, statusCode, message } 
     const { status, data: { statusCode } } = error.response;
 
     if ((status === 401 || statusCode === 401) && router.currentRoute.path !== '/login') {
-      Storage.removeItem(StorageKey.TOKEN);
-      Storage.removeItem(StorageKey.IS_LOGIN);
+      Storage.clear();
       Message.error({
         message: '您的登录状态已失效，请重新登录',
         onClose: () => router.push({ path: '/login' }),
@@ -95,23 +96,22 @@ class HttpService {
       instance.defaults.headers = { Authorization: token };
     } else {
       Object.values(instance.defaults.headers).forEach((header) => {
-        Object.assign(header, { Authorization: token });
+        Object.assign(header, { Authorization: `${HEADER_PREFIX} ${token}` });
       });
     }
 
     Storage.setItem(StorageKey.TOKEN, token);
-    Storage.setItem(StorageKey.IS_LOGIN, 'true');
   }
 
-  get<T>(url: string, params?: HttpParams, cache = true): Promise<T> {
+  get<T = any>(url: string, params?: HttpParams, cache = true): Promise<T> {
     return instance.get<T>(url, { params, cache }) as unknown as Promise<T>;
   }
 
-  post<T>(url: string, data: any, params?: HttpParams): Promise<T> {
+  post<T = any>(url: string, data: any, params?: HttpParams): Promise<T> {
     return instance.post<T>(url, data, { params }) as unknown as Promise<T>;
   }
 
-  delete<T>(url: string, data: any, params?: HttpParams): Promise<T> {
+  delete<T = any>(url: string, data: any, params?: HttpParams): Promise<T> {
     return instance.delete(url, { data, params }) as unknown as Promise<T>;
   }
 }
