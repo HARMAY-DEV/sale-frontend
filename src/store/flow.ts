@@ -34,9 +34,15 @@ const getters: GetterTree<FlowState, RootState> = {
 }
 
 const mutations: MutationTree<FlowState> = {
-  addFlow(state, payload: FlowDetail) {
-    state.flowList.push(payload);
+  addFlow(state, flow: FlowDetail) {
+    state.flowList.push(flow);
   },
+
+  updateFlowStatus(state, status) {
+    const flow = state.flowList[state.flowList.length - 1];
+    if (!flow) return;
+    flow.status = status;
+  }
 };
 
 const actions: ActionTree<FlowState, RootState> = {
@@ -48,10 +54,20 @@ const actions: ActionTree<FlowState, RootState> = {
     commit('order/updateOrderStatus', OrderStatus.PAYING, { root: true });
   },
 
-  async payFlow({ getters }, dynamicId: string) {
-    const result = await FlowService.payFlow(getters.currentFlowId, dynamicId);
-    console.log(result);
-  }
+  async payFlow({ getters, commit }, dynamicId: string) {
+    try {
+      await FlowService.payFlow(getters.currentFlowId, dynamicId);
+      const status = await FlowService.getFlowDetail(getters.currentFlowId);
+      commit('updateFlowStatus', status);
+    } catch(error) {
+      commit('updateFlowStatus', FlowStatus.FAILED);
+      throw error;
+    }
+  },
+
+  async getFlowList({ rootState: { order } }) {
+    return FlowService.getFlowListByOrderId(order.orderId);
+  },
 };
 
 export const FlowStore: Module<FlowState, RootState> = {

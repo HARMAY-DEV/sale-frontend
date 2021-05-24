@@ -6,99 +6,165 @@
       <el-step title="支付完成"></el-step>
       <el-step title="打印小票"></el-step>
     </el-steps>
+    
+    <div class="pay-info" v-if="orderStatus !== 3">
+      <div>等待支付：{{ waitingPaidAmount }}元</div>
+      <span>应收：{{ totalAmount }}元</span>
+      <span>实收：{{ paidAmount }}元</span>
+    </div>
 
-    <div class="pay-container">
+    <div v-if="orderStatus === 0 || orderStatus === 1" class="pay-container" v-loading="queryStatus" element-loading-text="订单处理中...">
       <div class="left-panel">
-        <el-button @click="preparePay(PaymentMethod.B_SCAN_C)">我扫顾客</el-button>
-        <el-button @click="preparePay(PaymentMethod.C_SCAN_B)" disabled>顾客扫我</el-button>
-        <el-button @click="preparePay(PaymentMethod.CARD)" disabled>刷卡支付</el-button>
-        <el-button @click="preparePay(PaymentMethod.CASH)" disabled>现金支付</el-button>
+        <el-button @click="selectPaymentMethod(PaymentMethod.B_SCAN_C)">我扫顾客</el-button>
+        <el-button @click="selectPaymentMethod(PaymentMethod.C_SCAN_B)" disabled>顾客扫我</el-button>
+        <el-button @click="selectPaymentMethod(PaymentMethod.CARD)" disabled>刷卡支付</el-button>
+        <el-button @click="selectPaymentMethod(PaymentMethod.CASH)" disabled>现金支付</el-button>
       </div>
-      <div class="right-panel">
-        <div>等待支付：{{ 380 }}元</div>
-        <div>
-          <span>应收：{{ 380 }}元</span>
-          <span>实收：{{ 0 }}元</span>
-        </div>
-        <div>
-          支付动态
+
+      <div class="right-panel" v-loading="orderStatus === 1 && this.payLoading" element-loading-text="等待确认中...">
+        <div v-if="showSuccessMask" class="pay-result-box">
+          <ip-check-one theme="filled" size="48" fill="#67C23A" />
+          <p>支付成功</p>
         </div>
 
-        <div 
-          class="pay-panel" 
-          :style="{transform: payPanelVisible ? 'scaleX(1)' : 'scaleX(0)'}"
-          v-loading="currentFlowStatus === 'pending'"
-          element-loading-text="等待确认中..."
-        >
-          <el-input placeholder="请输入收款金额" v-model="amountString" readonly prefix-icon="el-icon-coin">
-            <ip-delete-two slot="suffix" theme="outline" size="26" fill="#333" @touchstart.prevent.stop="handleInputNumber('x')" />
-          </el-input>
-          <div class="number-keyboard">
-            <span @touchstart.prevent.stop="handleInputNumber(1)">1</span>
-            <span @touchstart.prevent.stop="handleInputNumber(4)">4</span>
-            <span @touchstart.prevent.stop="handleInputNumber(7)">7</span>
-            <span @touchstart.prevent.stop="handleInputNumber('.')">.</span>
-            <span @touchstart.prevent.stop="handleInputNumber(2)">2</span>
-            <span @touchstart.prevent.stop="handleInputNumber(5)">5</span>
-            <span @touchstart.prevent.stop="handleInputNumber(8)">8</span>
-            <span @touchstart.prevent.stop="handleInputNumber(0)">0</span>
-            <span @touchstart.prevent.stop="handleInputNumber(3)">3</span>
-            <span @touchstart.prevent.stop="handleInputNumber(6)">6</span>  
-            <span @touchstart.prevent.stop="handleInputNumber(9)">9</span>
-            <el-button :disabled="amount <= 0" class="pay-btn" type="success" @click="createFlow({ paymentMethod, amount })">付款</el-button>
-          </div>
+        <div v-if="showFailMask" class="pay-result-box">
+          <ip-caution theme="filled" size="48" fill="#F56C6C"/>
+          <p>支付失败</p>
+          <div>{{ payFailedMessage }}</div>
         </div>
+
+        <number-keyboard placeholder="请输入收款金额" v-model="amountString">
+          <el-button :disabled="amount <= 0" type="success" @click="pay()">支付</el-button>
+        </number-keyboard>
+      </div>
+    </div>
+
+    <div v-if="orderStatus === 2" class="pay-detail">
+      <div style="font-size: 16px; font-weight: 500; margin-bottom: 5px;">支付动态：</div>
+      <div class="flow-item" v-for="flow in flowList" :key="flow.id">
+        <template v-if="flow.payType">
+          <div>使用 <span>{{ flow.payType }}</span> 支付 <span>{{ flow.amount }}</span></div>
+          <span class="flow-time">{{ flow.time }}</span>
+        </template>
+      </div>
+      <div style="margin-top: 10px; text-align: center;">
+        <el-button @click="print()">去打印小票</el-button>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { PaymentMethod } from '@/utils/consts';
-import { mapState, mapGetters, mapActions } from 'vuex';
+import { mapState, mapGetters, mapActions, mapMutations } from 'vuex';
+import { FlowStatus, OrderStatus, PaymentMethod } from '@/utils/consts';
+import { waitingDynamicId } from '@/utils/scan-code-gun';
+import NumberKeyboard from './number-keyboard';
+import { stringToNumber } from '@/utils/money';
+import { delay } from '@/utils/delay';
 
 export default {
   name: 'OrderProcess',
+  components: { NumberKeyboard },
   data() {
     return {
       PaymentMethod,
       paymentMethod: PaymentMethod.B_SCAN_C,
       amountString: '',
-      payPanelVisible: false,
+      payFailedMessage: '',
+      showSuccessMask: false,
+      showFailMask: false,
+      payLoading: false,
+      paidAmount: 0,
+      queryStatus: false,
+      flowList: [],
     };
   },
   computed: {
-    ...mapState('order', ['orderStatus']),
-
+    ...mapState('cart', ['totalAmount']),
+    ...mapState('order', ['orderStatus', 'orderInfo']),
     ...mapGetters('flow', ['currentFlowStatus']),
 
     amount() {
-      const value = Number.parseFloat(this.amountString);
-      return Number.isNaN(value) ? 0 : value;
+      return stringToNumber(this.amountString);
     },
-  },
-  methods: {
-    ...mapActions('flow', ['createFlow']),
 
-    handleInputNumber(value) {
-      if (this.amountString === '' && (value === 0 || value === '.' || value === 'x')) {
+    waitingPaidAmount() {
+      return this.totalAmount - this.paidAmount;
+    }
+  },
+  watch: {
+    currentFlowStatus(status) {
+      if (status === FlowStatus.SUCCEED) {
+        this.showSuccessMask = true;
+        setTimeout(() => {
+          this.showSuccessMask = false;
+        }, 3000);
+      }
+
+      if (status === FlowStatus.FAILED) {
+        this.showFailMask = true;
+        setTimeout(() => {
+          this.showFailMask = false;
+          this.payFailedMessage = '';
+        }, 5000);
+      }
+    },
+
+    async orderStatus(status) {
+      if (status !== OrderStatus.PAID) {
         return;
       }
 
-      if (value === 'x' && this.amountString.length > 0) {
-        this.amountString = this.amountString.substring(0, this.amountString.length - 1);
+      this.flowList = await this.getFlowList();
+    }
+  },
+  methods: {
+    ...mapActions('flow', ['createFlow', 'payFlow', 'getFlowList']),
+    ...mapMutations('order', ['updateOrderStatus']),
+    ...mapActions('order', ['getOrderDetail']),
+
+    selectPaymentMethod(method) {
+      this.paymentMethod = method;
+    },
+
+    async waitAndQueryOrderStatus() {
+      this.queryStatus = true;
+      await delay(2000);
+      const { payableAmount, paidAmount, status } = await this.getOrderDetail();
+
+      if (paidAmount >= payableAmount || status === 'completed') {
+        this.queryStatus = false;
+        this.updateOrderStatus(OrderStatus.PAID);
       } else {
-        if (this.amountString.includes('.') && value === '.') {
-          return;
-        }
-      
-        this.amountString += value;
+        this.waitAndQueryOrderStatus();
       }
     },
 
-    preparePay(method) {
-      this.payPanelVisible = true;
-      this.paymentMethod = method;
+    async pay() {
+      if (this.payLoading) {
+        return;
+      }
+
+      this.payLoading = true;
+      try {
+        await this.createFlow({ paymentMethod: this.paymentMethod, amount: this.amount });
+        const dynamicId = await waitingDynamicId();
+        await this.payFlow(dynamicId);
+        this.paidAmount += this.amount;
+
+        if (this.paidAmount >= this.totalAmount) {
+          this.waitAndQueryOrderStatus();
+        }
+        this.amountString = '';
+      } catch (error) {
+        this.payFailedMessage = error.message;
+      } finally {
+        this.payLoading = false;
+      }
+    },
+     
+    print() {
+      this.updateOrderStatus(OrderStatus.PRINT);
     }
   },
 }
@@ -111,27 +177,39 @@ export default {
     margin-top: 40px;
   }
 }
-
-.pay-panel {
-  .el-input__inner:focus {
-    border-color: #DCDFE6;
-  }
-
-  .el-input__suffix, .el-input__suffix-inner {
-    display: flex;
-    align-items: center;
-  }
-}
 </style>
 
 <style lang="scss" scoped>
+.pay-info {
+  display: flex;
+  margin: 10px;
+  padding: 10px 0;
+  height: 30px;
+  align-items: center;
+  border-bottom: 1px dashed #999;
+  
+  div {
+    font-size: 18px; 
+    font-weight: 600; 
+    color: #333;
+    margin-right: auto;
+  }
+
+  span {
+    font-size: 16px;
+    font-weight: 500;
+    color: #999;
+    margin-left: 12px;
+  }
+}
+
 .pay-container {
   display: flex;
 
   .left-panel {
     box-sizing: border-box;
     width: 40%;
-    padding: 30px 10px 20px;
+    padding: 10px 10px 20px;
     margin-right: 10px;
     flex: none;
     display: flex;
@@ -142,58 +220,53 @@ export default {
   .right-panel {
     position: relative;
     flex: auto;
-    margin: 30px 10px 20px;
-    user-select: none !important;
-    -webkit-user-select: none !important;
-    touch-callout: none !important;
-    -webkit-touch-callout: none !important;
-
-    .pay-panel {
+    margin: 10px 10px 20px;
+    padding: 10px;
+    box-shadow: 0 2px 12px 0 rgb(0 0 0 / 10%);
+    border: 1px solid #ebeef5;
+    border-radius: 2px;
+    
+    .pay-result-box {
       position: absolute;
-      z-index: 10;
       top: 0;
       bottom: 0;
+      left: 0;
       right: 0;
+      z-index: 99;
       display: flex;
-      flex-direction: column;
-      box-sizing: border-box;
-      width: 100%;
-      padding: 10px;
-      transition: all ease 0.3s;
-      transform-origin: center right;
       background-color: #fff;
-      box-shadow: 0 2px 12px 0 rgb(0 0 0 / 10%);
-      border: 1px solid #ebeef5;
-      border-radius: 2px;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+
+      p {
+        font-size: 20px;
+        font-weight: 500;
+      }
     }
   }
 }
 
-.number-keyboard {
-  flex: auto;
-  margin-top: 10px;
-  display: grid;
-  grid-template-rows: repeat(3, minmax(33%, 1fr));
-  grid-template-columns: repeat(4, 1fr);
+.pay-detail {
+  padding: 10px;
 
-  .pay-btn {
-    border-radius: 10px;
-    border: 1px solid #ebeef5;
-  }
-
-  > span {
+  .flow-item {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    border-radius: 10px;
-    border: 1px solid #ebeef5;
-    font-size: 16px;
-    font-weight: 600;
-    transition: all ease 0.1s;
+    justify-content: space-between;
+    // padding: 5px 0;
+    // border-bottom: 1px solid #ebeef5;
 
-    &:active &:hover {
-      background-color: #ebeef5;
+    .flow-time {
+      flex-basis: 150px;
+    }
+
+    > div span {
+      display: inline-block;
+      color: #409eff;
+      min-width: 44px;
+      text-align: left;
     }
   }
 }
+
 </style>

@@ -1,9 +1,26 @@
 import http from './http';
-import { PaymentMethod } from '@/utils/consts';
+import { FlowStatus, PaymentMethod } from '@/utils/consts';
+import { delay } from '@/utils/delay';
+import { fenToYuan, yuanToFen } from '@/utils/money';
 
 interface CreateFlowResponse {
   id: string;
 }
+
+interface FlowDetailResponse {
+  id: string;
+  amount: number;
+  paid_amount: number;
+  status: string;
+}
+
+type FlowListResponse = Array<{
+  id: string;
+  created_at: string;
+  paid_amount: number;
+  sub_tender_desc: string;
+  status: string;
+}>;
 
 class FlowService {
   /**
@@ -15,7 +32,7 @@ class FlowService {
    * @returns 流水ID
    */
   createFlow(tid: string, pay_mode: PaymentMethod, amount: number, subject?: string) {
-    return http.post<CreateFlowResponse>('/flow', { tid, pay_mode, amount, subject });
+    return http.post<CreateFlowResponse>('/flow', { tid, pay_mode, amount: yuanToFen(amount), subject });
   }
 
   /**
@@ -34,7 +51,13 @@ class FlowService {
    * @returns 
    */
   getFlowListByOrderId(id: string) {
-    return http.get(`/flow?tid=${id}`);
+    return http.get<FlowListResponse>(`/flow?tid=${id}`).then((list) => list.map((item) => ({
+      id: item.id,
+      time: item.created_at.replace('T', ' ').replace(/\..*/, ''),
+      amount: fenToYuan(item.paid_amount),
+      payType: item.sub_tender_desc === '微信支付' ? '微信' : item.sub_tender_desc,
+      status: item.status,
+    })));
   }
 
   /**
@@ -43,8 +66,52 @@ class FlowService {
    * @returns 
    */
   getFlowDetail(id: string) {
-    return http.get(`/flow/${id}`);
+    function fetchData() {
+      return http.get<FlowDetailResponse>(`/flow/${id}`, {}, false).then((data) => {
+        if (data.status === 'pay_success') {
+          return FlowStatus.SUCCEED;
+        } else if (data.status === 'pay_fail') {
+          return FlowStatus.FAILED;
+        } else {
+          return FlowStatus.PENDING;
+        }
+      });
+    }
+    
+    async function loopFn(resolve: (value: any) => void) {
+      const status = await fetchData();
+      if (status !== FlowStatus.PENDING) {
+        resolve(status);
+      } else {
+        await delay(3000);
+        loopFn(resolve);
+      }
+    }
+    
+    return new Promise<FlowStatus>((resolve) => {
+      loopFn(resolve);
+    });
   }
+
+  /**
+   * 获取流水详情
+   * @param id 流水ID
+   * @returns 
+   */
+  // getFlowDetail(id: string) {
+  //   return http.get<FlowDetailResponse>(`/flow/${id}`).then((data) => {
+  //     if (data.status === 'pay_success') {
+  //       if (data.amount === data.paid_amount) {
+  //         return FlowStatus.SUCCEED;
+  //       }
+  //       return FlowStatus.FAILED;
+  //     } else if (data.status === 'pay_fail') {
+  //       return FlowStatus.FAILED;
+  //     } else {
+  //       return FlowStatus.PENDING;
+  //     }
+  //   });
+  // }
 }
 
 export default new FlowService();

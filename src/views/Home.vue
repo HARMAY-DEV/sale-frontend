@@ -59,6 +59,7 @@ export default {
 
 .main-content {
   flex: 1 1 100%;
+  overflow: hidden;
   
   > div {
     box-sizing: border-box;

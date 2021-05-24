@@ -1,7 +1,7 @@
 <template>
   <div class="cart-container">
     <div class="input-container">
-      <el-input ref="searchInput" type="search" clearable v-model="searchGoodsNo">
+      <el-input ref="searchInput" type="search" @keyup.enter.native="search()" clearable v-model="searchGoodsNo">
         <el-button slot="append" icon="el-icon-search" @click="search()"></el-button>
       </el-input>
     </div>
@@ -14,10 +14,11 @@
     <div class="footer">
       <el-button :disabled="!goodsList.length" style="margin-right: auto;" type="danger" @click="clearCart()">清除购物车</el-button>
       <div v-show="goodsList.length" class="goods-summary">
-        <div>{{ goodsCount }} 件</div>
-        <div>￥ {{ goodsValue }}</div>
+        <div>{{ totalCount }} 件</div>
+        <div>￥ {{ totalAmount }}</div>
       </div>
-      <el-button :disabled="!goodsList.length" type="success" @click="pay()">付款</el-button>
+      <!-- 这里的付款实际上为创建订单，付款弹窗的付款才为实际的付款 -->
+      <el-button :disabled="!goodsList.length" type="success" @click="createNewOrder()">付款</el-button>
     </div>
 
     <el-drawer
@@ -40,7 +41,7 @@
 </template>
 
 <script>
-import { mapState, mapGetters, mapActions, mapMutations } from 'vuex';
+import { mapState, mapActions, mapMutations } from 'vuex';
 
 import GoodsCard from '@/components/goods-card.vue';
 import OrderProcess from '@/components/order-process.vue';
@@ -59,19 +60,22 @@ export default {
   },
 
   computed: {
-    ...mapState('order', ['orderStatus']),
-    ...mapState('cart', ['searchGoods', 'goodsList']),
-    ...mapGetters('cart', ['goodsCount', 'goodsValue']),
+    ...mapState('order', ['orderId', 'orderStatus']),
+    ...mapState('cart', ['searchGoods', 'goodsList', 'totalAmount', 'totalCount']),
   },
 
   created() {
     this.getCartGoodsList();
   },
 
+  mounted() {
+    this.$refs.searchInput.focus();
+  },
+
   methods: {
     ...mapMutations('cart', ['clearCart']),
     ...mapActions('cart', ['getGoodsInfo', 'getCartGoodsList']),
-    ...mapActions('order', ['createOrder']),
+    ...mapActions('order', ['createOrder', 'refundWholeOrder']),
 
     async search() {
       if (!this.searchGoodsNo) {
@@ -79,25 +83,43 @@ export default {
         return;
       }
 
-      await this.getGoodsInfo(this.searchGoodsNo);
-      this.searchPanelVisible = true;
-      this.searchGoodsNo = '';
+      try {
+        await this.getGoodsInfo(this.searchGoodsNo);
+        this.searchPanelVisible = true;
+        this.searchGoodsNo = '';
+      } catch (error) {
+        this.$message.error(error.message);
+      }
     },
 
-    async pay() {
+    async createNewOrder() {
       await this.createOrder();
       this.payDialogVisible = true;
     },
 
     backCart() {
       if (this.orderStatus === OrderStatus.PAYING) {
-        this.$confirm('确认要退出支付流程吗？', '提示', {
-          showClose: false,
+        this.$confirm('已经支付金额将全部退回？', '取消订单', {
+          showClose: true,
           closeOnClickModal: false,
-          type: 'warning',
+          cancelButtonText: '清空购物车',
+          confirmButtonText: '添加商品',
+          distinguishCancelAndClose: true,
+          type: 'error',
         }).then(() => {
-          this.payDialogVisible = false;
-        }).catch(() => {});
+          return this.refundWholeOrder().then(() => {
+            this.payDialogVisible = false;
+          });
+        }).catch((action) => {
+          if (action === 'close') {
+            return;
+          }
+
+          return this.refundWholeOrder().then(() => {
+            this.clearCart();
+            this.payDialogVisible = false;
+          });
+        });
       } else {
         this.payDialogVisible = false;
       }

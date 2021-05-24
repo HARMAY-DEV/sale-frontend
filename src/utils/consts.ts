@@ -9,7 +9,7 @@ export enum StorageKey {
 export enum OrderStatus {
   WAITING, // 待支付
   PAYING, // 支付中
-  PAYED, // 支付完成 
+  PAID, // 支付完成 
   PRINT, // 打印小票
 }
 
@@ -23,5 +23,14 @@ export enum PaymentMethod {
 export enum FlowStatus {
   DEFAULT = 'default',
   PENDING = 'pending',
-  FINISHED = 'finished',
+  SUCCEED = 'succeed',
+  FAILED = 'failed,'
+}
+
+export enum PayType {
+  ALIPAY = 'alipay',
+  WECHAT = 'wechat',
+  COMBINED = 'combined',
+  CASH = 'cash',
+  CARD = 'card',
 }

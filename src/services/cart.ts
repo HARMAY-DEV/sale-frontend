@@ -1,3 +1,4 @@
+import { fenToYuan, yuanToFen } from '@/utils/money';
 import http from './http';
 
 export interface GoodsInfoResponse {
@@ -14,36 +15,44 @@ export interface GoodsInfoResponse {
 }
 
 export interface GoodsListResponse {
-  shopCartGoods: [Array<{
-    id: number,
+  shopCartGoods: {
+    goods: Array<{
+      id: number,
+      shop_cart_id: string;
+      goods_no: string;
+      is_select: boolean;
+      img_url: string;
+      goods_name: string;
+      spec_name: string;
+      num: number,
+      created_at: string;
+      updated_at: string;
+    }>;
     shop_cart_id: string;
-    goods_no: string;
-    is_select: boolean;
-    img_url: string;
-    goods_name: string;
-    spec_name: string;
-    num: number,
-    created_at: string;
-    updated_at: string;
-  }>, number];
+    total_amount: number;
+    total_count: number;
+  };
 }
 
 function goodsInfoTransformer(data: any) {
   return {
     id: data.goods_id || data.goods_no,
     name: data.goods_name,
-    price: data.price || 0,
-    stock: data.stock || 0,
+    price: fenToYuan(data.price || 0),
+    stock: data.stock || Infinity, // 库存只做展示用途，默认无限
     picture: data.img_url,
-    spec: data.spec_name,
+    spec: {
+      id: data.spec_id || data.goods_id || data.goods_no,
+      name: data.spec_name.replace('规格:', ''),
+    },
     quantity: data.num || 0,
   };
 }
 
-function cartAction({ shopCartGoods: [list] }: GoodsListResponse) {
-  const cartId = list[0].shop_cart_id;
-  const goodsList = list.map(goodsInfoTransformer);
-  return { cartId, goodsList };
+function cartAction({ shopCartGoods: { goods, shop_cart_id, total_amount, total_count } }: GoodsListResponse) {
+  const cartId = shop_cart_id;
+  const goodsList = goods.map(goodsInfoTransformer);
+  return { cartId, goodsList, totalAmount: fenToYuan(total_amount), totalCount: total_count };
 }
 
 class CartService {
@@ -53,8 +62,7 @@ class CartService {
    * @returns 商品列表
    */
   getShoppingCartGoodsList(id: string) {
-    return http.get<GoodsListResponse>(`/shop_cart?shop_cart=${id}`)
-      .then(({ shopCartGoods: [list] }) => list.map(goodsInfoTransformer));
+    return http.get<GoodsListResponse>(`/shop_cart?shop_cart=${id}`).then(cartAction);
   }
   
   /**
@@ -70,13 +78,15 @@ class CartService {
    * 向购物车中添加商品
    * @param goodsId 商品ID
    * @param cartId 购物车ID
+   * @param price 商品价格
    * @param quantity 添加的数量
    * @returns null
    */
-  addGoodsToShoppingCart(goodsId: string, cartId: string, quantity: number) {
+  addGoodsToShoppingCart(goodsId: string, cartId: string, price: number, quantity: number) {
     return http.post<GoodsListResponse>('/shop_cart', {
       goods_no: goodsId,
       shop_cart_id: cartId,
+      price: yuanToFen(price),
       num: quantity,
     }).then(cartAction);
   }
@@ -92,7 +102,7 @@ class CartService {
     return http.delete<GoodsListResponse>('/shop_cart', {
       goods_no: goodsId,
       shop_cart_id: cartId,
-      num: quantity,
+      num: -quantity,
     }).then(cartAction);
   }
 }

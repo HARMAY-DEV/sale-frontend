@@ -1,17 +1,19 @@
 <template>
-  <div class="order-card">
+  <div class="order-card" @click="$emit('get-data', id)">
     <div class="left-panel">
-      <div class="order-number">订单号: {{ orderId }}</div>
+      <div class="order-number">订单号: {{ id }}</div>
       <div class="order-time-pay-mode">
         <span>下单时间: {{ time }}</span>
-        <span>{{ payMode }}</span>
+        <span>{{ paymentMethod }}</span>
       </div>
     </div>
     <div class="right-panel">
-      <span class="order-price">￥ {{ price }}</span>
-      <ip-check-one theme="two-tone" size="24" :fill="['#ffffff' ,'#34c758']" />
-      <!-- <ip-watch theme="two-tone" size="24" :fill="['#ffffff' ,'#e4c741']" /> -->
-      <!-- <ip-close-one theme="two-tone" size="24" :fill="['#ffffff' ,'#e92139']" /> -->
+      <span class="order-price">￥ {{ paidAmount }}</span>
+      <ip-check-one v-if="status.value === 'paySuccess'" theme="two-tone" size="24" :fill="['#ffffff' ,'#34c758']" />
+      <ip-time v-else-if="status.value === 'waitPay'" theme="two-tone" size="24" :fill="['#ffffff' ,'#e4c741']" />
+      <ip-close-one v-else-if="status.value === 'payFail'" theme="two-tone" size="24" :fill="['#ffffff' ,'#e92139']" />
+      <ip-abnormal v-else theme="filled" size="24" fill="#F56C6C" />
+      
     </div>
   </div>
 </template>
@@ -20,12 +22,12 @@
 export default {
   name: 'OrderCard',
   props: {
-    orderId: Number,
-    time: Number | String,
-    payMode: String,
-    price: Number,
-    status: String,
-  }
+    id: String,
+    time: String,
+    paymentMethod: String,
+    paidAmount: Number,
+    status: Object,
+  },
 }
 </script>
 

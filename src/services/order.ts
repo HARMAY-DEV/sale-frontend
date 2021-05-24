@@ -1,3 +1,4 @@
+import { fenToYuan, stringToNumber } from '@/utils/money';
 import http from './http';
 
 interface CreateOrderResponse {
@@ -9,6 +10,62 @@ interface CreateOrderResponse {
   pay_time: string;
   refund_amount: string;
   status: string;
+}
+
+interface OrderListResponse {
+  count: number;
+  order: Array<{
+    created_at: string;
+    paid: string;
+    pay_type: string;
+    pay_status: string;
+    tid: string;
+  }>;
+}
+
+interface OrderResponse {
+  tid: string;
+  status: string;
+  goods_list: Array<{
+    goods_id: string;
+    goods_name: string;
+    num: number;
+    price: number;
+    spec_name: string;
+  }>;
+  pay_type: string;
+  pay_status: string;
+  created_at: string;
+  paid: string;
+  payable_amount: string;
+}
+
+function getOrderStatus(status: string): { label: string, value: string } {
+  switch (status) {
+    case 'unpaid':
+      return { label: '未付款', value: 'unpaid' };
+    
+    case 'wait_pay':
+      return { label: '未付款', value: 'waitPay' };
+
+    case 'partial_pay':
+      return { label: '部分付款', value: 'partialPay' };
+    
+    case 'refund_success':
+      return { label: '退款成功', value: 'refundSuccess' };
+
+    case 'partial_refund':
+      return { label: '部分退款', value: 'partialRefund' };
+
+    case 'pay_success':
+      return { label: '支付成功', value: 'paySuccess' };
+
+    case 'pay_fail':
+      return { label: '支付成功', value: 'payFail' };
+    
+    default:
+      return { label: '未知状态', value: 'unknownStatus' };
+  }
 }
 
 class OrderService {
@@ -37,7 +94,15 @@ class OrderService {
    * @returns 
    */
   getOrderList() {
-    return http.get('/order')
+    return http.get<OrderListResponse>('/order', {}, false).then(({ order }) => {
+      return order.map(item => ({
+        id: item.tid,
+        time: item.created_at,
+        paidAmount: fenToYuan(item.paid),
+        paymentMethod: item.pay_type || '未支付',
+        status: getOrderStatus(item.pay_status),
+      }));
+    });
   }
 
   /**
@@ -46,7 +111,27 @@ class OrderService {
    * @returns 
    */
   getOrderDetail(id: string) {
-    return http.get(`/order/${id}`);
+    return http.get<OrderResponse>(`/order/${id}`).then((data) => {
+      return {
+        orderInfo: {
+          id: data.tid,
+          status: data.status,
+          payStatus: data.pay_status,
+          paymentMethod: data.pay_type,
+          time: data.created_at,
+          payableAmount: stringToNumber(data.payable_amount),
+          paidAmount: fenToYuan(data.paid),
+        },
+        goodsList: data.goods_list.map((goods) => ({
+          id: goods.goods_id,
+          name: goods.goods_name,
+          spec: goods.spec_name,
+          price: goods.price,
+          quantity: goods.num,
+          amount: goods.num * goods.price,
+        })),
+      };
+    });
   }
 
   /**

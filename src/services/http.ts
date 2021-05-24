@@ -25,7 +25,7 @@ const storage = new Map<string, any>();
 
 const instance = axios.create({
   baseURL: '//121.41.171.62:8030',
-  timeout: 5 * 1000,
+  timeout: 60 * 1000,
 });
 
 // 缓存 HTTP 请求
@@ -67,7 +67,7 @@ instance.interceptors.response.use(({ data: { data, code, statusCode, message } 
   }
 
   if (axios.isAxiosError(error) && error.response) {
-    const { status, data: { statusCode } } = error.response;
+    const { status, data: { statusCode, message } } = error.response;
 
     if ((status === 401 || statusCode === 401) && router.currentRoute.path !== '/login') {
       Storage.clear();
@@ -76,7 +76,10 @@ instance.interceptors.response.use(({ data: { data, code, statusCode, message } 
         onClose: () => router.push({ path: '/login' }),
       });
     }
+
+    return Promise.reject(new Error(message));
   }
+
   return Promise.reject(error);
 });
 

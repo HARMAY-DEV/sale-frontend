@@ -9,7 +9,7 @@ install(Vue, 'ip');
 
 window.onload = function() {
   // 阻止页面被拖来拖去，移动平台上的果冻效果
-  document.body.addEventListener('touchmove', function (e) {
+  document.body.addEventListener('touchmove', function(e) {
     e.preventDefault(); //阻止默认的处理方式(阻止下拉滑动的效果)
   }, {passive: false});
 };

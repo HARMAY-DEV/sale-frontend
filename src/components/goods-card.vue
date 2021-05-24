@@ -5,19 +5,23 @@
     </div>
     <div class="goods-detail">
       <div class="goods-name">{{ name }}</div>
-      <div class="goods-specs">规格: {{ spec }}</div>
-      <div class="goods-stock">库存: {{ stock }}</div>
+      <div class="goods-specs">规格: {{ spec.name }}</div>
+      <!-- 库存只做展示用，先默认 999+ -->
+      <div class="goods-stock">库存: {{ stock === Infinity ? '999+' : stock }}</div>
     </div>
     <div class="goods-price">￥ {{ price }}</div>
+
     <div v-if="!fromSearch" class="actions" :style="{marginRight: marginRight + 'px'}">
       <el-button type="primary" size="mini" icon="el-icon-minus" @click="removeFromCart({ goodsId: id })" round></el-button>
       <span class="goods-quantity">{{ quantity }}</span>
-      <el-button type="primary" size="mini" icon="el-icon-plus" @click="addToCart({ goodsId: id })" round :disabled="stock <= 0"></el-button>
+      <el-button type="primary" size="mini" icon="el-icon-plus" @click="addToCart({ goodsId: id, price: price })" round :disabled="stock <= 0"></el-button>
     </div>
+
     <div v-if="fromSearch" class="actions">
       <el-button type="primary" @click="addGoodsToCart()">加入购物车</el-button>
     </div>
-    <el-button v-if="!fromSearch" class="remove-btn" type="danger" @lick="remove()">删除</el-button>
+
+    <el-button v-if="!fromSearch" class="remove-btn" type="danger" @click="removeFromCart({ goodsId: id, quantity: quantity })">删除</el-button>
   </div>
 </template>
  
@@ -38,7 +42,7 @@ export default {
     name: String,
     price: Number,
     stock: Number,
-    spec: String | Number,
+    spec: Object,
     quantity: Number,
     fromSearch: {
       type: Boolean,
@@ -66,7 +70,7 @@ export default {
     ...mapActions('cart', ['addToCart', 'removeFromCart']),
 
     async addGoodsToCart() {
-      await this.addToCart({ goodsId: this.id });
+      await this.addToCart({ goodsId: this.id, price: this.price });
       this.$emit('close-panel');
     },
 
@@ -100,9 +104,6 @@ export default {
         this.startX = 0;
         this.endX = 0;
       }
-    },
-    remove() {
-      
     },
   }
 };
