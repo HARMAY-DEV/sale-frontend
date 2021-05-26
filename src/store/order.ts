@@ -63,8 +63,6 @@ const actions: ActionTree<OrderState, RootState> = {
   async getOrderDetail({ state, commit }) {
     const { orderInfo } = await OrderService.getOrderDetail(state.orderId);
     commit('updateOrderInfo', orderInfo);
-    console.log(orderInfo);
-    return orderInfo;
   },
 
   async refundWholeOrder({ state, commit }) {

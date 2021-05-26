@@ -2,12 +2,12 @@
   <div class="order-container">
     <div class="order-list">
       <el-input class="order-search-input" type="search" clearable v-model="searchId">
-        <el-button slot="append" icon="el-icon-search"></el-button>
+        <el-button @click="updateOrderId(searchId)" slot="append" icon="el-icon-search"></el-button>
       </el-input>
 
-      <order-card @get-data="getData($event)" v-for="order in orderList" :key="order.orderId" v-bind="order"></order-card>
+      <order-card @update-order-id="updateOrderId($event)" v-for="order in orderList" :key="order.orderId" v-bind="order"></order-card>
     </div>
-    <order-detail></order-detail>
+    <order-detail :id="orderId"></order-detail>
   </div>
 </template>
 
@@ -24,23 +24,28 @@ export default {
   },
   data() {
     return {
-      searchId: null,
-      currentOrderId: '',
+      searchId: '',
+      orderId: '',
     };
   },
   computed: {
     ...mapState('order', ['orderList']),
   },
+  watch: {
+    orderList(value) {
+      if (value.length > 0) {
+        this.orderId = this.orderList[0].id;
+      }
+    },
+  },
   created() {
     this.getOrderList();
   },
   methods: {
-    ...mapActions('order', ['getOrderList', 'getOrderDetail']),
-    ...mapActions('flow', ['']),
+    ...mapActions('order', ['getOrderList']),
 
-    async getData(id) {
-      console.log(this.currentOrderId);
-      this.getOrderDetail(id);
+    updateOrderId(id) {
+      this.orderId = id;
     }
   }
 }

@@ -19,6 +19,8 @@ import {
   Step,
   Loading,
   MessageBox,
+  Table,
+  TableColumn,
 } from 'element-ui';
 
 export function useElementComponent() {
@@ -43,4 +45,6 @@ export function useElementComponent() {
   Vue.use(Steps);
   Vue.use(Step);
   Vue.use(Loading);
+  Vue.use(Table);
+  Vue.use(TableColumn);
 };

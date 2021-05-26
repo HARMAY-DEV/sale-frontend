@@ -1,5 +1,5 @@
 <template>
-  <div class="order-card" @click="$emit('get-data', id)">
+  <div class="order-card" @click="$emit('update-order-id', id)">
     <div class="left-panel">
       <div class="order-number">订单号: {{ id }}</div>
       <div class="order-time-pay-mode">
