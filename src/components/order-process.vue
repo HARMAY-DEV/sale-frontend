@@ -9,11 +9,11 @@
     
     <div class="pay-info" v-if="orderStatus !== 3">
       <div>等待支付：{{ waitingPaidAmount }}元</div>
-      <span>应收：{{ totalAmount }}元</span>
+      <span>应收：{{ displayTotalAmount }}元</span>
       <span>实收：{{ paidAmount }}元</span>
     </div>
 
-    <div v-if="orderStatus === 0 || orderStatus === 1" class="pay-container" v-loading="queryStatus" element-loading-text="订单处理中...">
+    <div v-if="orderStatus === 0 || orderStatus === 1" class="pay-container" v-loading="queryStatus" element-loading-text="订单处理中..." element-loading-background="transparent">
       <div class="left-panel">
         <el-button @click="selectPaymentMethod(PaymentMethod.B_SCAN_C)">我扫顾客</el-button>
         <el-button @click="selectPaymentMethod(PaymentMethod.C_SCAN_B)" disabled>顾客扫我</el-button>
@@ -88,8 +88,12 @@ export default {
       return stringToNumber(this.amountString);
     },
 
+    displayTotalAmount() {
+      return this.orderInfo.payableAmount || this.totalAmount;
+    },
+
     waitingPaidAmount() {
-      return this.totalAmount - this.paidAmount;
+      return this.displayTotalAmount - this.paidAmount;
     }
   },
   watch: {
@@ -97,7 +101,9 @@ export default {
       if (status === FlowStatus.SUCCEED) {
         this.showSuccessMask = true;
         setTimeout(() => {
-          this.showSuccessMask = false;
+          if (this.waitingPaidAmount > 0) {
+            this.showSuccessMask = false;
+          }
         }, 3000);
       }
 
@@ -122,6 +128,7 @@ export default {
     ...mapActions('flow', ['createFlow', 'payFlow', 'getFlowList']),
     ...mapMutations('order', ['updateOrderStatus']),
     ...mapActions('order', ['getOrderDetail']),
+    ...mapMutations('cart', ['clearCart']),
 
     selectPaymentMethod(method) {
       this.paymentMethod = method;
@@ -135,6 +142,7 @@ export default {
       if (paidAmount >= payableAmount || status === 'completed') {
         this.queryStatus = false;
         this.updateOrderStatus(OrderStatus.PAID);
+        this.clearCart();
       } else {
         this.waitAndQueryOrderStatus();
       }
@@ -152,7 +160,7 @@ export default {
         await this.payFlow(dynamicId);
         this.paidAmount += this.amount;
 
-        if (this.paidAmount >= this.totalAmount) {
+        if (this.paidAmount >= this.displayTotalAmount) {
           this.waitAndQueryOrderStatus();
         }
         this.amountString = '';
