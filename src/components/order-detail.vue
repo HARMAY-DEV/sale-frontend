@@ -1,15 +1,16 @@
 <template>
   <div class="order-detail">
     <div class="order-header">
-      <span style="margin-right: auto;">订单号：3124124</span>
-      <span style="margin-right: 5px;">支付成功</span>
-      <ip-check-one theme="two-tone" size="24" :fill="['#ffffff' ,'#34c758']" />
+      <span style="margin-right: auto;">订单号：{{ id }}</span>
+      <span style="margin-right: 5px;">{{ orderStatus }}</span>
+      <ip-check-one v-if="orderStatus === '支付成功' || orderStatus === '退款成功'" theme="two-tone" size="24" :fill="['#ffffff' ,'#34c758']" />
+      <i v-else style="color: #F56C6C;" class="el-icon-warning"></i>
     </div>
     <div class="order-content">
       <h3>订单详情</h3>
       <el-table :data="orderTableData">
-        <el-table-column prop="payStatus" width="120" label="订单状态"></el-table-column>
-        <el-table-column prop="payType" label="支付方式"></el-table-column>
+        <el-table-column prop="payStatus" width="100" label="订单状态"></el-table-column>
+        <el-table-column prop="payType" width="100" label="支付方式"></el-table-column>
         <el-table-column prop="time" label="下单时间" width="180"></el-table-column>
         <el-table-column prop="payableAmount" label="应付金额"></el-table-column>
         <el-table-column prop="paidAmount" label="实付金额"></el-table-column>
@@ -30,7 +31,7 @@
       <el-table :data="flowTableData">
         <el-table-column prop="status" label="状态"></el-table-column>
         <el-table-column prop="payType" label="方式"></el-table-column>
-        <el-table-column prop="time" width="180" label="支付时间"></el-table-column>
+        <el-table-column prop="time" width="200" label="支付时间"></el-table-column>
         <el-table-column prop="amount" label="支付金额"></el-table-column>
       </el-table>
 
@@ -47,6 +48,24 @@
 import { FlowService, OrderService } from '@/services';
 import { mapActions } from 'vuex';
 
+const statusMap = {
+  unpaid: '未付款',
+  wait_pay: '等待支付',
+  partial_pay: '部分付款',
+  pay_success: '支付成功',
+  pay_fail: '支付失败',
+  refund_success: '退款成功',
+  refund_fail: '退款失败'
+}
+
+const payTypeMap = {
+  wechat: '微信',
+  alipay: '支付宝',
+  combined: '组合支付',
+  card: '银行卡',
+  cash: '现金',
+}
+
 export default {
   name: 'OrderDetail',
   data() {
@@ -54,6 +73,7 @@ export default {
       orderTableData: [],
       goodsTableData: [],
       flowTableData: [],
+      orderStatus: '',
     };
   },
   props: {
@@ -92,9 +112,12 @@ export default {
     async getOrderInfo(id) {
       const [{ orderInfo, goodsList }, flowList] = await Promise.all([OrderService.getOrderDetail(id), FlowService.getFlowListByOrderId(id)]);
       console.log(orderInfo, goodsList, flowList);
+      orderInfo.payStatus = statusMap[orderInfo.payStatus] || '未知状态';
+      orderInfo.payType = payTypeMap[orderInfo.payType] || '未知方式';
+      this.orderStatus = orderInfo.payStatus;
       this.orderTableData = [orderInfo];
       this.goodsTableData = goodsList;
-      this.flowTableData = flowList;
+      this.flowTableData = flowList.map(flow => ({...flow, status: statusMap[flow.status] || '未知状态'}));
     }
   },
 }
