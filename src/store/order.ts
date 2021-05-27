@@ -41,7 +41,8 @@ const mutations: MutationTree<OrderState> = {
 };
 
 const actions: ActionTree<OrderState, RootState> = {
-  async createOrder({ dispatch, commit, rootState: { user, cart } }) {
+  async createOrder({ commit, rootState: { user, cart } }) {
+    commit('updateOrderStatus', OrderStatus.WAITING);
     const orderId = await OrderService.createOrder(user.shopId, cart.goodsList.map(goods => ({
       goods_id: goods.id,
       goods_name: goods.name,
