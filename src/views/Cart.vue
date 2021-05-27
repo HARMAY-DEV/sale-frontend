@@ -56,6 +56,7 @@ export default {
       searchPanelVisible: false,
       payDialogVisible: false,
       searchGoodsNo: '',
+      keyboardNo: '',
     };
   },
 
@@ -70,6 +71,12 @@ export default {
 
   mounted() {
     this.$refs.searchInput.focus();
+
+    document.body.addEventListener('keydown', this.gunHandler);
+  },
+
+  beforeDestroy() {
+    document.body.removeEventListener('keydown', this.gunHandler);
   },
 
   methods: {
@@ -77,11 +84,26 @@ export default {
     ...mapActions('cart', ['getGoodsInfo', 'getCartGoodsList']),
     ...mapActions('order', ['createOrder', 'refundWholeOrder']),
 
+    gunHandler(event) {
+      if (this.$refs.searchInput.focused) {
+        return;
+      }
+
+      if (event.key === 'Enter') {
+        this.searchGoodsNo = this.keyboardNo;
+        this.search();
+      } else {
+        this.keyboardNo += event.key;
+      }
+    },
+
     async search() {
       if (!this.searchGoodsNo) {
         this.$refs.searchInput.focus();
         return;
       }
+
+      this.keyboardNo = '';
 
       try {
         await this.getGoodsInfo(this.searchGoodsNo);

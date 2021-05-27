@@ -75,8 +75,8 @@ class OrderService {
    * @param goodsList 商品列表
    * @returns 
    */
-  createOrder(shopId: string, goodsList: any[]) {
-    return http.post<CreateOrderResponse>('/order', { shop_no: shopId, goods_list: goodsList })
+  createOrder(shopId: string, goodsList: any[], cart_id?: string) {
+    return http.post<CreateOrderResponse>('/order', { shop_no: shopId, goods_list: goodsList, cart_id })
       .then(data => data.tid);
   }
 
