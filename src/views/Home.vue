@@ -6,17 +6,12 @@
       background-color="#304156"
       text-color="#bfcbd9"
       active-text-color="#409EFF"
+      router
     >
-      <el-menu-item index="shopping-cart">
-        <router-link to="/shopping-cart">收银</router-link>
-      </el-menu-item>
-      <el-menu-item index="order">
-        <router-link to="/order">订单管理</router-link>
-      </el-menu-item>
-      <el-menu-item index="device">
-        <router-link to="/device">设备管理</router-link>
-      </el-menu-item
-      >
+      <el-menu-item index="shopping-cart">收银</el-menu-item>
+      <el-menu-item index="order">订单管理</el-menu-item>
+      <el-menu-item index="device">设备管理</el-menu-item>
+      
       <router-link to="/profile" class="avatar-container">
         <el-avatar icon="el-icon-user"></el-avatar>
       </router-link>
