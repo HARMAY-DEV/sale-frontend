@@ -116,6 +116,19 @@ export default {
       }
     },
 
+    waitingPaidAmount: {
+      handler(value) {
+        this.amountString = value.toString();
+      },
+      immediate: true,
+    },
+
+    amount(value) {
+      if (value > this.waitingPaidAmount) {
+        this.amountString = this.waitingPaidAmount.toString();
+      }
+    },
+
     async orderStatus(status) {
       if (status !== OrderStatus.PAID) {
         return;
