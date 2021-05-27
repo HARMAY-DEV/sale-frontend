@@ -111,7 +111,6 @@ export default {
 
     async getOrderInfo(id) {
       const [{ orderInfo, goodsList }, flowList] = await Promise.all([OrderService.getOrderDetail(id), FlowService.getFlowListByOrderId(id)]);
-      console.log(orderInfo, goodsList, flowList);
       orderInfo.payStatus = statusMap[orderInfo.payStatus] || '未知状态';
       orderInfo.payType = payTypeMap[orderInfo.payType] || '未知方式';
       this.orderStatus = orderInfo.payStatus;

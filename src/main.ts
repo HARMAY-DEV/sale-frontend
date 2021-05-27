@@ -12,6 +12,17 @@ window.onload = function() {
   document.body.addEventListener('touchmove', function(e) {
     e.preventDefault(); //阻止默认的处理方式(阻止下拉滑动的效果)
   }, {passive: false});
+
+  let lastTouchEnd = 0;
+
+  document.body.addEventListener('touchend', function(event) {
+    console.log(1111111);
+    let now = Date.now();
+    if (now - lastTouchEnd <= 300) {
+      event.preventDefault();
+    }
+    lastTouchEnd = now;
+  }, false);
 };
 
 useElementComponent();

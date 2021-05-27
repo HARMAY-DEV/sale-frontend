@@ -1,9 +1,9 @@
 <template>
   <div class="number-keyboard-container">
     <el-input :placeholder="placeholder" v-model="value" readonly prefix-icon="el-icon-coin">
-      <ip-delete-two slot="suffix" theme="outline" size="26" fill="#333" @touchend.prevent.stop="backspace()" />
+      <ip-delete-two slot="suffix" theme="outline" size="26" fill="#333" @click.prevent.stop="backspace()" @touchend.prevent.stop="backspace()" />
     </el-input>
-    <div class="number-keyboard" @touchstart.prevent.stop="highlight($event)" @touchend.prevent.stop="handler($event)">
+    <div class="number-keyboard" @click.prevent.stop="clickHandler($event)" @touchstart.prevent.stop="highlight($event)" @touchend.prevent.stop="handler($event)">
       <span>1</span>
       <span>4</span>
       <span>7</span>
@@ -15,7 +15,7 @@
       <span>3</span>
       <span>6</span>  
       <span>9</span>
-      <span @touchstart.stop @touchend.stop><slot></slot></span>
+      <span @touchstart.stop @touchend.stop @click.prevent.stop><slot></slot></span>
     </div>
   </div>
 </template>
@@ -34,6 +34,15 @@ export default {
   methods: {
     highlight({ target }) {
       target.style.backgroundColor = '#ebeef5';
+    },
+    clickHandler(event) {
+      console.log(event);
+      if (document.hasOwnProperty('ontouchstart')) {
+        console.log('support touch event');
+        return;
+      }
+
+      this.handler(event);
     },
     handler({ target }) {
       target.style.backgroundColor = '';
@@ -100,6 +109,10 @@ export default {
     font-weight: 600;
     transition: all ease 0.1s;
     overflow: hidden;
+
+    &:active {
+      background-color: #ebeef5;
+    }
   }
 
   > span:last-child * {
