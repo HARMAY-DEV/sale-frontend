@@ -41,7 +41,7 @@ const mutations: MutationTree<OrderState> = {
 };
 
 const actions: ActionTree<OrderState, RootState> = {
-  async createOrder({ commit, rootState: { user, cart } }) {
+  async createOrder({ commit, dispatch, rootState: { user, cart } }) {
     commit('updateOrderStatus', OrderStatus.WAITING);
     const orderId = await OrderService.createOrder(user.shopId, cart.goodsList.map(goods => ({
       goods_id: goods.id,
@@ -54,6 +54,7 @@ const actions: ActionTree<OrderState, RootState> = {
       spec_no: goods.spec.id,
     })), cart.cartId);
     commit('updateOrderId', orderId);
+    await dispatch('getOrderDetail');
   }, 
 
   async getOrderList({ commit }) {

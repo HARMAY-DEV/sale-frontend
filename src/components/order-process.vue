@@ -9,7 +9,7 @@
     
     <div class="pay-info" v-if="orderStatus !== 3">
       <div>等待支付：{{ waitingPaidAmount }}元</div>
-      <span>应收：{{ displayTotalAmount }}元</span>
+      <span>应收：{{ payableAmount }}元</span>
       <span>实收：{{ paidAmount }}元</span>
     </div>
 
@@ -80,7 +80,6 @@ export default {
     };
   },
   computed: {
-    ...mapState('cart', ['totalAmount']),
     ...mapState('order', ['orderStatus', 'orderInfo']),
     ...mapGetters('flow', ['currentFlowStatus']),
 
@@ -88,12 +87,12 @@ export default {
       return stringToNumber(this.amountString);
     },
 
-    displayTotalAmount() {
-      return this.orderInfo.payableAmount || this.totalAmount;
+    payableAmount() {
+      return this.orderInfo.payableAmount;
     },
 
     waitingPaidAmount() {
-      return this.displayTotalAmount - this.paidAmount;
+      return this.payableAmount - this.paidAmount;
     }
   },
   watch: {
@@ -173,7 +172,7 @@ export default {
         await this.payFlow(dynamicId);
         this.paidAmount += this.amount;
 
-        if (this.paidAmount >= this.displayTotalAmount) {
+        if (this.paidAmount >= this.payableAmount) {
           this.waitAndQueryOrderStatus();
         }
         this.amountString = '';

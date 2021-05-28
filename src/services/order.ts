@@ -119,7 +119,7 @@ class OrderService {
           payStatus: data.pay_status,
           payType: data.pay_type,
           time: data.created_at.replace('T', ' ').replace(/\..*/, ''),
-          payableAmount: stringToNumber(data.payable_amount),
+          payableAmount: fenToYuan(data.payable_amount),
           paidAmount: fenToYuan(data.paid),
         },
         goodsList: data.goods_list.map((goods) => ({
