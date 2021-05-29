@@ -129,7 +129,7 @@ export default {
           distinguishCancelAndClose: true,
           type: 'error',
         }).then(() => {
-          return this.refundWholeOrder().then(() => {
+          return this.refundWholeOrder(this.orderId).then(() => {
             this.payDialogVisible = false;
           });
         }).catch((action) => {
@@ -137,7 +137,7 @@ export default {
             return;
           }
 
-          return this.refundWholeOrder().then(() => {
+          return this.refundWholeOrder(this.orderId).then(() => {
             this.clearCart();
             this.payDialogVisible = false;
           });

@@ -68,8 +68,8 @@ const actions: ActionTree<OrderState, RootState> = {
     return orderInfo;
   },
 
-  async refundWholeOrder({ state, commit }) {
-    await OrderService.createRefundOrder(state.orderId);
+  async refundWholeOrder({ commit }, id: string) {
+    await OrderService.createRefundOrder(id);
     commit('updateOrderId', '');
     commit('updateOrderStatus', OrderStatus.WAITING);
   }

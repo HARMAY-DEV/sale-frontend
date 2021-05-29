@@ -13,7 +13,7 @@
       <span>实收：{{ paidAmount }}元</span>
     </div>
 
-    <div v-if="orderStatus === 0 || orderStatus === 1" class="pay-container" v-loading="queryStatus" element-loading-text="订单处理中..." element-loading-background="transparent">
+    <div v-if="orderStatus === 0 || orderStatus === 1" class="pay-container">
       <div class="left-panel">
         <el-button @click="selectPaymentMethod(PaymentMethod.B_SCAN_C)">我扫顾客</el-button>
         <el-button @click="selectPaymentMethod(PaymentMethod.C_SCAN_B)" disabled>顾客扫我</el-button>
@@ -74,8 +74,6 @@ export default {
       showSuccessMask: false,
       showFailMask: false,
       payLoading: false,
-      paidAmount: 0,
-      queryStatus: false,
       flowList: [],
     };
   },
@@ -89,6 +87,10 @@ export default {
 
     payableAmount() {
       return this.orderInfo.payableAmount;
+    },
+
+    paidAmount() {
+      return this.orderInfo.paidAmount;
     },
 
     waitingPaidAmount() {
@@ -129,15 +131,20 @@ export default {
     },
 
     async orderStatus(status) {
-      if (status !== OrderStatus.PAID) {
-        return;
+      if (status === OrderStatus.PAID) {
+        this.flowList = await this.getFlowList();
       }
 
-      this.flowList = await this.getFlowList();
+      if (status !== OrderStatus.PAYING) {
+        this.payLoading = false;
+        this.showSuccessMask = false;
+        this.showFailMask = false;
+        this.cancelLoopFlowDetail();
+      }
     }
   },
   methods: {
-    ...mapActions('flow', ['createFlow', 'payFlow', 'getFlowList']),
+    ...mapActions('flow', ['createFlow', 'payFlow', 'getFlowList', 'cancelLoopFlowDetail']),
     ...mapMutations('order', ['updateOrderStatus']),
     ...mapActions('order', ['getOrderDetail']),
     ...mapMutations('cart', ['clearCart']),
@@ -147,16 +154,12 @@ export default {
     },
 
     async waitAndQueryOrderStatus() {
-      this.queryStatus = true;
-      await delay(2000);
+      await delay(500);
       const { payableAmount, paidAmount, status } = await this.getOrderDetail();
 
       if (paidAmount >= payableAmount || status === 'completed') {
-        this.queryStatus = false;
         this.updateOrderStatus(OrderStatus.PAID);
         this.clearCart();
-      } else {
-        this.waitAndQueryOrderStatus();
       }
     },
 
@@ -170,12 +173,8 @@ export default {
         await this.createFlow({ paymentMethod: this.paymentMethod, amount: this.amount });
         const dynamicId = await waitingDynamicId();
         await this.payFlow(dynamicId);
-        this.paidAmount += this.amount;
-
-        if (this.paidAmount >= this.payableAmount) {
-          this.waitAndQueryOrderStatus();
-        }
-        this.amountString = '';
+        await this.waitAndQueryOrderStatus();
+        this.amountString = this.waitingPaidAmount.toString();
       } catch (error) {
         this.payFailedMessage = error.message;
       } finally {

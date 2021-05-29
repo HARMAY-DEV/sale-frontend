@@ -1,6 +1,6 @@
 import http from './http';
 import { FlowStatus, PaymentMethod } from '@/utils/consts';
-import { delay } from '@/utils/delay';
+// import { delay } from '@/utils/delay';
 import { fenToYuan, yuanToFen } from '@/utils/money';
 
 interface CreateFlowResponse {
@@ -65,53 +65,50 @@ class FlowService {
    * @param id 流水ID
    * @returns 
    */
-  getFlowDetail(id: string) {
-    function fetchData() {
-      return http.get<FlowDetailResponse>(`/flow/${id}`, {}, false).then((data) => {
-        if (data.status === 'pay_success') {
-          return FlowStatus.SUCCEED;
-        } else if (data.status === 'pay_fail') {
-          return FlowStatus.FAILED;
-        } else {
-          return FlowStatus.PENDING;
-        }
-      });
-    }
+  // getFlowDetail(id: string) {
+  //   function fetchData() {
+  //     return http.get<FlowDetailResponse>(`/flow/${id}`, {}, false).then((data) => {
+  //       if (data.status === 'pay_success') {
+  //         return FlowStatus.SUCCEED;
+  //       } else if (data.status === 'pay_fail') {
+  //         return FlowStatus.FAILED;
+  //       } else {
+  //         return FlowStatus.PENDING;
+  //       }
+  //     });
+  //   }
     
-    async function loopFn(resolve: (value: any) => void) {
-      const status = await fetchData();
-      if (status !== FlowStatus.PENDING) {
-        resolve(status);
-      } else {
-        await delay(3000);
-        loopFn(resolve);
-      }
-    }
+  //   async function loopFn(resolve: (value: any) => void) {
+  //     const status = await fetchData();
+  //     if (status !== FlowStatus.PENDING) {
+  //       resolve(status);
+  //     } else {
+  //       await delay(3000);
+  //       loopFn(resolve);
+  //     }
+  //   }
     
-    return new Promise<FlowStatus>((resolve) => {
-      loopFn(resolve);
-    });
-  }
+  //   return new Promise<FlowStatus>((resolve) => {
+  //     loopFn(resolve);
+  //   });
+  // }
 
   /**
    * 获取流水详情
    * @param id 流水ID
    * @returns 
    */
-  // getFlowDetail(id: string) {
-  //   return http.get<FlowDetailResponse>(`/flow/${id}`).then((data) => {
-  //     if (data.status === 'pay_success') {
-  //       if (data.amount === data.paid_amount) {
-  //         return FlowStatus.SUCCEED;
-  //       }
-  //       return FlowStatus.FAILED;
-  //     } else if (data.status === 'pay_fail') {
-  //       return FlowStatus.FAILED;
-  //     } else {
-  //       return FlowStatus.PENDING;
-  //     }
-  //   });
-  // }
+  getFlowDetail(id: string) {
+    return http.get<FlowDetailResponse>(`/flow/${id}`, {}, false).then((data) => {
+      if (data.status === 'pay_success') {
+        return FlowStatus.SUCCEED;
+      } else if (data.status === 'pay_fail') {
+        return FlowStatus.FAILED;
+      } else {
+        return FlowStatus.PENDING;
+      }
+    });
+  }
 }
 
 export default new FlowService();

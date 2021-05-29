@@ -3,6 +3,7 @@ import type { ActionTree, GetterTree, Module, MutationTree } from 'vuex';
 import { FlowService } from '@/services';
 import { RootState } from './root';
 import { FlowStatus, OrderStatus, PaymentMethod } from '@/utils/consts';
+import { delay } from '@/utils/delay';
 
 interface FlowDetail {
   flowId: string;
@@ -45,6 +46,8 @@ const mutations: MutationTree<FlowState> = {
   }
 };
 
+let timer: number;
+
 const actions: ActionTree<FlowState, RootState> = {
   async createFlow({ commit, rootState: { order } }, { paymentMethod, amount }: Omit<FlowDetail, 'flowId'>) {
     const result = await FlowService.createFlow(order.orderId, paymentMethod, amount);
@@ -54,11 +57,28 @@ const actions: ActionTree<FlowState, RootState> = {
     commit('order/updateOrderStatus', OrderStatus.PAYING, { root: true });
   },
 
-  async payFlow({ getters, commit }, dynamicId: string) {
+  async getFlowDetail({ commit, dispatch, getters }) {
+    const status = await FlowService.getFlowDetail(getters.currentFlowId);
+    commit('updateFlowStatus', status);
+
+    if (status !== FlowStatus.PENDING) {
+      return;
+    }
+
+    timer = setTimeout(() => {
+      dispatch('getFlowDetail');
+    }, 3000);
+  },
+
+  cancelLoopFlowDetail({ commit }) {
+    clearTimeout(timer);
+    commit('updateFlowStatus', FlowStatus.DEFAULT);
+  },
+
+  async payFlow({ getters, commit, dispatch }, dynamicId: string) {
     try {
       await FlowService.payFlow(getters.currentFlowId, dynamicId);
-      const status = await FlowService.getFlowDetail(getters.currentFlowId);
-      commit('updateFlowStatus', status);
+      await dispatch('getFlowDetail');
     } catch(error) {
       commit('updateFlowStatus', FlowStatus.FAILED);
       throw error;

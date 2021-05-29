@@ -6,14 +6,21 @@
     </div>
     <h2>其他设备</h2>
     <div class="device-list">
-      
+
     </div>
+
+    <el-button @click="print()">打印</el-button>
   </div>
 </template>
 
 <script>
 export default {
   name: 'Device',
+  methods: {
+    print() {
+
+    }
+  }
 }
 </script>
 

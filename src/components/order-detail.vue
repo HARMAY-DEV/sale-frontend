@@ -83,6 +83,11 @@ export default {
     id(value) {
       if (value) {
         this.getOrderInfo(value);
+      } else {
+        this.orderTableData = [];
+        this.goodsTableData = [];
+        this.flowTableData = [];
+        this.orderStatus = '';
       }
     }
   },

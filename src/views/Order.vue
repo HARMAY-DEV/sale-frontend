@@ -36,6 +36,8 @@ export default {
     orderList(value) {
       if (value.length > 0) {
         this.orderId = this.orderList[0].id;
+      } else {
+        this.orderId = '';
       }
     },
 
