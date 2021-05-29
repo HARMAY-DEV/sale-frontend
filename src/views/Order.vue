@@ -1,6 +1,6 @@
 <template>
   <div class="order-container">
-    <div class="order-list">
+    <div class="order-list" @touchmove.stop>
       <el-input class="order-search-input" type="search" clearable v-model="searchId">
         <el-button @click="updateOrderId(searchId)" slot="append" icon="el-icon-search"></el-button>
       </el-input>
@@ -26,6 +26,7 @@ export default {
     return {
       searchId: '',
       orderId: '',
+      first: true,
     };
   },
   computed: {
@@ -37,8 +38,17 @@ export default {
         this.orderId = this.orderList[0].id;
       }
     },
+
+    '$route'(to) {
+      if (to.path !== '/order' || this.first) {
+        return;
+      }
+
+      this.getOrderList();
+    }
   },
   created() {
+    this.first = false;
     this.getOrderList();
   },
   methods: {

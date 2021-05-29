@@ -1,5 +1,5 @@
 <template>
-  <div class="order-detail">
+  <div class="order-detail" @touchmove.stop>
     <div class="order-header">
       <span style="margin-right: auto;">订单号：{{ id }}</span>
       <span style="margin-right: 5px;">{{ orderStatus }}</span>

@@ -104,7 +104,7 @@ export default {
     checkCapslock({ key }) {
       this.capsTooltip = key && key.length === 1 && (key >= 'A' && key <= 'Z');
     },
-    
+
     handleLogin() {
       this.$refs.loginForm.validate(valid => {
         if (!valid) {
@@ -138,6 +138,10 @@ $cursor: #fff;
   .login-container .el-input input {
     color: $cursor;
   }
+}
+
+.el-scrollbar__bar {
+  opacity: 1 !important;
 }
 
 /* reset element-ui css */

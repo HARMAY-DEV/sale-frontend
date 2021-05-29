@@ -8,7 +8,7 @@
     <div v-if="goodsList.length" class="goods-list">
       <goods-card v-for="goods in goodsList" :key="goods.id" v-bind="goods"></goods-card>
     </div>
-    <div v-else class="goods-list">
+    <div v-else class="goods-list" @touchmove.stop>
       <h2 class="empty-goods">暂无商品，扫码添加</h2>
     </div>
     <div class="footer">
