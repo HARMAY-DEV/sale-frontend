@@ -85,7 +85,7 @@ export default {
     ...mapActions('order', ['createOrder', 'refundWholeOrder']),
 
     gunHandler(event) {
-      if (this.$refs.searchInput.focused) {
+      if (this.$refs.searchInput.focused || this.payDialogVisible) {
         return;
       }
 

@@ -53,7 +53,7 @@
           autocomplete="on"
           style="width: calc(100% - 30px);"
         >
-          <el-option v-for="item in shopList" :key="item.value" :label="item.label" :value="item.value" />
+          <el-option v-for="item in shopList" :key="item.value" :label="item.shopName" :value="item.shopId" :disabled="!item.isActive" />
         </el-select>
       </el-form-item>
 
@@ -83,27 +83,15 @@ export default {
       },
       // 大写锁定是否已打开
       capsTooltip: false,
-      shopList: [
-        {
-          label: '北京三里屯',
-          value: '2003'
-        },
-        {
-          label: '北京三里屯2',
-          value: '2004'
-        },
-        {
-          label: '北京三里屯3',
-          value: '2005',
-        },
-      ],
       loading: false,
     };
   },
   computed: {
-    ...mapState('user', ['shopId']),
+    ...mapState('user', ['shopId', 'shopList']),
   },
   mounted() {
+    this.getShopList();
+
     if (this.loginForm.username === '') {
       this.$refs.username.focus();
     } else if (this.loginForm.password === '') {
@@ -111,7 +99,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions('user', ['login']),
+    ...mapActions('user', ['login', 'getShopList']),
 
     checkCapslock({ key }) {
       this.capsTooltip = key && key.length === 1 && (key >= 'A' && key <= 'Z');

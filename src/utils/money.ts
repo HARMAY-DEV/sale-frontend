@@ -8,7 +8,7 @@ export function stringToNumber(amount: string | number): number {
 }
 
 export function fenToYuan(amount: number | string): number {
-  return stringToNumber(amount) * 0.01;
+  return Number((stringToNumber(amount) * 0.01).toFixed(2));
 }
 
 export function yuanToFen(amount: number | string): number {

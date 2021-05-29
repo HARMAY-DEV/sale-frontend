@@ -95,7 +95,6 @@ export default {
       if (this.endX === 0) {
         return;
       }
-      console.log(11111);
       // 往左滑了一定距离，显示删除按钮
       if (this.startX - this.endX >= 10) {
         this.endX = this.startX - 120;

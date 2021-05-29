@@ -6,6 +6,15 @@ export interface LoginResponse {
   access_token: string;
 }
 
+export interface ShopListResponse {
+  shops: Array<{
+    id: number;
+    name: string;
+    is_active: boolean;
+    shop_no: string;
+  }>;
+}
+
 class UserService {
   /**
    * 用户登录
@@ -36,7 +45,11 @@ class UserService {
    * @returns 
    */
   getShopList() {
-    return http.get('/shop');
+    return http.get<ShopListResponse>('/shop').then(({ shops }) => shops.map((shop) => ({
+      shopId: shop.shop_no,
+      shopName: shop.name,
+      isActive: shop.is_active,
+    })));
   }
 }
 

@@ -16,7 +16,6 @@ window.onload = function() {
   let lastTouchEnd = 0;
 
   document.body.addEventListener('touchend', function(event) {
-    console.log(1111111);
     let now = Date.now();
     if (now - lastTouchEnd <= 300) {
       event.preventDefault();

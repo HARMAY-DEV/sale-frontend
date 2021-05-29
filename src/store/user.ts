@@ -18,6 +18,7 @@ export interface UserState {
   shopList: Array<{
     shopId: string;
     shopName: string;
+    isActive: boolean;
   }>;
 }
 
@@ -42,7 +43,11 @@ const mutations: MutationTree<UserState> = {
   updateShopId(state, id) {
     state.shopId = id;
     Storage.setItem(StorageKey.SHOP_ID, id);
-  }
+  },
+
+  updateShopList(state, shopList) {
+    state.shopList = shopList;
+  },
 };
 
 const actions: ActionTree<UserState, RootState> = {
@@ -52,6 +57,11 @@ const actions: ActionTree<UserState, RootState> = {
     commit('updateUserId', userId);
     commit('updateShopId', shopId);
   },
+
+  async getShopList({ commit }) {
+    const shopList = await UserService.getShopList();
+    commit('updateShopList', shopList);
+  }
 };
 
 export const UserStore: Module<UserState, RootState> = {

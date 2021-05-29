@@ -111,7 +111,7 @@ class OrderService {
    * @returns 
    */
   getOrderDetail(id: string) {
-    return http.get<OrderResponse>(`/order/${id}`).then((data) => {
+    return http.get<OrderResponse>(`/order/${id}`, {}, false).then((data) => {
       return {
         orderInfo: {
           id: data.tid,
