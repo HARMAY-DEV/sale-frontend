@@ -24,7 +24,7 @@ export enum CancelType {
 const storage = new Map<string, any>();
 
 const instance = axios.create({
-  baseURL: '//121.41.171.62:8030',
+  baseURL: '//sale-dev.api.harmay.com',
   timeout: 60 * 1000,
 });
 
