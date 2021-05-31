@@ -51,6 +51,10 @@
         <el-button @click="print()">去打印小票</el-button>
       </div>
     </div>
+
+    <div v-if="orderStatus === 3" class="iframe-container">
+      <iframe src="/receipt.html" width="400" height="360" frameborder="0"></iframe>
+    </div>
   </div>
 </template>
 
@@ -288,6 +292,11 @@ export default {
       text-align: left;
     }
   }
+}
+
+.iframe-container {
+  display: flex;
+  justify-content: center;
 }
 
 </style>
