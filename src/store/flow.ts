@@ -62,6 +62,7 @@ const actions: ActionTree<FlowState, RootState> = {
     commit('updateFlowStatus', status);
 
     if (status !== FlowStatus.PENDING) {
+      clearTimeout(timer);
       return;
     }
 

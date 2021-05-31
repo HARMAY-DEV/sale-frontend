@@ -101,6 +101,7 @@ export default {
     currentFlowStatus(status) {
       if (status === FlowStatus.SUCCEED) {
         this.showSuccessMask = true;
+        this.cancelLoopFlowDetail();
         setTimeout(() => {
           if (this.waitingPaidAmount > 0) {
             this.showSuccessMask = false;
@@ -110,6 +111,7 @@ export default {
 
       if (status === FlowStatus.FAILED) {
         this.showFailMask = true;
+        this.cancelLoopFlowDetail();
         setTimeout(() => {
           this.showFailMask = false;
           this.payFailedMessage = '';
