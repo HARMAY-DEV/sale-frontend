@@ -126,7 +126,7 @@ class OrderService {
           id: goods.goods_id,
           name: goods.goods_name,
           spec: goods.spec_name,
-          price: goods.price,
+          price: fenToYuan(goods.price),
           quantity: goods.num,
           amount: goods.num * goods.price,
         })),
