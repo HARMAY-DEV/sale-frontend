@@ -35,6 +35,10 @@ export interface GoodsListResponse {
 }
 
 function goodsInfoTransformer(data: any) {
+  if (!data.goods_id && !data.goods_no) {
+    throw new Error('商品信息查询有误！');
+  }
+  
   return {
     id: data.goods_id || data.goods_no,
     name: data.goods_name,
@@ -43,7 +47,7 @@ function goodsInfoTransformer(data: any) {
     picture: data.img_url,
     spec: {
       id: data.spec_id || data.goods_id || data.goods_no,
-      name: data.spec_name.replace('规格:', ''),
+      name: (data.spec_name || '').replace('规格:', ''),
     },
     quantity: data.num || 0,
   };
