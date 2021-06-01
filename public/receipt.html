@@ -230,6 +230,10 @@
           </div>
         `;
       }).join('');
+
+      Array.from(document.getElementsByClassName('goods-count')).forEach(function(el) {
+        el.innerText = `${$config.goodsList.length}PCS`;
+      });
     });
   </script>
 </head>
@@ -273,31 +277,31 @@
         <div class="bill-item">
           <span class="fs14 fw500">应付金额</span>
           <span id="payableAmount">246.00</span>
-          <span>3PCS</span>
+          <span class="goods-count"></span>
         </div>
 
         <div class="bill-item">
           <span class="fs14 fw500">折扣金额</span>
           <span id="discountAmount">246.00</span>
-          <span>3PCS</span>
+          <span class="goods-count"></span>
         </div>
 
         <div class="bill-item">
           <span class="fs14 fw500">积分抵扣</span>
           <span id="pointsDeduction">246.00</span>
-          <span>3PCS</span>
+          <span class="goods-count">3</span>
         </div>
 
         <div class="bill-item">
           <span class="fs14 fw500">积分兑换</span>
           <span id="pointsConvert">246.00</span>
-          <span>3PCS</span>
+          <span class="goods-count"></span>
         </div>
 
          <div class="bill-item">
           <span class="fs14 fw500">实付金额</span>
           <span class="fs14 fw500" id="paidAmount">246.00</span>
-          <span class="fs14 fw500">3PCS</span>
+          <span class="fs14 fw500 goods-count"></span>
         </div>
       </div>
     </div>
