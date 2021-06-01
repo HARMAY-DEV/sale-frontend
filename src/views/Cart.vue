@@ -89,6 +89,10 @@ export default {
         return;
       }
 
+      if (event.key === 'Shift') {
+        return;
+      }
+
       if (event.key === 'Enter') {
         this.searchGoodsNo = this.keyboardNo;
         this.search();
@@ -110,6 +114,7 @@ export default {
         this.searchPanelVisible = true;
         this.searchGoodsNo = '';
       } catch (error) {
+        this.searchGoodsNo = '';
         this.$message.error(error.message);
       }
     },

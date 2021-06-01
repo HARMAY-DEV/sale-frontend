@@ -38,6 +38,7 @@ interface OrderResponse {
   created_at: string;
   paid: string;
   payable_amount: string;
+  refund_amount: string;
 }
 
 function getOrderStatus(status: string): { label: string, value: string } {
@@ -121,6 +122,7 @@ class OrderService {
           time: data.created_at.replace('T', ' ').replace(/\..*/, ''),
           payableAmount: fenToYuan(data.payable_amount),
           paidAmount: fenToYuan(data.paid),
+          refundAmount: fenToYuan(data.refund_amount),
         },
         goodsList: data.goods_list.map((goods) => ({
           id: goods.goods_id,

@@ -18,9 +18,17 @@ type FlowListResponse = Array<{
   id: string;
   created_at: string;
   paid_amount: number;
-  sub_tender_desc: string;
+  pay_type: string;
   status: string;
 }>;
+
+const payTypeMap = {
+  wechat: '微信',
+  alipay: '支付宝',
+  combined: '组合支付',
+  card: '银行卡',
+  cash: '现金',
+}
 
 class FlowService {
   /**
@@ -55,7 +63,7 @@ class FlowService {
       id: item.id,
       time: item.created_at.replace('T', ' ').replace(/\..*/, ''),
       amount: fenToYuan(item.paid_amount),
-      payType: item.sub_tender_desc === '微信支付' ? '微信' : item.sub_tender_desc,
+      payType: (payTypeMap as any)[item.pay_type] || '未知方式',
       status: item.status,
     })));
   }

@@ -38,7 +38,7 @@
     </div>
     <div class="order-footer">
       <el-button style="margin-right: auto;">重打小票</el-button>
-      <el-button @click="refundOrder('whole')">整单退货</el-button>
+      <el-button :disabled="!canRefund" @click="refundOrder('whole')">整单退货</el-button>
       <el-button @click="refundOrder('part')" disabled>退货</el-button>
     </div>
   </div>
@@ -74,6 +74,7 @@ export default {
       goodsTableData: [],
       flowTableData: [],
       orderStatus: '',
+      canRefund: false,
     };
   },
   props: {
@@ -92,7 +93,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions('order', ['refundWholeOrder']),
+    ...mapActions('order', ['refundWholeOrder', 'getOrderList']),
 
     async refundOrder(type) {
       if (!this.id) return;
@@ -106,6 +107,7 @@ export default {
 
           await this.refundWholeOrder(this.id);
           this.$message.success('退货成功！');
+          this.getOrderList();
         } catch { }
       }
 
@@ -116,6 +118,7 @@ export default {
 
     async getOrderInfo(id) {
       const [{ orderInfo, goodsList }, flowList] = await Promise.all([OrderService.getOrderDetail(id), FlowService.getFlowListByOrderId(id)]);
+      this.canRefund = (orderInfo.payStatus === 'pay_success' || orderInfo.payStatus === 'partial_pay' ) && orderInfo.refundAmount < orderInfo.paidAmount;
       orderInfo.payStatus = statusMap[orderInfo.payStatus] || '未知状态';
       orderInfo.payType = payTypeMap[orderInfo.payType] || '未知方式';
       this.orderStatus = orderInfo.payStatus;

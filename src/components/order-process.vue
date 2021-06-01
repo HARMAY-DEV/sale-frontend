@@ -9,16 +9,16 @@
     
     <div class="pay-info" v-if="orderStatus !== 3">
       <div>等待支付：{{ waitingPaidAmount }}元</div>
-      <span>应收：{{ payableAmount }}元</span>
-      <span>实收：{{ paidAmount }}元</span>
+      <span>应收：{{ payableAmount | money }}元</span>
+      <span>实收：{{ paidAmount | money }}元</span>
     </div>
 
     <div v-if="orderStatus === 0 || orderStatus === 1" class="pay-container">
       <div class="left-panel">
-        <el-button @click="selectPaymentMethod(PaymentMethod.B_SCAN_C)">我扫顾客</el-button>
-        <el-button @click="selectPaymentMethod(PaymentMethod.C_SCAN_B)" disabled>顾客扫我</el-button>
-        <el-button @click="selectPaymentMethod(PaymentMethod.CARD)" disabled>刷卡支付</el-button>
-        <el-button @click="selectPaymentMethod(PaymentMethod.CASH)" disabled>现金支付</el-button>
+        <el-button :type="paymentMethod === PaymentMethod.B_SCAN_C ? 'primary' : ''" @click="selectPaymentMethod(PaymentMethod.B_SCAN_C)">我扫顾客</el-button>
+        <el-button :type="paymentMethod === PaymentMethod.C_SCAN_B ? 'primary' : ''" @click="selectPaymentMethod(PaymentMethod.C_SCAN_B)" disabled>顾客扫我</el-button>
+        <el-button :type="paymentMethod === PaymentMethod.CARD ? 'primary' : ''"  @click="selectPaymentMethod(PaymentMethod.CARD)" disabled>刷卡支付</el-button>
+        <el-button :type="paymentMethod === PaymentMethod.CASH ? 'primary' : ''" @click="selectPaymentMethod(PaymentMethod.CASH)">现金支付</el-button>
       </div>
 
       <div class="right-panel" v-loading="orderStatus === 1 && this.payLoading" element-loading-text="等待确认中...">
@@ -98,7 +98,17 @@ export default {
     },
 
     waitingPaidAmount() {
-      return this.payableAmount - this.paidAmount;
+      const value = this.payableAmount - this.paidAmount;
+      if (value % 1 === 0) return value;
+      return value.toFixed(2);
+    }
+  },
+  filters: {
+    money(value) {
+      const num = Number(value);
+
+      if (num % 1 === 0) return num;
+      return num.toFixed(2);
     }
   },
   watch: {
@@ -177,8 +187,12 @@ export default {
       this.payLoading = true;
       try {
         await this.createFlow({ paymentMethod: this.paymentMethod, amount: this.amount });
-        const dynamicId = await waitingDynamicId();
-        await this.payFlow(dynamicId);
+
+        if (this.paymentMethod === PaymentMethod.B_SCAN_C) {
+          const dynamicId = await waitingDynamicId();
+          await this.payFlow(dynamicId);
+        }
+
         await this.waitAndQueryOrderStatus();
         this.amountString = this.waitingPaidAmount.toString();
       } catch (error) {
