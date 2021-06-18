@@ -56,12 +56,12 @@ const actions: ActionTree<FlowState, RootState> = {
   
     commit('order/updateOrderStatus', OrderStatus.PAYING, { root: true });
   },
-
-  async getFlowDetail({ commit, dispatch, getters }) {
+  // 备份之前的 getFlowDetail方法
+  async getFlowDetail1({ commit, dispatch, getters }) {
     const status = await FlowService.getFlowDetail(getters.currentFlowId);
     commit('updateFlowStatus', status);
 
-    if (status !== FlowStatus.PENDING) {
+    if (status !== FlowStatus.PENDING && status !== FlowStatus.PAYING) {
       clearTimeout(timer);
       return;
     }
@@ -69,6 +69,17 @@ const actions: ActionTree<FlowState, RootState> = {
     timer = setTimeout(() => {
       dispatch('getFlowDetail');
     }, 3000);
+  },
+
+  async getFlowDetail({ commit, dispatch, getters }) {
+    while(true) {
+      const status = await FlowService.getFlowDetail(getters.currentFlowId);
+      commit('updateFlowStatus', status);
+      if (status !== FlowStatus.PENDING && status !== FlowStatus.PAYING) {
+        return;
+      }
+      await delay(1000);
+    }
   },
 
   cancelLoopFlowDetail({ commit }) {

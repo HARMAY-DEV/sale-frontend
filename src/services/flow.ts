@@ -112,6 +112,8 @@ class FlowService {
         return FlowStatus.SUCCEED;
       } else if (data.status === 'pay_fail') {
         return FlowStatus.FAILED;
+      } else if (data.status === 'paying') {
+        return FlowStatus.PAYING;
       } else {
         return FlowStatus.PENDING;
       }

@@ -23,6 +23,7 @@ export enum PaymentMethod {
 export enum FlowStatus {
   DEFAULT = 'default',
   PENDING = 'pending',
+  PAYING = 'paying',
   SUCCEED = 'succeed',
   FAILED = 'failed,'
 }
