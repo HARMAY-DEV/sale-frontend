@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<button onclick="sendMessageSelf()">自己方法打印</button>
+<button onclick="connect()">连接</button>
+<div>
+    <canvas id="canvas" width="0" height="0"></canvas>
+    <canvas id="canvas2" width="0" height="0"></canvas>
+    <canvas id="canvas3" width="0" height="0"></canvas>
+    <canvas id="canvas4" width="0" height="0"></canvas>
+</div>
+</body>
+<script src="../../static/epos-2.17.0.js"></script>
+<script>
+    var ipAddress = null;
+    var port      = null;
+
+    var crypto = false;
+    var buffer = false;
+
+    var printer = null;
+
+    var sample = '';
+
+    var ePosDev = new epson.ePOSDevice();
+
+    let canvas;
+    let canvas2;
+    let canvas3;
+    let canvas4;
+
+    function connect() {
+        console.log(ePosDev)
+        ipAddress = '192.168.31.182'
+        port = '9100'
+
+        ePosDev.connect(ipAddress, port, Callback_connect);
+        ePosDev.onreconnecting = OnReconnecting;
+        ePosDev.onreconnect = OnReconnect;
+        ePosDev.ondisconnect = OnDisconnect;
+        canvas = document.getElementById('canvas');
+        canvas2 = document.getElementById('canvas2');
+        canvas3 = document.getElementById('canvas3');
+        canvas4 = document.getElementById('canvas4');
+
+        let image = new Image();
+        image.src = '../images/1.png';
+        image.onload = function () {
+            if (canvas.getContext) {
+                canvas.width = image.width;
+                canvas.height = image.height;
+                let context = canvas.getContext('2d');
+                context.drawImage(image, 0, 0);
+            }
+        }
+
+        let image2 = new Image();
+        image2.src = '../images/2-300.png';
+        image2.onload = function () {
+            if (canvas2.getContext) {
+                canvas2.width = image2.width;
+                canvas2.height = image2.height;
+                let context = canvas2.getContext('2d');
+                context.drawImage(image2, 0, 0);
+            }
+        }
+
+        let image3 = new Image();
+        image3.src = '../images/3.png';
+        image3.onload = function () {
+            if (canvas3.getContext) {
+                canvas3.width = image3.width;
+                canvas3.height = image3.height;
+                let context = canvas3.getContext('2d');
+                context.drawImage(image3, 0, 0);
+            }
+        }
+
+        let image4 = new Image();
+        image4.src = '../images/4.png';
+        image4.onload = function () {
+            if (canvas4.getContext) {
+                canvas4.width = image4.width;
+                canvas4.height = image4.height;
+                let context = canvas4.getContext('2d');
+                context.drawImage(image4, 0, 0);
+            }
+        }
+    }
+
+    function Callback_connect(data) {
+        console.log('打印data')
+        console.log(data)
+        var deviceID = 'bananalab_epos'
+        // crypto       = document.getElementById("crypto").checked;
+        // buffer       = document.getElementById("buffer").checked;
+        var options  = {'crypto' : crypto, 'buffer' : buffer};
+
+        if (data == 'OK') {
+            // consolelog("connected to ePOS Device Service Interface.", true);
+            ePosDev.createDevice(deviceID, ePosDev.DEVICE_TYPE_PRINTER, options, callbackCreateDevice_printer);
+        }
+        else if (data == 'SSL_CONNECT_OK') {
+            // consolelog("connected to ePOS Device Service Interface with SSL.", true);
+            ePosDev.createDevice(deviceID, ePosDev.DEVICE_TYPE_PRINTER, options, callbackCreateDevice_printer);
+        }
+        else {
+            // consolelog("connected to ePOS Device Service Interface is failed. [" + data + "]", true);
+        }
+    }
+
+    function callbackCreateDevice_printer(data, code) {
+        console.log('打印data222')
+        console.log(data)
+        if (data == null) {
+            // consolelog(code);
+            return;
+        }
+
+        // consolelog("you can use printer.");
+
+        printer = data;
+
+        // Set a response receipt callback function
+        printer.onreceive = function (res) {
+            // Show message
+            // consolelog('Print' + (res.success ? 'Success' : 'Failure') + '\nCode:' + res.code + '\nBattery:' + res.battery + '\n' + getStatusText(printer, res.status), true);
+        };
+        // Set a status change callback funciton
+        printer.onstatuschange = function (status) {
+            if (document.getElementById('onstatuschange').checked) {
+                alert(getStatusText(printer, status));
+            }
+        };
+        printer.ononline = function () {
+            if (document.getElementById('ononline').checked) {
+                alert('online');
+            }
+        };
+        printer.onoffline = function () {
+            if (document.getElementById('ononline').checked) {
+                alert('offline');
+            }
+        };
+        printer.onpoweroff = function () {
+            if (document.getElementById('ononline').checked) {
+                alert('poweroff');
+            }
+        };
+        printer.oncoverok = function () {
+            if (document.getElementById('oncoverok').checked) {
+                alert('coverok');
+            }
+        };
+        printer.oncoveropen = function () {
+            if (document.getElementById('oncoverok').checked) {
+                alert('coveropen');
+            }
+        };
+        printer.onpaperok = function () {
+            if (document.getElementById('onpaperok').checked) {
+                alert('paperok');
+            }
+        };
+        printer.onpapernearend = function () {
+            if (document.getElementById('onpaperok').checked) {
+                alert('papernearend');
+            }
+        };
+        printer.onpaperend = function () {
+            if (document.getElementById('onpaperok').checked) {
+                alert('paperend');
+            }
+        };
+        printer.ondrawerclosed = function () {
+            if (document.getElementById('ondrawerclosed').checked) {
+                alert('drawerclosed');
+            }
+        };
+        printer.ondraweropen = function () {
+            if (document.getElementById('ondrawerclosed').checked) {
+                alert('draweropen');
+            }
+        };
+        printer.onbatterystatuschange = function () {
+            if (document.getElementById('onbatterystatuschange').checked) {
+                alert('onbatterystatuschange');
+            }
+        };
+        printer.onbatteryok = function () {
+            if (document.getElementById('onbatteryok').checked) {
+                alert('onbatteryok');
+            }
+        };
+        printer.onbatterylow = function () {
+            if (document.getElementById('onbatteryok').checked) {
+                alert('onbatterylow');
+            }
+        };
+    }
+
+    function OnReconnecting() {
+        // consolelog('onreconnecting');
+    }
+
+    function OnReconnect() {
+        // consolelog('onreconnect');
+    }
+
+    function OnDisconnect() {
+        // consolelog('ondisconnect');
+    }
+    function sendMessageSelf() {
+        console.log(printer)
+        printer.addTextLang('zh-cn');
+        printer.addTextFont(printer.FONT_B);
+        printer.addTextSmooth(true);
+
+        printer.addTextPosition(0);
+        printer.addText('2021.06.30 TUE.12:12:12');
+        printer.addTextPosition(450);
+        printer.addText('店员\n');
+        printer.addText('--------------------------------------------------------------\n');
+        printer.addTextPosition(420);
+        printer.addText('Abby Ma\n');
+
+        printer.brightness = 1.0;
+        printer.halftone = printer.HALFTONE_DITHER;
+        printer.addImage(canvas.getContext('2d'), 0, 0, canvas.width, canvas.height, printer.COLOR_1, printer.MODE_MONO);
+
+        printer.addText('\n\n');
+
+        printer.addTextPosition(0);
+        printer.addText('AESDP');
+        printer.addTextPosition(100);
+        printer.addText('赋活芳香护手霜');
+        printer.addTextPosition(350);
+        printer.addText('200.00');
+        printer.addTextPosition(450);
+        printer.addText('CNY\n');
+        printer.addTextPosition(0);
+        printer.addText('120ml');
+        printer.addTextPosition(350);
+        printer.addText('x1\n');
+        printer.addText('\n');
+
+        printer.addTextPosition(0);
+        printer.addText('AESDP');
+        printer.addTextPosition(100);
+        printer.addText('赋活芳香护手霜');
+        printer.addTextPosition(350);
+        printer.addText('200.00');
+        printer.addTextPosition(450);
+        printer.addText('CNY\n');
+        printer.addTextPosition(0);
+        printer.addText('120ml');
+        printer.addTextPosition(350);
+        printer.addText('x1\n');
+        printer.addText('\n');
+
+        printer.addTextPosition(0);
+        printer.addText('AESDP');
+        printer.addTextPosition(100);
+        printer.addText('赋活芳香护手霜');
+        printer.addTextPosition(350);
+        printer.addText('200.00');
+        printer.addTextPosition(450);
+        printer.addText('CNY\n');
+        printer.addTextPosition(0);
+        printer.addText('120ml');
+        printer.addTextPosition(350);
+        printer.addText('x1\n');
+        printer.addText('\n');
+
+        printer.addTextPosition(0);
+        printer.addText('AESDP');
+        printer.addTextPosition(100);
+        printer.addText('赋活芳香护手霜');
+        printer.addTextPosition(350);
+        printer.addText('200.00');
+        printer.addTextPosition(450);
+        printer.addText('CNY\n');
+        printer.addTextPosition(0);
+        printer.addText('120ml');
+        printer.addTextPosition(350);
+        printer.addText('x1\n');
+        printer.addText('\n');
+
+        printer.addTextPosition(0);
+        printer.addText('AESDP');
+        printer.addTextPosition(100);
+        printer.addText('赋活芳香护手霜');
+        printer.addTextPosition(350);
+        printer.addText('200.00');
+        printer.addTextPosition(450);
+        printer.addText('CNY\n');
+        printer.addTextPosition(0);
+        printer.addText('120ml');
+        printer.addTextPosition(350);
+        printer.addText('x1\n');
+        printer.addText('\n');
+
+        printer.addTextPosition(0);
+        printer.addText('AESDP');
+        printer.addTextPosition(100);
+        printer.addText('赋活芳香护手霜');
+        printer.addTextPosition(350);
+        printer.addText('200.00');
+        printer.addTextPosition(450);
+        printer.addText('CNY\n');
+        printer.addTextPosition(0);
+        printer.addText('120ml');
+        printer.addTextPosition(350);
+        printer.addText('x1\n');
+
+        printer.addText('\n\n');
+        printer.addTextSize(2, 2);
+        printer.addText('TOTAL\n');
+        printer.addTextSize(1, 1);
+        printer.addText('--------------------------------------------------------------\n');
+        printer.addText('\n');
+
+        printer.addTextPosition(0);
+        printer.addText('应付金额');
+        printer.addTextPosition(395);
+        printer.addText('￥2460000.00\n');
+        printer.addTextPosition(0);
+        printer.addText('折扣金额');
+        printer.addTextPosition(440);
+        printer.addText('9000000\n');
+        printer.addTextPosition(0);
+        printer.addText('积分抵扣');
+        printer.addTextPosition(390);
+        printer.addText('￥-2460000.00\n');
+        printer.addTextPosition(0);
+        printer.addText('积分兑换');
+        printer.addTextPosition(420);
+        printer.addText('2000000颗\n');
+
+        printer.addTextStyle(false, false, true, printer.COLOR_1);
+        printer.addTextPosition(0);
+        printer.addText('实付金额');
+        printer.addTextSize(2, 2);
+        printer.addTextPosition(300);
+        printer.addText('￥2460000.00\n');
+
+        printer.addTextSize(1, 1);
+        printer.addTextStyle(false, false, false, printer.COLOR_1);
+        printer.addText('--------------------------------------------------------------\n');
+        printer.addText('付款方式：支付宝/微信支付\n');
+        printer.addText('--------------------------------------------------------------\n');
+        printer.addText('\n\n');
+
+        printer.addTextAlign(printer.ALIGN_CENTER);
+        printer.addText('请使用微信扫描二维码开具发票\n');
+        printer.addText('\n');
+
+        printer.brightness = 1.0;
+        printer.halftone = printer.HALFTONE_DITHER;
+        printer.addImage(canvas2.getContext('2d'), 0, 0, canvas2.width, canvas2.height, printer.COLOR_1, printer.MODE_MONO);
+
+        printer.addText('\n');
+        printer.addText('请使用微信扫描二维码免费快递到家\n');
+        printer.addText('\n');
+
+        printer.brightness = 1.0;
+        printer.halftone = printer.HALFTONE_DITHER;
+        printer.addImage(canvas3.getContext('2d'), 0, 0, canvas3.width, canvas3.height, printer.COLOR_1, printer.MODE_MONO);
+
+        printer.addText('\n');
+        printer.addText('MD1571576228\n');
+
+        printer.addText('\n');
+        printer.brightness = 1.0;
+        printer.halftone = printer.HALFTONE_DITHER;
+        printer.addImage(canvas4.getContext('2d'), 0, 0, canvas4.width, canvas4.height, printer.COLOR_1, printer.MODE_MONO);
+
+        printer.addText('\n');
+        printer.addText('"颗"为话梅积分单位\n');
+        printer.addText('出于商务卫生安全考虑，商品离店后非质量问题不支持退货，请您谅解。\n');
+        printer.addText('--------------------------------------------------------------\n');
+
+        printer.addTextStyle(false, false, true, printer.COLOR_1);
+        printer.addText('北京三里屯店\n');
+        printer.addTextStyle(false, false, false, printer.COLOR_1);
+        printer.addText('朝阳区工体北路首北兆龙店一层HARMAY\n');
+
+        printer.addText('\n');
+        printer.addText('2 WORKERS\' SPORTS COMPLEX N RD,\n');
+        printer.addText('CHAOYANG DISTRICT,BEIJING\n');
+        printer.addText('\n');
+
+        printer.addText('电话：400-890-6878-3    营业时间：10:00-22:00\n');
+        printer.addText('\n\n');
+
+        printer.addCut(printer.CUT_FEED);
+        printer.send();
+    }
+</script>
+</html>

@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>話梅小票</title>
+  <style>
+    @media print {
+      @page {
+        size: 80mm;
+        margin: 5mm 3mm;
+      }
+
+      h1 {
+        page-break-before: always;
+      }
+
+      h1, h2, h3, h4, h5, h6,
+      thead, tfoot, tr, th, td,
+      li {
+        page-break-inside: avoid;
+      }
+
+      body {
+        background-color: white;
+        color: black;
+      }
+
+      nav, aside {
+        display: none;
+      }
+
+      a::after {
+        content: "(" attr(href) ")";
+      }
+
+      thead, tfoot {
+        display: table-row-group;
+      }
+    }
+  </style>
+  <style>
+    body {
+      margin: 0;
+      display: flex;
+      justify-content: center;
+    }
+    .print-receipt {
+      width: 80mm;
+      padding: 5mm 3mm;
+      font-size: 12px;
+      margin: 0;
+    }
+
+    .fw500 {
+      font-weight: 500;
+    }
+
+    .fs14 {
+      font-size: 14px;
+    }
+
+    .top, .bottom {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .top {
+      border-bottom: 1px solid #000;
+      padding-bottom: 2px;
+    }
+
+    .bottom {
+      padding-top: 2px;
+    }
+
+    .shopping-list {
+      text-align: center;
+      margin-top: 24px;
+      margin-bottom: 2px;
+      line-height: 1;
+    }
+
+    .tips {
+      margin: 0;
+      margin-left: -12%;
+      margin-right: -12%;
+      transform: scale(0.8);
+      text-align: center;
+    }
+
+    .goods-list {
+      padding: 8mm 0 4mm;
+    }
+
+    .goods-item {
+      padding-bottom: 5mm;
+    }
+
+    .goods-info {
+      display: flex;
+    }
+
+    .spec {
+      flex: 0 1 70%;
+    }
+
+    .price {
+      flex: 1 1 20%;
+      text-align: left;
+    }
+
+    .count {
+      flex: 1 0 10%;
+      text-align: right;
+    }
+
+    .bill-container {
+      padding: 3mm 0;
+      border-top: 1px solid #000;
+      border-bottom: 1px solid #000;
+      display: flex;
+    }
+
+    .points-container {
+      margin-bottom: 3mm;
+      display: flex;
+      justify-content: space-between;
+    }
+        
+    .total {
+      background-color: #000;
+      color: #fff;;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 0 2mm;
+      font-size: 24px;
+      font-weight: 500;
+      margin-right: 3mm;
+    }
+
+    .total > span { transform: scaleY(2.5); }
+
+    .bill-detail {
+      flex: auto;
+    }
+
+    .bill-item {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .flow-info {
+      padding: 3mm 0;
+      border-bottom: 1px solid #000;
+    }
+
+    .footer {
+      text-align: center;
+      padding-top: 10mm;
+    }
+
+    /* 二维码样式调整 */
+    .qr-code {
+      display: inline-block;
+      width: 30mm;
+      height: 30mm;
+      margin-top: 2mm;
+      margin-bottom: 5mm;
+    }
+
+    /* 条形码样式调整 */
+    .bar-code {
+      display: inline-block;
+      margin-top: 2mm;
+      margin-bottom: 3mm;
+      width: 54mm;
+      height: 20mm;
+    }
+
+    .bar-code img {
+      width: 100%;
+      height: 100%;
+    }
+
+    .bottom-tips {
+      padding-top: 5mm;
+    }
+  </style>
+  <script src="https://cdn.bootcdn.net/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/jsbarcode/3.11.4/barcodes/JsBarcode.code128.min.js"></script>
+  <script src="./receipt-config.js"></script>
+  <script type="text/javascript">
+    window.addEventListener('load', function() {
+      // 二维码生成
+      new QRCode(document.getElementById('qrcode'), {
+        text: $config.receiptUrl,
+        width: 114,
+        height: 114,
+        correctLevel : QRCode.CorrectLevel.H,
+      });
+      // 条形码生成
+      JsBarcode('#barcode', $config.orderId, {
+        format: 'CODE128',
+        width: 1,
+        height: 50,
+        margin: 0,
+        displayValue: false,
+      });
+
+      Object.keys($config).forEach(function(key) {
+        var el = document.getElementById(key);
+        if (!el) return;
+        el.innerText = $config[key];
+      });
+
+      var container = document.getElementsByClassName('goods-list')[0];
+      console.log(container);
+      container.innerHTML = $config.goodsList.map(function(item) {
+        return `
+          <div class="goods-item">
+            <div><span class="fw500">${item.brandName}</span>&nbsp; ${item.goodsName}</div>
+            <div class="goods-info">
+              <span class="spec">${item.spec}</span>
+              <span class="fw500 price">${item.spec}</span>
+              <span class="fw500 count">${item.unit}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      Array.from(document.getElementsByClassName('goods-count')).forEach(function(el) {
+        el.innerText = `${$config.goodsList.length}PCS`;
+      });
+    });
+  </script>
+</head>
+<body>
+  <div class="print-receipt">
+    <div class="fw500">
+      <div class="top">
+        <span>HARMAY 話梅</span>
+        <span id="shopName">北京·三里屯店</span>
+        <span id="date">2021.03.21</span>
+      </div>
+      <div class="bottom">
+        <span id="clerkName">店员英文名: Aicy</span>
+        <span id="time">12:45:37</span>
+      </div>
+    </div>
+
+    <h1 class="shopping-list">SHOPPING LIST</h1>
+    <p class="tips">PLEASE LOOK UP THE DETAILS OF THE GOODS YOU BOUGHT</p>
+
+    <div class="goods-list">
+      <!-- <div class="goods-item">
+        <div><span class="fw500">AESDP</span>&nbsp; 碧欧泉 护肤精华</div>
+        <div class="goods-info">
+          <span class="spec">120ml</span>
+          <span class="fw500 price">￥ 2000.0</span>
+          <span class="fw500 count">×1</span>
+        </div>
+      </div> -->
+    </div>
+
+    <div class="points-container">
+      <span>話梅积分</span>
+      <span style="margin-left: auto; margin-right: 10px;" id="points"></span>
+      <span id="pointsValue"></span>
+    </div>
+
+    <div class="bill-container">
+      <div class="total"><span>TOTAL</span></div>
+      <div class="bill-detail">
+        <div class="bill-item">
+          <span class="fs14 fw500">应付金额</span>
+          <span id="payableAmount">246.00</span>
+          <span class="goods-count"></span>
+        </div>
+
+        <div class="bill-item">
+          <span class="fs14 fw500">折扣金额</span>
+          <span id="discountAmount">246.00</span>
+          <span class="goods-count"></span>
+        </div>
+
+        <div class="bill-item">
+          <span class="fs14 fw500">积分抵扣</span>
+          <span id="pointsDeduction">246.00</span>
+          <span class="goods-count">3</span>
+        </div>
+
+        <div class="bill-item">
+          <span class="fs14 fw500">积分兑换</span>
+          <span id="pointsConvert">246.00</span>
+          <span class="goods-count"></span>
+        </div>
+
+         <div class="bill-item">
+          <span class="fs14 fw500">实付金额</span>
+          <span class="fs14 fw500" id="paidAmount">246.00</span>
+          <span class="fs14 fw500 goods-count"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="flow-info">
+      <div><span class="fw500">交易流水号：</span id="flowId">321434243535453453</div>
+      <div><span class="fw500">付款方式：</span id="payType">支付宝支付</div>
+    </div>
+
+    <div class="footer">
+      <div>请使用微信扫描二维码开具发票</div>
+      <div>本次开票金额：<span id="receiptAmount">241.80</span></div>
+      <div id="qrcode" class="qr-code"></div>
+      <div>MD3243532425</div>
+      <div class="bar-code">
+        <img id="barcode">
+      </div>
+      <div>"颗"为話梅积分单位</div>
+      <div>"颗" IS THE UNIT OF HARMAY POINT</div>
+      <div class="bottom-tips">*化妆瓶若无质量问题，不退不换，谢谢合作</div>
+    </div>
+  </div>
+</body>
+</html>
