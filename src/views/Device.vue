@@ -421,8 +421,8 @@ export default {
       })
 
     })
-    addOrder().then(res=>{
-    })
+    // addOrder().then(res=>{
+    // })
 
   },
 

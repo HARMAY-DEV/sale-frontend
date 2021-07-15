@@ -1,7 +1,8 @@
 <template>
   <div class="goods-container" @touchstart="touchStart" @touchmove="touchMove" @touchend="touchEnd">
     <div class="goods-picture">
-      <img :src="picture" style="width: 100%; height: 100%;">
+      <img v-if="picture != '' && picture != null" :src="picture" style="width: 100%; height: 100%;">
+      <img v-else src="require('')" style="width: 100%; height: 100%;">
     </div>
     <div class="goods-detail">
       <div class="goods-name">{{ name }}</div>
@@ -9,19 +10,22 @@
       <!-- 库存只做展示用，先默认 999+ -->
       <div class="goods-stock">库存: {{ stock === Infinity ? '999+' : stock }}</div>
     </div>
-    <div class="goods-price">￥ {{ price }}</div>
+    <div v-if="sn == '' || sn == null" class="goods-price">￥ {{ price }}</div>
+    <div v-else style="background: #fff;position: relative;z-index: 999;width: 120px;padding: 0;text-align: right;margin-right: -18px;" class="goods-price">￥ {{ price }}</div>
 
     <div v-if="!fromSearch" class="actions" :style="{marginRight: marginRight + 'px'}">
-      <el-button type="primary" size="mini" icon="el-icon-minus" @click="removeFromCart({ goodsId: id })" round></el-button>
-      <span class="goods-quantity">{{ quantity }}</span>
-      <el-button type="primary" size="mini" icon="el-icon-plus" @click="addToCart({ goodsId: id, price: price })" round :disabled="stock <= 0"></el-button>
+        <div v-if="sn == '' || sn == null">
+          <el-button type="primary" size="mini" icon="el-icon-minus" @click="removeFromCart({ goodsId: id ,sn:sn})" round></el-button>
+          <span class="goods-quantity">{{ quantity }}</span>
+          <el-button type="primary" size="mini" icon="el-icon-plus" @click="addToCart({ goodsId: id, price: price ,sn:sn})" round :disabled="stock <= 0"></el-button>
+        </div>
     </div>
 
     <div v-if="fromSearch" class="actions">
       <el-button type="primary" @click="addGoodsToCart()">加入购物车</el-button>
     </div>
 
-    <el-button v-if="!fromSearch" class="remove-btn" type="danger" @click="removeFromCart({ goodsId: id, quantity: quantity })">删除</el-button>
+    <el-button v-if="!fromSearch" class="remove-btn" type="danger" @click="removeFromCart({ goodsId: id, quantity: quantity,sn:sn})">删除</el-button>
   </div>
 </template>
  
@@ -44,6 +48,7 @@ export default {
     stock: Number,
     spec: Object,
     quantity: Number,
+    sn: String,
     fromSearch: {
       type: Boolean,
       'default': false,
@@ -57,20 +62,32 @@ export default {
     },
 
     marginRight() {
-      if (this.endX === 0) return 0;
+      if(this.sn != '' && this.sn != null){
+        if (this.endX === 0) return 0;
 
-      const value = this.startX - this.endX;
-      
-      if (value >= 120) return 120;
-      else if (value <= 0) return 0;
-      else return value;
+        const value = this.startX - this.endX;
+
+        if (value >= 120) return 120;
+        else if (value <= 0) return 0;
+        else return value;
+      }else {
+        if (this.endX === 0) return 0;
+
+        const value = this.startX - this.endX;
+
+        if (value >= 120) return 120;
+        else if (value <= 0) return 0;
+        else return value;
+      }
+
     },
   },
   methods: {
     ...mapActions('cart', ['addToCart', 'removeFromCart']),
 
     async addGoodsToCart() {
-      await this.addToCart({ goodsId: this.id, price: this.price });
+      console.log(this)
+      await this.addToCart({ goodsId: this.id, price: this.price, sn: this.sn});
       this.$emit('close-panel');
     },
 
@@ -95,14 +112,14 @@ export default {
       if (this.endX === 0) {
         return;
       }
-      // 往左滑了一定距离，显示删除按钮
       if (this.startX - this.endX >= 10) {
         this.endX = this.startX - 120;
       } else {
-      // 往左滑的距离太短或是向右滑，不显示删除按钮
+        // 往左滑的距离太短或是向右滑，不显示删除按钮
         this.startX = 0;
         this.endX = 0;
       }
+
     },
   }
 };

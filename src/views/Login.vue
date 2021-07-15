@@ -59,12 +59,20 @@
 
       <el-button :loading="loading" type="primary" style="width:100%; margin-bottom: 30px;" @click.native.prevent="handleLogin">登录</el-button>
     </el-form>
+<!--    <div style="margin-top: 300px;">-->
+<!--      <div class="title-container">-->
+<!--        <h3 class="title">HARMAY</h3>-->
+<!--      </div>-->
+<!--      <div style="width: 300px;margin: 40px auto;">-->
+<!--        <el-button :loading="loading" type="primary" style="width:300px;" @click="loginDing()">钉钉登录</el-button>*/-->
+<!--      </div>-->
+<!--   </div>-->
   </div>
 </template>
 
 <script>
 import { mapActions, mapState } from 'vuex';
-
+import {dingDing,dingLogin} from "@/api/index"
 export default {
   name: 'Login',
   data() {
@@ -90,6 +98,41 @@ export default {
     ...mapState('user', ['shopId', 'shopList']),
   },
   mounted() {
+    // console.log('钉钉登录')
+    var code = this.getQueryVariable("code")
+    // console.log('code ====')
+    // console.log(code)
+    // var userData={
+    //   deptName:'北京三里屯店',
+    //   unionid:'ii8ZgN6dSdp1HhoD41b0WmAiEiE',
+    //   username:'薛红媛'
+    // }
+    // this.login(userData).then(() => {
+    //   this.$router.replace({ path: '/' });
+    // }).catch((error) => {
+    //   this.$notify.error({ title: '登录失败', message: error.message });
+    // }).finally(() => {
+    //   this.loading = false;
+    // });
+    if(!code){
+      // console.log('无code')
+    }else{
+      // console.log('有code')
+      dingDing(code).then(res=>{
+        console.log(res.data)
+        if(res.data.code==200){
+          var userData = res.data.data
+          this.loading = true;
+          this.login(userData).then(() => {
+            this.$router.replace({ path: '/' });
+          }).catch((error) => {
+            this.$notify.error({ title: '登录失败', message: error.message });
+          }).finally(() => {
+            this.loading = false;
+          });
+        }
+      })
+    }
     this.getShopList();
 
     if (this.loginForm.username === '') {
@@ -106,13 +149,12 @@ export default {
     },
 
     handleLogin() {
+
       this.$refs.loginForm.validate(valid => {
         if (!valid) {
           return false;
         }
-
         this.loading = true;
-
         this.login(this.loginForm).then(() => {
           this.$router.replace({ path: '/' });
         }).catch((error) => {
@@ -122,6 +164,18 @@ export default {
         });
       });
     },
+    loginDing(){
+      window.open('https://oapi.dingtalk.com/connect/oauth2/sns_authorize?appid=dingiva41ovpwg6hbb25&response_type=code&scope=snsapi_login&state=STATE&redirect_uri=https://testh5.outiejun.com/login')
+    },
+    getQueryVariable(variable) {
+      var query = window.location.search.substring(1);
+      var vars = query.split("&");
+      for (var i=0;i<vars.length;i++) {
+        var pair = vars[i].split("=");
+        if(pair[0] == variable){return pair[1];}
+      }
+      return(false);
+    }
   },
 }
 </script>
