@@ -32,7 +32,11 @@ const routes: RouteConfig[] = [
         path: 'profile',
         name: 'profile',
         component: () => import(/* webpackPrefetch: true */ '@/views/Profile.vue'),
-      }
+      },{
+        path: '/refund',
+        name: 'Refund',
+        component: () => import(/* webpackPrefetch: true */ '@/views/refund.vue'),
+    }
     ],
     beforeEnter(to, from, next) {
       const isLogin = localStorage.getItem(StorageKey.IS_LOGIN);
@@ -44,6 +48,7 @@ const routes: RouteConfig[] = [
       }
     }
   },
+  
   {
     path: '/login',
     name: '登录',

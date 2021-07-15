@@ -3,7 +3,7 @@ export function shopDetail(query) {
     return axios({
         url: 'https://sale-order-dev.api.harmay.com/shop',
         method: 'get',
-        params: query,
+        params: {},
         headers: {
             'content-type': 'application/json', // 默认值
             'Authorization':'APPCODE f4acfdb82053482fa9b51cf8f901bf7a'
@@ -12,7 +12,7 @@ export function shopDetail(query) {
 }
 export function orderDetail(orderId) {
     return axios({
-        url: 'http://sale-dev.api.harmay.com/order/'+orderId,
+        url: 'https://sale-dev.api.harmay.com/order/'+orderId,
         method: 'get',
         params: {},
         headers: {
@@ -23,7 +23,7 @@ export function orderDetail(orderId) {
 }
 export function orderSync(orderId) {
     return axios({
-        url: 'http://sale-dev.api.harmay.com/order/invoice/858011511841358848',
+        url: 'https://sale-dev.api.harmay.com/order/invoice/858011511841358848',
         method: 'get',
         params: {},
         headers: {
@@ -32,10 +32,21 @@ export function orderSync(orderId) {
         },
     })
 }
+//部分退款订单
+export function partRefund(data) {
+    return axios({
+        url: ' https://sale-dev.api.harmay.com/order/refund',
+        method: 'post',
+        data,
+        headers: {
+            'content-type': 'application/json', // 默认值   
+        },
+    })
+}
 // 新增测试订单
 export function addOrder() {
     return axios({
-        url: 'http://sale-dev.api.harmay.com/order',
+        url: 'https://sale-dev.api.harmay.com/order',
         method: 'post',
         data: {
             "shop_no": "imperfect-test",

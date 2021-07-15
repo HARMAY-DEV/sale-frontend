@@ -24,6 +24,7 @@ interface OrderListResponse {
 }
 
 interface OrderResponse {
+  sn_group: any;
   tid: string;
   status: string;
   goods_list: Array<{
@@ -87,7 +88,7 @@ class OrderService {
    * @returns 
    */
   createRefundOrder(orderId: string) {
-    return http.post('/order/refund', { refund_mode: 'whole', original_tid: orderId });
+    return http.post('/order/refund', { refund_mode: 'whole', original_tid: orderId});
   }
 
   /**
@@ -119,6 +120,7 @@ class OrderService {
           status: data.status,
           payStatus: data.pay_status,
           payType: data.pay_type,
+          snGroup: data.sn_group,
           time: data.created_at.replace('T', ' ').replace(/\..*/, ''),
           payableAmount: fenToYuan(data.payable_amount),
           paidAmount: fenToYuan(data.paid),

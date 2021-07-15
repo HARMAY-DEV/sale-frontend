@@ -38,8 +38,9 @@
     </div>
     <div class="order-footer">
       <el-button style="margin-right: auto;" @click="print()">重打小票</el-button>
+      
       <el-button :disabled="!canRefund" @click="refundOrder('whole')">整单退货</el-button>
-      <el-button @click="refundOrder('part')" disabled>退货</el-button>
+      <el-button @click="refundOrder('part')" :disabled="orderStatus == '未付款' || orderStatus == '退款成功'">退货</el-button>
     </div>
     <ticket ref="mychild" :id="id"></ticket>
   </div>
@@ -79,7 +80,7 @@ export default {
       goodsTableData: [],
       flowTableData: [],
       orderStatus: '',
-      canRefund: false,
+      canRefund: false
     };
   },
   props: {
@@ -117,7 +118,12 @@ export default {
       }
 
       if (type === 'part') {
-        
+          let refund = {
+            orderTableData:this.orderTableData,//订单详情
+            goodsTableData:this.goodsTableData,//商品信息
+            flowTableData:this.flowTableData//订单详情
+          }
+          this.$router.push({path:'Refund',query:{id:this.id}})
       }
     },
 
@@ -130,6 +136,7 @@ export default {
       this.orderTableData = [orderInfo];
       this.goodsTableData = goodsList;
       this.flowTableData = flowList.map(flow => ({...flow, status: statusMap[flow.status] || '未知状态'}));
+      console.log(orderInfo,goodsList);
     },
     print(){
       this.$refs.mychild.print();
