@@ -1,4 +1,8 @@
 import axios from "axios";
+import {Storage} from "../utils/storage";
+import {StorageKey} from "../utils/consts";
+var url = 'https://sale-dev.api.harmay.com'
+const token = Storage.getItem(StorageKey.TOKEN);
 export function shopDetail(query) {
     return axios({
         url: 'https://sale-order-dev.api.harmay.com/shop',
@@ -12,41 +16,30 @@ export function shopDetail(query) {
 }
 export function orderDetail(orderId) {
     return axios({
-        url: 'https://sale-dev.api.harmay.com/order/'+orderId,
+        url: url+'/order/'+orderId,
         method: 'get',
         params: {},
         headers: {
             'content-type': 'application/json', // 默认值
-            'Authorization':'APPCODE f4acfdb82053482fa9b51cf8f901bf7a'
+            'Authorization':token
         },
     })
 }
 export function orderSync(orderId) {
     return axios({
-        url: 'https://sale-dev.api.harmay.com/order/invoice/858011511841358848',
+        url: url+'/order/invoice/858011511841358848',
         method: 'get',
         params: {},
         headers: {
             'content-type': 'application/json', // 默认值
-            'Authorization':'APPCODE f4acfdb82053482fa9b51cf8f901bf7a'
-        },
-    })
-}
-//部分退款订单
-export function partRefund(data) {
-    return axios({
-        url: ' https://sale-dev.api.harmay.com/order/refund',
-        method: 'post',
-        data,
-        headers: {
-            'content-type': 'application/json', // 默认值   
+            'Authorization':token
         },
     })
 }
 // 新增测试订单
 export function addOrder() {
     return axios({
-        url: 'https://sale-dev.api.harmay.com/order',
+        url: url+'/order',
         method: 'post',
         data: {
             "shop_no": "imperfect-test",
@@ -81,7 +74,30 @@ export function addOrder() {
         },
         headers: {
             'content-type': 'application/json', // 默认值
-            'Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InVzZXJhIiwic3ViIjoyLCJpYXQiOjE2MjYzMzEzODUsImV4cCI6MTYzMTUxNTM4NX0.tY51WrX6v-1ZlXxRQMfPw3pBEVdULEAuwZWf6gAsenM'
+            'Authorization':token
+        },
+    })
+}
+// 获取钉钉用户信息
+export function dingDing(code) {
+    return axios({
+        url:'https://test.outiejun.com/api/user/getDingDingUserInfo?tmpAuthCode='+code,
+        method: 'get',
+        params: {},
+        headers: {
+            'content-type': 'application/json', // 默认值
+            'authorization':token
+        },
+    })
+}
+export function dingLogin(data) {
+    return axios({
+        url: url+'/user/dingding',
+        method: 'post',
+        data: data,
+        headers: {
+            'content-type': 'application/json', // 默认值
+            'Authorization':'APPCODE f4acfdb82053482fa9b51cf8f901bf7a'
         },
     })
 }

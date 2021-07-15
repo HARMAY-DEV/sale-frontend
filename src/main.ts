@@ -4,15 +4,11 @@ import App from './App.vue';
 import router from './router';
 import store from './store';
 import { useElementComponent } from './element-ui';
-
-
+import ElementUI from 'element-ui';
+import 'element-ui/lib/theme-chalk/index.css';
 
 install(Vue, 'ip');
-
-
-
-
-
+Vue.use(ElementUI);
 window.onload = function() {
   // 阻止页面被拖来拖去，移动平台上的果冻效果
   document.body.addEventListener('touchmove', function(e) {

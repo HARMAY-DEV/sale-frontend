@@ -421,9 +421,8 @@ export default {
       })
 
     })
-    addOrder().then(res=>{
-      console.log(res,'rrrrrr');
-    })
+    // addOrder().then(res=>{
+    // })
 
   },
 

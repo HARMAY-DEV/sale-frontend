@@ -1,4 +1,6 @@
 import http from './http';
+import {Storage} from "@/utils/storage";
+import {StorageKey} from "@/utils/consts";
 
 export interface LoginResponse {
   userId: number;
@@ -23,9 +25,18 @@ class UserService {
    * @param shopId 门店ID
    * @returns 
    */
-  login(username: string, password: string, shopId: string) {
-    return http.post<LoginResponse>('/auth/login', { username, password, shopId }).then((data) => {
+  // login(username: string, password: string, shopId: string) {
+  //   return http.post<LoginResponse>('/auth/login', { username, password, shopId }).then((data) => {
+  //     http.setAuthorizationToken(data.access_token);
+  //     return data.userId;
+  //   });
+  // }
+  login(deptName: string, unionid: string, username: string) {
+    return http.post<LoginResponse>('/user/dingding', { deptName, unionid, username }).then((data) => {
+      // console.log('哈哈哈')
+      // console.log(data)
       http.setAuthorizationToken(data.access_token);
+      Storage.setItem(StorageKey.TOKEN, data.access_token);
       return data.userId;
     });
   }
