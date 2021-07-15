@@ -54,7 +54,7 @@ export function addOrder() {
                 "goods_id":"11011200",
                 "goods_name":"维生素B5修复喷雾",
                 "goods_no":"11011200",
-                "num":1,
+                "num":5,
                 "price":200000,
                 "spec_id":"11011200",
                 "spec_name":"75ml",
@@ -63,7 +63,7 @@ export function addOrder() {
                 "goods_id":"11011201",
                 "goods_name":"兰蔻粉水",
                 "goods_no":"11011201",
-                "num":1,
+                "num":3,
                 "price":18000,
                 "spec_id":"11011201",
                 "spec_name":"400ml",
@@ -72,7 +72,7 @@ export function addOrder() {
                 "goods_id":"11011432",
                 "goods_name":"科颜氏白泥",
                 "goods_no":"11011432",
-                "num":1,
+                "num":6,
                 "price":43200,
                 "spec_id":"11011432",
                 "spec_name":"75ml",
@@ -81,7 +81,7 @@ export function addOrder() {
         },
         headers: {
             'content-type': 'application/json', // 默认值
-            'Authorization':'APPCODE f4acfdb82053482fa9b51cf8f901bf7a'
+            'Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InVzZXJhIiwic3ViIjoyLCJpYXQiOjE2MjYzMzEzODUsImV4cCI6MTYzMTUxNTM4NX0.tY51WrX6v-1ZlXxRQMfPw3pBEVdULEAuwZWf6gAsenM'
         },
     })
 }

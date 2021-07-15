@@ -1,5 +1,6 @@
 <template>
   <div class="refMode">
+    <!-- {{orderTableDatas}} -->
     <div class="ref-mode">选择退款方式</div>
     <!-- {{orderTableDatas}} -->
     <div
@@ -11,10 +12,12 @@
     >
       <span style="margin-right: 20px">{{ item.payType }}</span>
       <span>实付: ￥{{ item.amount }}</span>
-      <span v-show="!item.switchs">退款: ￥{{ orderTableDatas[0].price }}</span>
+      <span v-show="!item.switchs">退款:</span>
+      <el-input v-model="refunValue"  label="描述文字"></el-input>
       <span @click="refunTap(item, i)">{{
-        item.switchs ? "选择" : "取消"
+        item.switchs? "选择" : "取消"
       }}</span>
+      
     </div>
     <div class="reMod_butn">
       <el-button type="info" @click="uncertain">取消</el-button>
@@ -23,6 +26,7 @@
         @click="chexSn"
         >确定</el-button
       >
+
     </div>
   </div>
 </template>
@@ -35,7 +39,9 @@ export default {
     return {
       amount: "",
       items: [],
-      tabp:[]
+      tabp: [],
+      refundata:[],
+      refunValue:1
     };
   },
   mounted() {
@@ -45,6 +51,7 @@ export default {
   },
   watch: {
     "$parent.tid"(newValue, oldValue) {
+      this.$router.go(0);
       if (newValue) {
         this.orderTableDatas[1].forEach((v) => {
           this.$set(v, "switchs", true);
@@ -52,84 +59,64 @@ export default {
       }
     },
   },
+
   methods: {
     uncertain() {
-      //  this.orderTableDatas[1].forEach(v=>{
-      //      v.switchs = true
-      //  })
-      //  console.log(this.orderTableDatas[1]);
       this.$parent.refundModes = false;
     },
     refunTap(item, i) {
       if (item.switchs) {
-    //       var objDeepCopy = function (source) {
-    //     var sourceCopy = source instanceof Array ? [] : {};
-    //     for (var item in source) {
-    //       sourceCopy[item] =
-    //         typeof source[item] === "object"
-    //           ? objDeepCopy(source[item])
-    //           : source[item];
-    //     }
-    //     return sourceCopy;
-    //   };
-        // console.log(item);
-        // item.amounts =
-        //   item.amount - this.orderTableDatas[0].price < 0
-        //     ? item.amounts
-        //     : this.orderTableDatas[0].price;
-        
-        item.ptype = this.orderTableDatas[0].ptype
-        // this.tabp.push(this.orderTableDatas[0])
-        // console.log(this.tabp,"指定不变的值深拷贝");
-        // console.log(item.amounts);
-        // console.log(this.orderTableDatas,'点击的时候的值');
-        if (this.orderTableDatas[0].ptype) {
-          if (this.orderTableDatas[0].ptype == item.payType) {
-          } else {
-            this.orderTableDatas[0].ptypes = item.payType;
+        if(!this.refundata.length == 0){
+          this.refundata.forEach(v=>{
+          if(v.ptype == item.payType){
+            console.log('jjjj');
+            v.price += this.orderTableDatas[0].price
+          }else{
+            console.log('kkk');
+            this.refundata.push({
+              ptype:item.payType,
+              price:this.orderTableDatas[0].price
+            })
           }
-        } else {
-          this.orderTableDatas[0].ptype = item.payType;
+          })
+        }else{
+          if(this.refundata.indexOf(item.payType) == -1){
+            this.refundata.push({
+              ptype:item.payType,
+              price:this.orderTableDatas[0].price
+            })
+          }
+          
         }
+        
+          
+          
 
-        if (!this.items.length == 0) {
-        //   if (item.payType == this.items[i].payType) {
-        //     // this.items[i].amounts += this.orderTableDatas[0].price
-        //     console.log(this.orderTableDatas[0].price, "15418515515");
+        console.log(this.refundata);
+        // item.ptype = this.orderTableDatas[0].ptype;
+
+        // if (this.orderTableDatas[0].ptype) {
+        //   if (this.orderTableDatas[0].ptype == item.payType) {
+        //   } else {
+        //     this.orderTableDatas[0].ptypes = item.payType;
         //   }
-        // console.log(this.items,this.tabp);
-        // this.items.forEach((value,index)=>{
-            
-        //     this.tabp.forEach((v,i)=>{
-        //         if(v.payType == value.payType){
-        //             if(this.tabp.length >1){
-        //                 value.amounts = v.amounts + this.tabp
-        //             }
-                    
-        //         }
-        //     })
-        // })
-        
-        } else {
-          if (this.items.indexOf(item) == -1) {
-            this.items.push(item);
-            
-          }
-        //   console.log(this.items, "12");
-        }
+        // } else {
+        //   this.orderTableDatas[0].ptype = item.payType;
+        // }
+        // if (!this.items.length == 0) {
+        // } else {
+        //   if (this.items.indexOf(item) == -1) {
+        //     this.items.push(item);
+        //   }
+        // }
       } else {
         this.items.splice(i, 1);
-        // console.log(this.items, "退款信息");
       }
       item.switchs = !item.switchs;
-      // if(!item.switchs){
-      //     // this.$refs[item+i][0].$el.style.display = 'none'
-
-      // }
     },
     chexSn() {
       this.orderTableDatas.push(this.items);
-    //   console.log(this.orderTableDatas, "确定点击值");
+      this.orderTableDatas.push(this.refundata);
       this.orderTableDatas[1].forEach((v) => {
         if (!v.switchs) {
           this.$emit("products", this.orderTableDatas);
@@ -141,19 +128,6 @@ export default {
           this.$message.error("请选择退款方式");
         }
       });
-    },
-    deepclone(obj) {
-      let objClone = Array.isArray(obj) ? [] : {};
-      if (obj && typeof obj === "object") {
-        for (let key in obj) {
-          if (obj[key] && typeof obj[key] === "object") {
-            objClone[key] = deepClone(obj[key]);
-          } else {
-            objClone[key] = obj[key];
-          }
-        }
-      }
-      return objClone;
     },
   },
 };

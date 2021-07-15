@@ -55,15 +55,11 @@
             </div>
           </li>
         </ul>
-        <!-- <div class="confirm" @click="confirm">选择</div> -->
       </div>
       <div class="cont_shp" style="border-left: 1px solid #bbbbbb">
         <span>退货商品列表</span>
-
         <ul>
-          <!-- @mouseout="hid = false"
-            @mouseover="hid = true" -->
-            {{goodsTableDatas}}
+            
           <li
             v-for="(item, i) in goodsTableDatas"
             :key="i"
@@ -110,15 +106,14 @@
         </ul>
       </div>
     </div>
-    {{flowTableDatas}}
-    <!-- {{orderTableDatas[i].ptype && orderTableDatas[i].ptypes?item.amount:item.payType == '支付宝'?a:item.payType == '微信'?b:item.payType == '现金'?c:0}} -->
+    {{items}}
     <div class="fun_btom">
       <div>退款信息：</div>
       <div>
         
         <span
           style="margin-right: 15px"
-          v-for="(item, i) in flowTableDatas"
+          v-for="(item, i) in items"
           :key="i"
           >{{ item.ptype }}:
           <i
@@ -240,13 +235,6 @@ export default {
          this.flowTableDatas = []
         
       } else { 
-        
-        newValue.forEach((v, i) => {
-
-          // console.log(this.flowTableData);
-          
-                    
-        });
       }
     },
     flowTableData(newValue,oldValue){
@@ -269,9 +257,9 @@ export default {
       this.orderStatus = orderInfo.payStatus;
       this.orderTableData = [orderInfo];
       this.goodsTableData = goodsList;
-      this.orderTableData[0].snGroup.forEach((v, i) => {
-        this.goodsTableData[i].sn = v.sn;
-      });
+      // this.orderTableData[0].snGroup.forEach((v, i) => {
+      //   this.goodsTableData[i].sn = v.sn;
+      // });
       this.goodsTableData.forEach((v, i) => {
         if (v.sn) {
           this.goodsTableData.push(v);
@@ -355,7 +343,6 @@ export default {
       }
     },
     refundMode(item, index) {
-      console.log(item,'item');
       if(this.goodsTableDatas.indexOf(item) == -1){
         
           
@@ -375,7 +362,8 @@ export default {
       
     },
     products(data) {
-      
+      console.log(data);
+      this.items = data[3]
       if (this.goodsTableDatas.indexOf(data[0]) == -1) {
         this.goodsTableDatas.push(data[0]);
          let datas = []
@@ -389,7 +377,6 @@ export default {
        })
        let pty = []
        pty.push(this.tabp[0])
-       console.log(pty);
        var ats = ''
        if(pty.length > 1){
          pty.forEach(v=>{
@@ -407,39 +394,16 @@ export default {
          
          if(!this.flowTableDatas.length == 0){
                   this.flowTableDatas.forEach((v,i)=>{
-                      console.log(v.ptype,tabps.ptype);
                       if(v.ptype == tabps.ptype){
                         v.price = v.price + tabps.price
                         this.flowTableDatas.splice(i,1,v)
-                        console.log(1);
                       }else{
                         this.flowTableDatas.push(tabps)
-                        console.log(2);
                       }
                     })
          }else{
            this.flowTableDatas.push(tabps)
-           console.log(3);
          }
-         
-
-        //  this.flowTableDatas.splice(0,1,tabps) 
-        // console.log(this.flowTableDatas);
-      //   this.tabps =  this.flowTableDatas.filter((v)=>{
-      //    return v.ptype == '微信'
-      //  })
-       
-      //  var atss = ''
-      //  if(this.tabps.length > 1){
-      //    this.tabps.forEach(v=>{
-      //       atss = Number(atss) +Number(v.price)
-      //      return ats
-      //    })
-      //    this.tabps[0].price = atss
-      //  }
-      //    this.tabps.splice(1)
-      //    this.flowTableDatas = this.tabp
-        
       
       }
       
