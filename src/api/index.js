@@ -36,6 +36,17 @@ export function orderSync(orderId) {
         },
     })
 }
+export function partRefund(data) {
+    return axios({
+        url: url+'/order/refund',
+        method: 'post',
+        data,
+        headers: {
+            'content-type': 'application/json', // 默认值
+        },
+    })
+}
+
 // 新增测试订单
 export function addOrder() {
     return axios({
@@ -47,7 +58,7 @@ export function addOrder() {
                 "goods_id":"11011200",
                 "goods_name":"维生素B5修复喷雾",
                 "goods_no":"11011200",
-                "num":1,
+                "num":5,
                 "price":200000,
                 "spec_id":"11011200",
                 "spec_name":"75ml",
@@ -56,7 +67,7 @@ export function addOrder() {
                 "goods_id":"11011201",
                 "goods_name":"兰蔻粉水",
                 "goods_no":"11011201",
-                "num":1,
+                "num":3,
                 "price":18000,
                 "spec_id":"11011201",
                 "spec_name":"400ml",
@@ -65,7 +76,7 @@ export function addOrder() {
                 "goods_id":"11011432",
                 "goods_name":"科颜氏白泥",
                 "goods_no":"11011432",
-                "num":1,
+                "num":6,
                 "price":43200,
                 "spec_id":"11011432",
                 "spec_name":"75ml",
