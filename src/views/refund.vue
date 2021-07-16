@@ -7,7 +7,7 @@
       >
       <div>订单号:{{ tid }}</div>
     </div>
-    <div>
+    <!-- <div>
       <el-input ref="searchInput" type="search" v-model="searchGoodsNo">
         <el-button
           slot="append"
@@ -15,7 +15,7 @@
           @click="search()"
         ></el-button>
       </el-input>
-    </div>
+    </div> -->
     <div class="refund_cont">
       <div class="cont_shp" style="position: relative">
         <span>可退商品列表</span>
@@ -36,7 +36,7 @@
                 </div>
               </div>
             </div>
-            <div class="refou_list_top" style="width: 32%; text-align: right">
+            <div class="refou_list_top" style="width: 32%; text-align: center;">
               <span>￥{{ item.price }}</span>
               <div v-if="!item.sn">
                 <el-button style="but" @click.stop="submit('Addition', i)"
@@ -49,8 +49,8 @@
                   >+</el-button
                 >
               </div>
-              <div v-else>
-                <span>编码:{{ item.sn }}</span>
+              <div v-else style="position: absolute;right:20px;">
+                <span>编码:{{ item.sn.substr(0,5)+'******' }}</span>
               </div>
             </div>
           </li>
@@ -85,7 +85,7 @@
               <span>￥{{ item.price }}</span>
               <div>
                 <span v-if="!item.sn">x{{ item.quantity }}</span>
-                <span v-else>编码:{{ item.sn }}</span>
+                <span v-else>编码:{{ item.sn.substr(0,7)+'******' }}</span>
               </div>
             </div>
             <div
@@ -95,7 +95,7 @@
                 text-align: center;
                 line-height: 45px;
               "
-              @click="cancel(i)"
+              @click="cancel(i,item)"
               v-show="hid"
             >
               <p style="color: #fff; font-size: 12px; height: 10px">取</p>
@@ -106,7 +106,6 @@
         </ul>
       </div>
     </div>
-    {{items}}
     <div class="fun_btom">
       <div>退款信息：</div>
       <div>
@@ -124,11 +123,20 @@
         >
       </div>
       <div>
-        总计: <i>￥{{ orderTableData[0].paidAmount }}</i>
+        总计: <i>￥{{ funBt }}</i>
       </div>
       <div class="refun_confirm" @click="firmrefund">确认退货</div>
     </div>
 
+
+
+    <div class="refund_prop" v-if="prop">
+        <div class="prop">
+            <img src="../images/6.png" alt="" style="width: 60px" />
+            <div style="margin:20px 0;">退款成功</div>
+            <div style="color:rgba(142, 142, 142, 100);">已完成退款(2秒后自动关闭)</div>
+        </div>
+    </div>
     <div class="Refund_me" v-show="refundMe">
       <div class="Refund_me-cont">
         <refunMe
@@ -197,9 +205,23 @@ export default {
       orderTableDatas: {},
       amount: "",
       flowTableDatas:[],
-      items:[],
+      prop:false,
+      items:[
+        {
+          ptype:'现金',
+          price:0
+        },{
+          ptype:'微信',
+          price:0
+        },{
+          ptype:'支付宝',
+          price:0
+        }
+      ],
       tabp:[],
-      tabps:[]
+      tabps:[],
+      historyList:[],
+      funBt:''
     };
   },
   components: {
@@ -209,7 +231,9 @@ export default {
   created() {
     this.tid = this.$route.query.id;
   },
-  mounted() {},
+  mounted() {
+
+  },
   watch: {
     tid(value) {
       if (value) {
@@ -229,6 +253,14 @@ export default {
       this.goodsTableDat = [];
       this.flowTableDatas = []
     },
+    prop(newValue,oldValue){
+        if(newValue){
+          setTimeout(()=>{
+            this.prop = false
+            this.$router.go(-1)
+          },2000)
+        }
+    },
     goodsTableDatas(newValue, oldValue) {
       
       if (newValue.length == 0) {
@@ -244,10 +276,60 @@ export default {
   methods: {
     ...mapActions("order", ["refundWholeOrder"]),
     async getOrderInfo(i) {
-      const [{ orderInfo, goodsList }, flowList] = await Promise.all([
-        OrderService.getOrderDetail(i),
-        FlowService.getFlowListByOrderId(i),
-      ]);
+      // const [{ orderInfo, goodsList }, flowList] = await Promise.all([
+      //   OrderService.getOrderDetail(i),
+      //   FlowService.getFlowListByOrderId(i),
+      // ]);
+      const orderInfo = {
+          id: "863031505729881088",
+          paidAmount: 472,
+          payStatus: "pay_success",
+          payType: "combined",
+          payableAmount: 472,
+          refundAmount: 0,
+          status: "completed",
+          time: "2021-07-09 12:19:05",
+      }
+      const goodsList = [{
+        amount: 47200,
+        id: "111",
+        name: "韦博士灵芝焕能好底子饱水凝霜",
+        price: 100,
+        quantity: "5",
+        sn:'',
+        spec: "50ml"
+      },{
+        amount: 47210,
+        id: "110074332",
+        name: "阿萨德好看大石街道 ",
+        price: 100,
+        quantity: "2",
+        sn:'z1622883648894',
+        spec: "50ml"
+      }]
+      const flowList = [
+        {
+          amount: 200,
+          id: "863031530035873792",
+          payType: "现金",
+          status: "pay_success",
+          time: "2021-07-09 12:19:11",
+        },{
+          amount: 200,
+          id: "863031544392976384",
+          payType: "微信",
+          status: "pay_success",
+          time: "2021-07-09 12:19:14",
+        },
+        {
+          amount: 300,
+          id: "863031544392976384",
+          payType: "支付宝",
+          status: "pay_success",
+          time: "2021-07-09 12:19:14",
+        },
+      ]
+      this.historyList =JSON.parse(JSON.stringify(goodsList))
       this.canRefund =
         (orderInfo.payStatus === "pay_success" ||
           orderInfo.payStatus === "partial_pay") &&
@@ -257,6 +339,7 @@ export default {
       this.orderStatus = orderInfo.payStatus;
       this.orderTableData = [orderInfo];
       this.goodsTableData = goodsList;
+      
       // this.orderTableData[0].snGroup.forEach((v, i) => {
       //   this.goodsTableData[i].sn = v.sn;
       // });
@@ -269,7 +352,7 @@ export default {
       this.flowTableData = flowList.map((flow) => ({
         ...flow,
         status: statusMap[flow.status] || "未知状态",
-        commodity: false,
+        commodity: true,
       }));
     },
     previous() {
@@ -288,18 +371,35 @@ export default {
       return false;
     },
     search() {
-      var query = this.searchGoodsNo.split("?")[1];
-      var snCode = this.getQueryString(query);
-      this.goodsTableData.forEach((v, i) => {
-        if (v.sn == snCode) {
-          if (this.goodsTableDatas.indexOf(v) == -1) {
-            // this.goodsTableDat.push(v);
-            this.goodsTableDatas.push(v);
+      if(this.searchGoodsNo.indexOf('https') ==-1){
+        this.goodsTableData.forEach((v,i)=>{
+          if(this.searchGoodsNo == v.sn ){
+            this.refundMode(v,i)
+          }
+        })
+      }else {
+        for(var i =0 ;i <this.goodsTableData.length;i++){
+          if(this.goodsTableData[i].sn == '' || this.goodsTableData[i].sn == null || this.goodsTableData[i].sn == undefined){
+            if(Number(this.searchGoodsNo) == Number(this.goodsTableData[i].id)){
+              this.refundMode(this.goodsTableData[i],i)
+            }
           }
         }
-      });
+      }
+      // var query = this.searchGoodsNo.split("?")[1];
+      // var snCode = this.getQueryString(query);
+      // console.log()
+      // this.goodsTableData.forEach((v, i) => {
+      //   if (v.sn == snCode) {
+      //     if (this.goodsTableDatas.indexOf(v) == -1) {
+      //       // this.goodsTableDat.push(v);
+      //       this.goodsTableDatas.push(v);
+      //     }
+      //   }
+      // });
     },
     submit(value, num) {
+      
       switch (value) {
         case "Addition":
           this.goodsTableData[num].quantity <= 1
@@ -315,9 +415,23 @@ export default {
           break;
       }
     },
-    cancel(i) {
-      this.flowTableDatas[0].price =  this.flowTableDatas[0].price - this.goodsTableDatas[i].price
+    cancel(i,item) {
+      this.funBt = ''
+      this.goodsTableData[i].quantity = this.historyList[i].quantity
+      // this.flowTableDatas[0].price =  this.flowTableDatas[0].price - this.goodsTableDatas[i].price
+      for(var e = 0;e<item.list[0].length;e++){
+          this.items[e].price = this.items[e].price - item.list[0][e].price
+      }
+      for(var v =0;v<this.items.length;v++){
+        console.log('金额')
+        console.log(this.items[v].price)
+        
+        this.funBt = Number(this.funBt)+ Number(this.items[v].price)
+      }
       this.goodsTableDatas.splice(i,1);
+      
+      
+      
        
     },
     firmrefund() {
@@ -328,14 +442,16 @@ export default {
           oid: v.id,
         });
       });
+
       if (!goodsList.length == 0) {
         partRefund({
           refund_mode: "part",
           original_tid: this.tid,
           goods_list: goodsList,
         }).then((res) => {
+          console.log(res);
           if (res.status == 200) {
-            this.$alert("退款成功", {});
+            this.prop = true
           }
         });
       } else {
@@ -343,10 +459,10 @@ export default {
       }
     },
     refundMode(item, index) {
+      if(item.quantity == 0){
+        return this.$message.error("已放入退款商品中")
+      }
       if(this.goodsTableDatas.indexOf(item) == -1){
-        
-          
-        
           if (item.sn) {
           this.refundMe = true;
           this.refundSn = item.sn;
@@ -356,54 +472,29 @@ export default {
           this.refundModes = true;
         
         }   
-      }else{
-        this.$message.error("已放入退款商品中")
       }
       
     },
     products(data) {
-      console.log(data);
-      this.items = data[3]
+      this.funBt = ''
+      let data2 = data[2]
+        for(var i=0;i<data2.length;i++){
+          console.log(data2[i]);
+         this.items[i].price += data2[i].price
+        }  
+      for(var v =0;v<this.items.length;v++){
+        
+        this.funBt = Number(this.funBt)+ Number(this.items[v].price)
+      }
+      
       if (this.goodsTableDatas.indexOf(data[0]) == -1) {
-        this.goodsTableDatas.push(data[0]);
-         let datas = []
-            datas.push({
-              ptype:data[0].ptype,
-              price:data[0].price
-            })
-
-      this.tabp =  datas.filter((v)=>{
-         return v.ptype == data[0].ptype
-       })
-       let pty = []
-       pty.push(this.tabp[0])
-       var ats = ''
-       if(pty.length > 1){
-         pty.forEach(v=>{
-            ats = Number(ats) +Number(v.price)
-           return ats
-         })
-         pty[0].price = ats
-       }
-         pty.splice(1)
-         
-         let tabps = {
-           ptype:pty[0].ptype,
-           price:pty[0].price
-         }
-         
-         if(!this.flowTableDatas.length == 0){
-                  this.flowTableDatas.forEach((v,i)=>{
-                      if(v.ptype == tabps.ptype){
-                        v.price = v.price + tabps.price
-                        this.flowTableDatas.splice(i,1,v)
-                      }else{
-                        this.flowTableDatas.push(tabps)
-                      }
-                    })
-         }else{
-           this.flowTableDatas.push(tabps)
-         }
+        this.goodsTableDatas.push(JSON.parse(JSON.stringify(data[0])));
+        this.goodsTableData.forEach((v,i)=>{
+            if(!v.sn && v.id == data[0].id){
+              v.quantity = this.historyList[i].quantity - data[0].quantity
+            }
+        })
+     
       
       }
       
@@ -473,6 +564,27 @@ export default {
 <style lang="scss" scoped>
 .refund {
   position: relative;
+  .refund_prop{
+    width: 100%;
+      height: 100%;
+      background: rgba($color: #000000, $alpha: 0.7);
+      position: absolute;
+      left: 0;
+      top: 0;
+      .prop{
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 375px;
+        height: 186px;
+        margin-left: -177px;
+        margin-top: -93px;
+        padding: 30px 0;
+        background: #fff;
+        line-height: 20px;
+        text-align: center;
+      }
+  }
   .fun_btom {
     position: fixed;
     bottom: 0;
@@ -503,7 +615,7 @@ export default {
     background: rgba(16, 16, 16, 0.7);
     .Refund_me-cont {
       width: 400px;
-      min-height: 300px;
+      // min-height: 300px;
       position: absolute;
       top: 50%;
       left: 50%;
@@ -521,7 +633,7 @@ export default {
     background: rgba($color: #000000, $alpha: 0.7);
     .Refund_me-cont {
       width: 400px;
-      min-height: 300px;
+      // min-height: 300px;
       position: absolute;
       top: 50%;
       left: 50%;

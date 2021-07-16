@@ -36,6 +36,17 @@ export function orderSync(orderId) {
         },
     })
 }
+export function partRefund(data) {
+    return axios({
+        url: url+'/order/refund',
+        method: 'post',
+        data,
+        headers: {
+            'content-type': 'application/json', // 默认值
+        },
+    })
+}
+
 // 新增测试订单
 export function addOrder() {
     return axios({
