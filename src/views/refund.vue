@@ -488,6 +488,7 @@ export default {
       }
       
       if (this.goodsTableDatas.indexOf(data[0]) == -1) {
+        
         this.goodsTableDatas.push(JSON.parse(JSON.stringify(data[0])));
         this.goodsTableData.forEach((v,i)=>{
             if(!v.sn && v.id == data[0].id){
@@ -615,7 +616,7 @@ export default {
     background: rgba(16, 16, 16, 0.7);
     .Refund_me-cont {
       width: 400px;
-      // min-height: 300px;
+      min-height: 300px;
       position: absolute;
       top: 50%;
       left: 50%;
@@ -633,7 +634,7 @@ export default {
     background: rgba($color: #000000, $alpha: 0.7);
     .Refund_me-cont {
       width: 400px;
-      // min-height: 300px;
+      min-height: 300px;
       position: absolute;
       top: 50%;
       left: 50%;

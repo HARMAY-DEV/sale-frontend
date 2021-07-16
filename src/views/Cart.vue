@@ -45,7 +45,7 @@
     <div v-if="snState == 1">
       <div style="width: 100%;height: 100%;position: fixed;z-index: 1000;top: 0;left: 0;background: #000;opacity: 0.6;"></div>
       <div class="sn">
-        <p class="snTitle"> < 取消移除 </p>
+        <p class="snTitle"> <i class="el-icon-arrow-left"></i> 取消移除 </p>
         <div class="snDetail">
           <p>商品编码</p>
           <el-input style="width: 300px;margin-left: 10px;" ref="searchInput2" type="search" clearable v-model="searchGoodsNo2">
