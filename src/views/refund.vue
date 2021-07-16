@@ -21,6 +21,7 @@
         <span>可退商品列表</span>
         <ul>
           <li
+            @touchstart="touchStart" @touchmove="touchMove" @touchend="touchEnd"
             v-for="(item, i) in goodsTableData"
             :key="i"
             @click="refundMode(item, i)"
@@ -68,7 +69,7 @@
             @touchend="touchEnd"
             @mouseout="hid = false"
             @mouseover="hid = true"
-            style="position: relative; padding: 0 7px; margin-bottom: 10px"
+            style="position: relative; margin-bottom: 10px"
           >
             <div class="refou_list">
               <div style="margin-right: 10px">
@@ -81,27 +82,44 @@
                 </div>
               </div>
             </div>
-            <div class="refou_list_top">
+            <div class="refou_list_top2" :style="{marginRight: marginRight + 'px'}">
               <span>￥{{ item.price }}</span>
               <div>
                 <span v-if="!item.sn">x{{ item.quantity }}</span>
                 <span v-else>编码:{{ item.sn.substr(0,7)+'******' }}</span>
               </div>
             </div>
-            <div
-              style="
-                background: #000;
-                width: 50px;
-                text-align: center;
-                line-height: 45px;
-              "
-              @click="cancel(i,item)"
-              v-show="hid"
-            >
-              <p style="color: #fff; font-size: 12px; height: 10px">取</p>
+<!--            <div-->
+<!--              style="-->
+<!--                background: #000;-->
+<!--                width: 50px;-->
+<!--                text-align: center;-->
+<!--                line-height: 45px;-->
+<!--              "-->
+<!--              @click="cancel(i,item)"-->
+<!--              v-show="hid"-->
+<!--            >-->
+<!--              <p style="color: #fff; font-size: 12px; height: 10px">取</p>-->
 
-              <p style="color: #fff; font-size: 12px; height: 10px">消</p>
-            </div>
+<!--              <p style="color: #fff; font-size: 12px; height: 10px">消</p>-->
+<!--            </div>-->
+                <div
+                  style="
+                    background: #000;
+                    width: 50px;
+                    text-align: center;
+                    line-height: 45px;
+                    position: absolute;
+                    right: 0;
+                    height: 70px;
+                  "
+                  @click="cancel(i,item)"
+                >
+                  <p style="color: #fff; font-size: 12px; height: 10px">取</p>
+
+                  <p style="color: #fff; font-size: 12px; height: 10px">消</p>
+                </div>
+
           </li>
         </ul>
       </div>
@@ -221,7 +239,9 @@ export default {
       tabp:[],
       tabps:[],
       historyList:[],
-      funBt:''
+      funBt:'',
+      startX: 0,
+      endX: 0,
     };
   },
   components: {
@@ -507,7 +527,7 @@ export default {
     },
     
     //退款方式选择取消
-    
+
 
     touchStart({ touches }) {
       if (!touches || touches.length > 1) {
@@ -530,7 +550,6 @@ export default {
       if (this.endX === 0) {
         return;
       }
-      // 往左滑了一定距离，显示删除按钮
       if (this.startX - this.endX >= 10) {
         this.endX = this.startX - 120;
       } else {
@@ -538,6 +557,7 @@ export default {
         this.startX = 0;
         this.endX = 0;
       }
+
     },
     marginRight() {
     if(this.sn != '' && this.sn != null){
@@ -560,6 +580,17 @@ export default {
 
 },
   },
+  computed: {
+    marginRight() {
+      if (this.endX === 0) return 0;
+
+      const value = this.startX - this.endX;
+
+      if (value >= 50) return 50;
+      else if (value <= 0) return 0;
+      else return value;
+    },
+  }
 };
 </script>
 <style lang="scss" scoped>
@@ -701,5 +732,12 @@ li {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+}
+.refou_list_top2{
+  background: #fff;
+  position: relative;
+  z-index: 999;
+  height: 70px;
+  min-width: 50px;
 }
 </style>
