@@ -2,7 +2,7 @@
   <div class="goods-container" @touchstart="touchStart" @touchmove="touchMove" @touchend="touchEnd">
     <div class="goods-picture">
       <img v-if="picture != '' && picture != null" :src="picture" style="width: 100%; height: 100%;">
-      <img v-else src="require('')" style="width: 100%; height: 100%;">
+      <img v-else :src="require('../images/goods.png')" style="width: 100%; height: 100%;">
     </div>
     <div class="goods-detail">
       <div class="goods-name">{{ name }}</div>

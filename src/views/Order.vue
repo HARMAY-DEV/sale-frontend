@@ -1,35 +1,37 @@
 <template>
   <div class="order-container">
     <div class="order-list" @touchmove.stop>
-      <div style="display: flex;align-items: center;margin-bottom: 20px;">
-        <template>
-          <p style="font-size: 14px;color: #333333;margin-right: 10px;">支付方式 </p>
-          <el-select v-model="value" placeholder="请选择" @change="payType()">
-            <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value">
-            </el-option>
-          </el-select>
-        </template>
-        <template>
-          <p style="font-size: 14px;color: #333333;margin-right: 10px;margin-left: 30px;">下单时间 </p>
-          <el-date-picker
-              @change="dataChange()"
-              v-model="value1"
-              format="yyyy-MM-dd HH:hh:ss"
-              type="datetimerange"
-              align="right"
-              start-placeholder="开始日期"
-              end-placeholder="结束日期"
-              :default-time="['12:00:00', '24:00:00']">
-          </el-date-picker>
-        </template>
+      <div style="position: sticky;top: 0;background: #fff;">
+        <div style="display: flex;align-items: center;margin-bottom: 20px;">
+          <template>
+            <p style="font-size: 14px;color: #333333;margin-right: 10px;">支付方式 </p>
+            <el-select v-model="value" placeholder="请选择" @change="payType()">
+              <el-option
+                  v-for="item in options"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value">
+              </el-option>
+            </el-select>
+          </template>
+          <template>
+            <p style="font-size: 14px;color: #333333;margin-right: 10px;margin-left: 30px;">下单时间 </p>
+            <el-date-picker
+                @change="dataChange()"
+                v-model="value1"
+                format="yyyy-MM-dd HH:hh:ss"
+                type="datetimerange"
+                align="right"
+                start-placeholder="开始日期"
+                end-placeholder="结束日期"
+                :default-time="['12:00:00', '24:00:00']">
+            </el-date-picker>
+          </template>
+        </div>
+        <el-input class="order-search-input" type="search" clearable v-model="searchId">
+          <el-button @click="updateOrderId(searchId)" slot="append" icon="el-icon-search"></el-button>
+        </el-input>
       </div>
-      <el-input class="order-search-input" type="search" clearable v-model="searchId">
-        <el-button @click="updateOrderId(searchId)" slot="append" icon="el-icon-search"></el-button>
-      </el-input>
 
       <order-card v-if="changeType==0" @update-order-id="updateOrderId($event)" v-for="order in orderList" :key="order.orderId" v-bind="order"></order-card>
       <order-card v-if="changeType==1" @update-order-id="updateOrderId($event)" v-for="order in orderList2" :key="order.orderId" v-bind="order"></order-card>
@@ -188,8 +190,7 @@ export default {
   overflow-y: auto;
 
   .order-search-input {
-    position: sticky;
-    top: 0;
+    //position: sticky;top: 60px;
   }
 }
 </style>
