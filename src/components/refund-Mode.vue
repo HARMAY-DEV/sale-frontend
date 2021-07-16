@@ -2,8 +2,8 @@
   <div class="refMode">
 
     <div class="ref-mode">选择退款方式</div>
- 
-
+ <!-- {{$parent.items}} -->
+<!-- {{orderTableDatas}} -->
     <div
       class="ref-conte"
       v-for="(item, i) in orderTableDatas[1]"
@@ -41,6 +41,7 @@ export default {
       items: [],//退款信息
       tabp: [],
       refundata:[],
+
       refunValue:[
         {
           ptype:'现金',
@@ -97,23 +98,24 @@ export default {
     },
     feMaxs(item){
       let pro = this.orderTableDatas[0].price * this.orderTableDatas[0].quantity
-       return  pro > item.amount?item.amount:pro
+      return pro > item.amount?item.amount:pro;
     },
     chexSn() {
-      this.refunValue.forEach(v=>{
+
+      let reValue = 0
+      
+      this.refunValue.forEach((v,i)=>{
+        if(v.price > this.orderTableDatas[1][i].amount - this.$parent.items[i].price){
+          this.$message.error(`超出${v.ptype}退款金额`);
+          return;
+        }
         if(!v.price || v.price == null || v.price == undefined){
           v.price = 0
         }
+        // 计算总计
+        reValue = Number(reValue) + Number(v.price)
       })
-      this.orderTableDatas[0].list = []
-      this.orderTableDatas[0].list.push(this.refunValue)
-      let reValue = 0
-      
-      this.refunValue.forEach(v=>{
-        
-          reValue = Number(reValue) + Number(v.price)
-      })
-      
+      // 判断总计是否超出或小于
       if(reValue > this.orderTableDatas[0].price * this.orderTableDatas[0].quantity){
         this.$message.error("超出退款金额");
         return
@@ -124,16 +126,22 @@ export default {
       }
       
       this.orderTableDatas.push(JSON.parse(JSON.stringify(this.refunValue)))
+      // console.log('确定');
+      // console.log(this.orderTableDatas[1]);
       this.orderTableDatas[1].forEach((v) => {
         if (!v.commodity) {
-          this.$emit("products", this.orderTableDatas);
-
-          this.orderTableDatas[1].forEach((v) => {
-            v.commodity = true;
-          });
-          this.$parent.refundModes = false;
+          v.commodity = true;
+          if(this.orderTableDatas[0].list.length == 0){
+            this.orderTableDatas[0].list.push(this.refunValue)
+          }else{
+            this.orderTableDatas[0].list[0].forEach((v,i)=>{
+              v.price =  Number(v.price) + Number(this.refunValue[i].price)
+            })  
+          }
         }
       });
+      this.$emit("products", this.orderTableDatas);
+      this.$parent.refundModes = false;
     },
   },
 };

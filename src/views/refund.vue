@@ -6,6 +6,7 @@
         >返回订单管理</span
       >
       <div>订单号:{{ tid }}</div>
+      {{goodsTableDatas}}
     </div>
     <!-- <div>
       <el-input ref="searchInput" type="search" v-model="searchGoodsNo">
@@ -428,10 +429,16 @@ export default {
 
           break;
         case "subtraction":
-          this.goodsTableData[num].quantity >= this.goodsTableData[num].quantity
-            ? this.$message.error("只购买了这些商品！")
-            : this.goodsTableData[num].quantity++;
-
+          if (this.goodsTableDatas.length==0 && Number(this.goodsTableData[num].quantity) < Number(this.historyList[num].quantity)){
+            this.goodsTableData[num].quantity++;
+            return;
+          }
+          if(this.goodsTableData[num].quantity >= this.historyList[num].quantity ||
+              Number(this.goodsTableData[num].quantity) + Number(this.goodsTableDatas[num].quantity) >= Number(this.historyList[num].quantity)){
+                this.$message.error("只购买了这些商品！")
+          }else{
+            this.goodsTableData[num].quantity++;
+          }
           break;
       }
     },
@@ -491,33 +498,56 @@ export default {
           this.orderTableDatas = item;
           this.refundModes = true;
         
-        }   
+        }
+        if(this.orderTableDatas.list){
+            return
+        }
+        this.orderTableDatas.list = []   
       }
       
     },
     products(data) {
       this.funBt = ''
       let data2 = data[2]
+      console.log(data);
         for(var i=0;i<data2.length;i++){
-          console.log(data2[i]);
+          
          this.items[i].price += data2[i].price
         }  
-      for(var v =0;v<this.items.length;v++){
+      for(var e =0;e<this.items.length;e++){
         
-        this.funBt = Number(this.funBt)+ Number(this.items[v].price)
+        this.funBt = Number(this.funBt)+ Number(this.items[e].price)
       }
-      
-      if (this.goodsTableDatas.indexOf(data[0]) == -1) {
-        
+      if(!this.goodsTableDatas.length == 0){
+        this.goodsTableDatas.forEach((v,i)=>{
+              if (v.id == data[0].id && !data[0].sn && data[0].sn !=null && data[0].sn != undefined) {
+                  
+                  v.quantity +=data[0].quantity
+                  // v.list = data[0].list
+                  v.list[0].forEach((item,index)=>{
+                      item.price = data[0].list[0][index].price
+                  })
+                
+              }else{
+                this.goodsTableDatas.push(JSON.parse(JSON.stringify(data[0])));
+              }
+              
+                  
+      })
+      }else{
         this.goodsTableDatas.push(JSON.parse(JSON.stringify(data[0])));
-        this.goodsTableData.forEach((v,i)=>{
-            if(!v.sn && v.id == data[0].id){
-              v.quantity = this.historyList[i].quantity - data[0].quantity
-            }
-        })
-     
-      
+       
       }
+      //  this.goodsTableDatas.push(JSON.parse(JSON.stringify(data[0])));
+       this.goodsTableData.forEach((v,i)=>{
+                      if(!v.sn && v.id == this.goodsTableDatas[i].id){
+                        v.quantity = this.historyList[i].quantity - this.goodsTableDatas[i].quantity
+                      }
+                })
+
+      console.log('打印打印')
+      console.log(this.goodsTableDatas)
+      
       
       
       
@@ -558,27 +588,7 @@ export default {
         this.endX = 0;
       }
 
-    },
-    marginRight() {
-    if(this.sn != '' && this.sn != null){
-      if (this.endX === 0) return 0;
-
-      const value = this.startX - this.endX;
-
-      if (value >= 120) return 120;
-      else if (value <= 0) return 0;
-      else return value;
-    }else {
-      if (this.endX === 0) return 0;
-
-      const value = this.startX - this.endX;
-
-      if (value >= 120) return 120;
-      else if (value <= 0) return 0;
-      else return value;
     }
-
-},
   },
   computed: {
     marginRight() {

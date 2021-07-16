@@ -62,8 +62,16 @@ export default {
                 });
             }
         }else {
-            this.$parent.refundMe = false 
+            if(this.textSn == this.refundMe[2]){
+                this.$parent.refundMe = false 
                 this.$parent.refundModes = true
+            }else{
+                this.$message({
+                    showClose: true,
+                    message: '商品编码不一致',
+                    type: 'error'
+                });
+            }
         }
         
         },
