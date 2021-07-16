@@ -62,7 +62,7 @@ const mutations: MutationTree<UserState> = {
 //     commit('updateUserId', userId);
 //     commit('updateShopId', shopId);
 //   },
-
+//
 //   async getShopList({ commit }) {
 //     const shopList = await UserService.getShopList();
 //     commit('updateShopList', shopList);
