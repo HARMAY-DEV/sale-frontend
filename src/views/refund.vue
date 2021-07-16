@@ -282,74 +282,66 @@ export default {
           },2000)
         }
     },
-    goodsTableDatas(newValue, oldValue) {
+
       
-      if (newValue.length == 0) {
-         this.flowTableDatas = []
-        
-      } else { 
-      }
-    },
-    flowTableData(newValue,oldValue){
       
-    },
   },
   methods: {
     ...mapActions("order", ["refundWholeOrder"]),
     async getOrderInfo(i) {
-      // const [{ orderInfo, goodsList }, flowList] = await Promise.all([
-      //   OrderService.getOrderDetail(i),
-      //   FlowService.getFlowListByOrderId(i),
-      // ]);
-      const orderInfo = {
-          id: "863031505729881088",
-          paidAmount: 472,
-          payStatus: "pay_success",
-          payType: "combined",
-          payableAmount: 472,
-          refundAmount: 0,
-          status: "completed",
-          time: "2021-07-09 12:19:05",
-      }
-      const goodsList = [{
-        amount: 47200,
-        id: "111",
-        name: "韦博士灵芝焕能好底子饱水凝霜",
-        price: 100,
-        quantity: "5",
-        sn:'',
-        spec: "50ml"
-      },{
-        amount: 47210,
-        id: "110074332",
-        name: "阿萨德好看大石街道 ",
-        price: 100,
-        quantity: "2",
-        sn:'z1622883648894',
-        spec: "50ml"
-      }]
-      const flowList = [
-        {
-          amount: 200,
-          id: "863031530035873792",
-          payType: "现金",
-          status: "pay_success",
-          time: "2021-07-09 12:19:11",
-        },{
-          amount: 200,
-          id: "863031544392976384",
-          payType: "微信",
-          status: "pay_success",
-          time: "2021-07-09 12:19:14",
-        },
-        {
-          amount: 300,
-          id: "863031544392976384",
-          payType: "支付宝",
-          status: "pay_success",
-          time: "2021-07-09 12:19:14",
-        },
-      ]
+      const [{ orderInfo, goodsList }, flowList] = await Promise.all([
+        OrderService.getOrderDetail(i),
+        FlowService.getFlowListByOrderId(i),
+      ]);
+      // const orderInfo = {
+      //     id: "863031505729881088",
+      //     paidAmount: 472,
+      //     payStatus: "pay_success",
+      //     payType: "combined",
+      //     payableAmount: 472,
+      //     refundAmount: 0,
+      //     status: "completed",
+      //     time: "2021-07-09 12:19:05",
+      // }
+      // const goodsList = [{
+      //   amount: 47200,
+      //   id: "111",
+      //   name: "韦博士灵芝焕能好底子饱水凝霜",
+      //   price: 100,
+      //   quantity: "5",
+      //   sn:'',
+      //   spec: "50ml"
+      // },{
+      //   amount: 47210,
+      //   id: "110074332",
+      //   name: "阿萨德好看大石街道 ",
+      //   price: 100,
+      //   quantity: "2",
+      //   sn:'z1622883648894',
+      //   spec: "50ml"
+      // }]
+      // const flowList = [
+      //   {
+      //     amount: 200,
+      //     id: "863031530035873792",
+      //     payType: "现金",
+      //     status: "pay_success",
+      //     time: "2021-07-09 12:19:11",
+      //   },{
+      //     amount: 200,
+      //     id: "863031544392976384",
+      //     payType: "微信",
+      //     status: "pay_success",
+      //     time: "2021-07-09 12:19:14",
+      //   },
+      //   {
+      //     amount: 300,
+      //     id: "863031544392976384",
+      //     payType: "支付宝",
+      //     status: "pay_success",
+      //     time: "2021-07-09 12:19:14",
+      //   },
+      // ]
       this.historyList =JSON.parse(JSON.stringify(goodsList))
       this.canRefund =
         (orderInfo.payStatus === "pay_success" ||

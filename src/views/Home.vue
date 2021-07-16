@@ -11,7 +11,7 @@
       <el-menu-item index="shopping-cart">收银</el-menu-item>
       <el-menu-item index="order">订单管理</el-menu-item>
       <el-menu-item index="device">设备管理</el-menu-item>
-      <div @click="chuw">创建</div>
+
       <router-link to="/profile" class="avatar-container">
         <el-avatar icon="el-icon-user"></el-avatar>
       </router-link>
