@@ -37,12 +37,12 @@
                 qrCode:'https://6441ace61742439ba654b9f399be07e8-cn-hangzhou-vpc.alicloudapi.com/uinvoice/apply?BC=30006&CA=2500&CN=858011511841358848&NC=5444&SN=ums001&TN=0&TS=1625449935111&AS=88B8797A99AC39A5E0036EE33878AE65',
                 baseUrl:'',
                 barcode:'',
-                id:''
-                // id:'858011511841358848'
+                // id:''
+                id:'858011511841358848'
             }
         },
         props: {
-            id: String,
+            // id: String,
         },
         methods: {
             print(){

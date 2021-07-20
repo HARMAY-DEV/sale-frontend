@@ -9,7 +9,21 @@
 
     </div>
 <!--    <button @click="sendMessageSelf()">自己方法打印</button>-->
-<!--    <button @click="connect()">连接</button>-->
+    <div style="display: flex;align-items: center;margin-bottom: 20px;flex-wrap: wrap;">
+      <div style="display: flex;align-items: center;">
+        <p style="margin-right: 10px;">IP address</p>
+        <el-input style="width: 200px;margin-right: 20px;" v-model="ipAddress" placeholder="请输入ip地址"></el-input>
+      </div>
+      <div style="display: flex;align-items: center;">
+        <p style="margin-right: 10px;">Port</p>
+        <el-input style="width: 200px;margin-right: 20px;" v-model="port" placeholder="请输入Port"></el-input>
+      </div>
+      <div style="display: flex;align-items: center;">
+        <p style="margin-right: 10px;">Device ID</p>
+        <el-input style="width: 200px;margin-right: 20px;" v-model="deviceID" placeholder="请输入Device ID"></el-input>
+      </div>
+      <el-button @click="connect()">连接</el-button>
+    </div>
     <el-button @click="print()">打印</el-button>
     <div style="display: none;">
       <canvas id="canvas" width="0" height="0"></canvas>
@@ -35,8 +49,9 @@ export default {
       crypto:false,
       buffer:false,
       printer:null,
-      ipAddress:'192.168.31.181',
-      port:null,
+      ipAddress:'',
+      port:'',
+      deviceID:'',
       ePosDev:new epson.ePOSDevice(),
       shopList:[],
       orderdetail:{},
@@ -44,9 +59,10 @@ export default {
       payable_amount:'',
       paid:'',
       payMent:'',
-      qrCode:'https://6441ace61742439ba654b9f399be07e8-cn-hangzhou-vpc.alicloudapi.com/uinvoice/apply?BC=30006&CA=2500&CN=858011511841358848&NC=5444&SN=ums001&TN=0&TS=1625449935111&AS=88B8797A99AC39A5E0036EE33878AE65',
+      qrCode:'',
       baseUrl:'',
-      barcode:''
+      barcode:'',
+      orderId:'858011511841358848'
     }
   },
   methods: {
@@ -54,6 +70,25 @@ export default {
       this.sendMessageSelf()
     },
     connect() {
+      console.log('打印ip')
+      console.log(this.ipAddress)
+      console.log(this.port)
+      console.log(this.deviceID)
+      if(this.ipAddress == ''){
+        this.$message.error('请输入IP地址');
+        return
+      }
+      if(this.port == ''){
+        this.$message.error('请输入port');
+        return
+      }
+      if(this.deviceID == ''){
+        this.$message.error('请输入deviceID');
+        return
+      }
+      window.localStorage.setItem("ipAddress",this.ipAddress)
+      window.localStorage.setItem("port",this.port)
+      window.localStorage.setItem("deviceID",this.deviceID)
       let canvas;
       let canvas2;
       let canvas3;
@@ -61,8 +96,8 @@ export default {
 
       var ePosDev = this.ePosDev
       console.log(ePosDev)
-      var ipAddress = '192.168.31.181'
-      var port = '9100'
+      var ipAddress = this.ipAddress
+      var port = this.port
 
       ePosDev.connect(ipAddress, port, this.Callback_connect);
       ePosDev.onreconnecting = this.OnReconnecting;
@@ -115,7 +150,7 @@ export default {
       // image4.src = 'https://testoss.functionradian4.com/harmay/harmayCS/4.png';
       // image4.src = require("../images/4.png");
       image4.src = this.barcode
-              image4.onload = function () {
+      image4.onload = function () {
         if (canvas4.getContext) {
           canvas4.width = image4.width;
           canvas4.height = image4.height;
@@ -129,7 +164,7 @@ export default {
       console.log('打印data')
       console.log(data)
       var ePosDev = this.ePosDev
-      var deviceID = 'bananalab_epos'
+      var deviceID = this.deviceID
       // crypto       = document.getElementById("crypto").checked;
       // buffer       = document.getElementById("buffer").checked;
       var options  = {'crypto' : this.crypto, 'buffer' : this.buffer};
@@ -377,11 +412,24 @@ export default {
     },
   },
   created() {
-    shopDetail('858011511841358848').then(res=>{
+    // console.log('打印缓存数据')
+    // window.localStorage.removeItem("ipAddress")
+    // window.localStorage.removeItem("port")
+    // window.localStorage.removeItem("deviceID")
+    if(window.localStorage.getItem("ipAddress") != null){
+      this.ipAddress = window.localStorage.getItem("ipAddress")
+    }
+    if(window.localStorage.getItem("port") != null){
+      this.port = window.localStorage.getItem("port")
+    }
+    if(window.localStorage.getItem("deviceID") != null){
+      this.deviceID = window.localStorage.getItem("deviceID")
+    }
+    shopDetail(this.orderId).then(res=>{
       // console.log(res)
       this.shopList = res.data
     })
-    orderDetail('858011511841358848').then(res=>{
+    orderDetail(this.orderId).then(res=>{
       // console.log(res)
       this.orderdetail = res.data.data
       // console.log('打印订单详情')
@@ -417,7 +465,7 @@ export default {
         var codeUrl = res.data.data
         // this.qrCode(codeUrl)
         this.qrcode(codeUrl)
-        this.connect()
+        // this.connect()
       })
 
     })
