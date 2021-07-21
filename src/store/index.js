@@ -35,8 +35,7 @@ const mutations = {
 const actions = {
     getImages({ commit }) {
         getHeaderImage().then(res => {
-            // let blob = new Blob([res.data], { type: "image/png" });
-            // let url = window.URL.createObjectURL(blob);
+
             commit("SET_IMAGE", res.data.msg)
         })
     }
