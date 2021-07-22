@@ -5,16 +5,16 @@ import { StorageKey } from '@/utils/consts';
 import { Storage } from '@/utils/storage';
 import { RootState } from './root';
 
-export interface LoginData {
-  username: string;
-  password: string;
-  shopId: string;
-}
 // export interface LoginData {
-//   deptName: string;
-//   unionid: string;
 //   username: string;
+//   password: string;
+//   shopId: string;
 // }
+export interface LoginData {
+  deptName: string;
+  unionid: string;
+  username: string;
+}
 
 export interface UserState {
   isLogin: boolean;
@@ -55,25 +55,12 @@ const mutations: MutationTree<UserState> = {
   },
 };
 
-const actions: ActionTree<UserState, RootState> = {
-  async login({ commit }, { username, password, shopId }: LoginData) {
-    const userId = await UserService.login(username, password, shopId);
-    commit('updateLoginStatus');
-    commit('updateUserId', userId);
-    commit('updateShopId', shopId);
-  },
-
-  async getShopList({ commit }) {
-    const shopList = await UserService.getShopList();
-    commit('updateShopList', shopList);
-  }
-};
 // const actions: ActionTree<UserState, RootState> = {
-//   async login({ commit }, { deptName, unionid, username }: LoginData) {
-//     const userId = await UserService.login(deptName, unionid, username);
+//   async login({ commit }, { username, password, shopId }: LoginData) {
+//     const userId = await UserService.login(username, password, shopId);
 //     commit('updateLoginStatus');
-//     commit('updateUserId', unionid);
-//     commit('updateShopId', deptName);
+//     commit('updateUserId', userId);
+//     commit('updateShopId', shopId);
 //   },
 //
 //   async getShopList({ commit }) {
@@ -81,6 +68,19 @@ const actions: ActionTree<UserState, RootState> = {
 //     commit('updateShopList', shopList);
 //   }
 // };
+const actions: ActionTree<UserState, RootState> = {
+  async login({ commit }, { deptName, unionid, username }: LoginData) {
+    const userId = await UserService.login(deptName, unionid, username);
+    commit('updateLoginStatus');
+    commit('updateUserId', unionid);
+    commit('updateShopId', deptName);
+  },
+
+  async getShopList({ commit }) {
+    const shopList = await UserService.getShopList();
+    commit('updateShopList', shopList);
+  }
+};
 
 export const UserStore: Module<UserState, RootState> = {
   namespaced: true,
