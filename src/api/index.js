@@ -92,7 +92,7 @@ export function addOrder() {
 // 获取钉钉用户信息
 export function dingDing(code) {
     return axios({
-        url:'https://test.outiejun.com/api/user/getDingDingUserInfo?tmpAuthCode='+code,
+        url:'https://testapi.outiejun.com/api/user/getDingDingUserInfo?tmpAuthCode='+code,
         method: 'get',
         params: {},
         headers: {
