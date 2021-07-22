@@ -52,6 +52,7 @@ const actions: ActionTree<OrderState, RootState> = {
       spec_id: goods.spec.id,
       spec_name: goods.spec.name,
       spec_no: goods.spec.id,
+      sn:goods.sn
     })), cart.cartId);
     commit('updateOrderId', orderId);
     await dispatch('getOrderDetail');

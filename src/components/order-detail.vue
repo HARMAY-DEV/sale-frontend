@@ -1,5 +1,6 @@
 <template>
   <div class="order-detail" @touchmove.stop>
+    <p>订单编号 {{id}}</p>
     <div class="order-header">
       <span style="margin-right: auto;">订单号：{{ id }}</span>
       <span style="margin-right: 5px;">{{ orderStatus }}</span>
@@ -41,7 +42,7 @@
       <el-button :disabled="!canRefund" @click="refundOrder('whole')">整单退货</el-button>
       <el-button @click="refundOrder('part')" :disabled="orderStatus == '未付款' || orderStatus == '退款成功'">退货</el-button>
     </div>
-<!--    <ticket ref="mychild" :id="id"></ticket>-->
+    <ticket ref="mychild" :id="id"></ticket>
   </div>
 </template>
 

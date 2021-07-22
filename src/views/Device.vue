@@ -271,6 +271,9 @@ export default {
         }
       };
       this.printer = printer
+      console.log('打印--')
+      console.log(this.printer)
+      sessionStorage.setItem("printer", this.printer);
     },
     sendMessageSelf() {
       // var qrcode = document.getElementById('qrcode');
@@ -458,7 +461,7 @@ export default {
       });
       // console.log(document.getElementById("barcode").src)
       this.barcode = document.getElementById("barcode").src
-      orderSync().then(res=>{
+      orderSync(this.id).then(res=>{
         // console.log('打印二维码')
         // console.log(res.data.data)
         // document.getElementById('qrcode').innerHTML = ''

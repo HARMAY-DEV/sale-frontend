@@ -37,12 +37,13 @@
                 qrCode:'https://6441ace61742439ba654b9f399be07e8-cn-hangzhou-vpc.alicloudapi.com/uinvoice/apply?BC=30006&CA=2500&CN=858011511841358848&NC=5444&SN=ums001&TN=0&TS=1625449935111&AS=88B8797A99AC39A5E0036EE33878AE65',
                 baseUrl:'',
                 barcode:'',
-                // id:''
-                id:'858011511841358848'
+                id:'',
+                // id:'858011511841358848',
+                isType:0
             }
         },
         props: {
-            // id: String,
+            id: String,
         },
         methods: {
             print(){
@@ -53,16 +54,16 @@
                 let canvas2;
                 let canvas3;
                 let canvas4;
+                if(this.isType == 0){
+                  var ePosDev = this.ePosDev
+                  var ipAddress = window.localStorage.getItem("ipAddress")
+                  var port = window.localStorage.getItem("port")
 
-                var ePosDev = this.ePosDev
-                console.log(ePosDev)
-                var ipAddress = '192.168.31.181'
-                var port = '9100'
-
-                ePosDev.connect(ipAddress, port, this.Callback_connect);
-                ePosDev.onreconnecting = this.OnReconnecting;
-                ePosDev.onreconnect = this.OnReconnect;
-                ePosDev.ondisconnect = this.OnDisconnect;
+                  ePosDev.connect(ipAddress, port, this.Callback_connect);
+                  ePosDev.onreconnecting = this.OnReconnecting;
+                  ePosDev.onreconnect = this.OnReconnect;
+                  ePosDev.ondisconnect = this.OnDisconnect;
+                }
                 canvas = document.getElementById('canvas');
                 canvas2 = document.getElementById('canvas2');
                 canvas3 = document.getElementById('canvas3');
@@ -124,7 +125,7 @@
                 console.log('打印data')
                 console.log(data)
                 var ePosDev = this.ePosDev
-                var deviceID = 'bananalab_epos'
+                var deviceID = window.localStorage.getItem("deviceID")
                 // crypto       = document.getElementById("crypto").checked;
                 // buffer       = document.getElementById("buffer").checked;
                 var options  = {'crypto' : this.crypto, 'buffer' : this.buffer};
@@ -231,6 +232,7 @@
                     }
                 };
                 this.printer = printer
+                this.isType = 1
             },
             sendMessageSelf() {
                 // var qrcode = document.getElementById('qrcode');
@@ -282,7 +284,7 @@
                 printer.addTextPosition(0);
                 printer.addText('应付金额');
                 printer.addTextPosition(395);
-                printer.addText(('￥'+this.payable_amount).padStart(11, ' ')+'\n');
+                printer.addText(('￥'+(this.payable_amount/100)).padStart(11, ' ')+'\n');
                 printer.addTextPosition(0);
                 printer.addText('折扣金额');
                 printer.addTextPosition(440);
@@ -298,10 +300,15 @@
 
                 printer.addTextStyle(false, false, true, printer.COLOR_1);
                 printer.addTextPosition(0);
-                printer.addText('实付金额');
+                if(this.paid > 0){
+                  printer.addText('实付金额');
+                }else {
+                  printer.addText('退款金额');
+                }
+
                 printer.addTextSize(2, 2);
                 printer.addTextPosition(300);
-                printer.addText(('￥'+this.paid).padStart(11, ' ')+'\n');
+                printer.addText(('￥'+(this.paid/100)).padStart(11, ' ')+'\n');
 
                 printer.addTextSize(1, 1);
                 printer.addTextStyle(false, false, false, printer.COLOR_1);
@@ -374,25 +381,31 @@
                 // console.log('打印---id')
                 // console.log(this.id)
                 shopDetail(this.id).then(res=>{
+                    console.log('店铺详情')
                     // console.log(res)
                     this.shopList = res.data
                 })
 
                 orderDetail(this.id).then(res=>{
-                    // console.log(res)
                     this.orderdetail = res.data.data
                     // console.log('打印订单详情')
                     // console.log(this.orderdetail)
-                    // for(var i = 0;i<this.shopList.length;i++){
-                    //   if(this.orderdetail.shop_no == this.shopList[i].shop_no){
-                    //     this.thisShop = this.shopList[i]
-                    //   }
-                    // }
-                    // console.log('店铺列表')
-                    // console.log(this.shopList)
-                    this.thisShop = this.shopList[0]
-                    this.payable_amount = this.orderdetail.payable_amount.substring(0,this.orderdetail.payable_amount.length-2)
+                    if(this.orderdetail.shop_no == 'imperfect-test' || this.orderdetail.shop_no == '' || this.orderdetail.shop_no == null || this.orderdetail.shop_no == undefined){
+                      this.thisShop = this.shopList[0]
+                    }else {
+                      for(var i = 0;i<this.shopList.length;i++){
+                        if(this.orderdetail.shop_no == this.shopList[i].shop_no){
+                          this.thisShop = this.shopList[i]
+                        }
+                      }
+                    }
+                    if(this.orderdetail.payable_amount != null){
+                      this.payable_amount = this.orderdetail.payable_amount.substring(0,this.orderdetail.payable_amount.length-2)
+                    }
+
                     this.paid = this.orderdetail.paid.substring(0,this.orderdetail.paid.length-2)
+                    // console.log('实付金额')
+                    // console.log(this.paid)
                     if(this.orderdetail.pay_type=='wechat'){
                         this.payMent='微信'
                     }else if(this.orderdetail.pay_type=='alipay'){
@@ -409,8 +422,8 @@
                     });
                     // console.log(document.getElementById("barcode").src)
                     this.barcode = document.getElementById("barcode").src
-                    orderSync().then(res=>{
-                        // console.log('打印二维码')
+                    orderSync(this.id).then(res=>{
+                        console.log('打印二维码')
                         // console.log(res.data.data)
                         // document.getElementById('qrcode').innerHTML = ''
                         var codeUrl = res.data.data
@@ -423,17 +436,21 @@
             }
         },
         mounted() {
-            console.log('进入---1111')
+            // console.log('进入---1111')
+            // console.log(this.id)
+            var printer = sessionStorage.getItem("printer")
+            console.log(printer)
             var that = this
             var t = setTimeout(function () {
                 that.detail()
             }, 3000);
 
-
         },
         watch:{
             id(){
                 console.log('进入---1111')
+                console.log(this.id)
+                console.log(this.isType)
                 var that = this
                 var t = setTimeout(function () {
                     that.detail()

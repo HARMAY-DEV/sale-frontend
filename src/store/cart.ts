@@ -16,6 +16,7 @@ interface GoodsInfo {
   picture: string;
   stock: number;
   quantity: number;
+  sn:string
 }
 
 interface CartData {

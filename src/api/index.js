@@ -27,7 +27,7 @@ export function orderDetail(orderId) {
 }
 export function orderSync(orderId) {
     return axios({
-        url: url+'/order/invoice/858011511841358848',
+        url: url+'/order/invoice/'+orderId,
         method: 'get',
         params: {},
         headers: {
