@@ -12,15 +12,15 @@
     <div style="display: flex;align-items: center;margin-bottom: 20px;flex-wrap: wrap;">
       <div style="display: flex;align-items: center;">
         <p style="margin-right: 10px;">IP address</p>
-        <el-input style="width: 200px;margin-right: 20px;" v-model="ipAddress" placeholder="请输入ip地址"></el-input>
+        <el-input style="width: 200px;margin-right: 20px;" v-model="ipAddress" placeholder="192.168.31.181"></el-input>
       </div>
       <div style="display: flex;align-items: center;">
         <p style="margin-right: 10px;">Port</p>
-        <el-input style="width: 200px;margin-right: 20px;" v-model="port" placeholder="请输入Port"></el-input>
+        <el-input style="width: 200px;margin-right: 20px;" v-model="port" placeholder="9001"></el-input>
       </div>
       <div style="display: flex;align-items: center;">
         <p style="margin-right: 10px;">Device ID</p>
-        <el-input style="width: 200px;margin-right: 20px;" v-model="deviceID" placeholder="请输入Device ID"></el-input>
+        <el-input style="width: 200px;margin-right: 20px;" v-model="deviceID" placeholder="bananalab_epos"></el-input>
       </div>
       <el-button @click="connect()">连接</el-button>
     </div>
