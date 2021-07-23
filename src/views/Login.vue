@@ -1,72 +1,72 @@
 <template>
   <div class="login-container">
-<!--    <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" autocomplete="on" label-position="left">-->
+    <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" autocomplete="on" label-position="left">
 
-<!--      <div class="title-container">-->
-<!--        <h3 class="title">HARMAY</h3>-->
-<!--      </div>-->
-
-<!--      <el-form-item prop="username">-->
-<!--        <span class="svg-container">-->
-<!--          <i class="el-icon-user"></i>-->
-<!--        </span>-->
-<!--        <el-input-->
-<!--          ref="username"-->
-<!--          v-model="loginForm.username"-->
-<!--          placeholder="请输入账号"-->
-<!--          name="username"-->
-<!--          type="text"-->
-<!--          tabindex="1"-->
-<!--          autocomplete="on"-->
-<!--        />-->
-<!--      </el-form-item>-->
-
-<!--      <el-tooltip v-model="capsTooltip" content="大写锁定已打开" placement="right" manual>-->
-<!--        <el-form-item prop="password">-->
-<!--          <span class="svg-container">-->
-<!--            <i class="el-icon-lock"></i>-->
-<!--          </span>-->
-<!--          <el-input-->
-<!--            ref="password"-->
-<!--            v-model="loginForm.password"-->
-<!--            type="password"-->
-<!--            placeholder="请输入密码"-->
-<!--            name="password"-->
-<!--            tabindex="2"-->
-<!--            autocomplete="on"-->
-<!--            @keyup.native="checkCapslock"-->
-<!--            @blur="capsTooltip = false"-->
-<!--            @keyup.enter.native="handleLogin"-->
-<!--          />-->
-<!--        </el-form-item>-->
-<!--      </el-tooltip>-->
-
-<!--      <el-form-item prop="shopId">-->
-<!--        <span class="svg-container">-->
-<!--          <i class="el-icon-office-building" />-->
-<!--        </span>-->
-<!--        <el-select-->
-<!--          v-model="loginForm.shopId"-->
-<!--          placeholder="请选择地址"-->
-<!--          name="shopId"-->
-<!--          tabindex="3"-->
-<!--          autocomplete="on"-->
-<!--          style="width: calc(100% - 30px);"-->
-<!--        >-->
-<!--          <el-option v-for="item in shopList" :key="item.value" :label="item.shopName" :value="item.shopId" :disabled="!item.isActive" />-->
-<!--        </el-select>-->
-<!--      </el-form-item>-->
-
-<!--      <el-button :loading="loading" type="primary" style="width:100%; margin-bottom: 30px;" @click.native.prevent="handleLogin">登录</el-button>-->
-<!--    </el-form>-->
-    <div style="margin-top: 300px;">
       <div class="title-container">
         <h3 class="title">HARMAY</h3>
       </div>
-      <div style="width: 300px;margin: 40px auto;">
-        <el-button :loading="loading" type="primary" style="width:300px;" @click="loginDing()">钉钉登录</el-button>
-      </div>
-   </div>
+
+      <el-form-item prop="username">
+        <span class="svg-container">
+          <i class="el-icon-user"></i>
+        </span>
+        <el-input
+          ref="username"
+          v-model="loginForm.username"
+          placeholder="请输入账号"
+          name="username"
+          type="text"
+          tabindex="1"
+          autocomplete="on"
+        />
+      </el-form-item>
+
+      <el-tooltip v-model="capsTooltip" content="大写锁定已打开" placement="right" manual>
+        <el-form-item prop="password">
+          <span class="svg-container">
+            <i class="el-icon-lock"></i>
+          </span>
+          <el-input
+            ref="password"
+            v-model="loginForm.password"
+            type="password"
+            placeholder="请输入密码"
+            name="password"
+            tabindex="2"
+            autocomplete="on"
+            @keyup.native="checkCapslock"
+            @blur="capsTooltip = false"
+            @keyup.enter.native="handleLogin"
+          />
+        </el-form-item>
+      </el-tooltip>
+
+      <el-form-item prop="shopId">
+        <span class="svg-container">
+          <i class="el-icon-office-building" />
+        </span>
+        <el-select
+          v-model="loginForm.shopId"
+          placeholder="请选择地址"
+          name="shopId"
+          tabindex="3"
+          autocomplete="on"
+          style="width: calc(100% - 30px);"
+        >
+          <el-option v-for="item in shopList" :key="item.value" :label="item.shopName" :value="item.shopId" :disabled="!item.isActive" />
+        </el-select>
+      </el-form-item>
+
+      <el-button :loading="loading" type="primary" style="width:100%; margin-bottom: 30px;" @click.native.prevent="handleLogin">登录</el-button>
+    </el-form>
+<!--    <div style="margin-top: 300px;">-->
+<!--      <div class="title-container">-->
+<!--        <h3 class="title">HARMAY</h3>-->
+<!--      </div>-->
+<!--      <div style="width: 300px;margin: 40px auto;">-->
+<!--        <el-button :loading="loading" type="primary" style="width:300px;" @click="loginDing()">钉钉登录</el-button>-->
+<!--      </div>-->
+<!--   </div>-->
   </div>
 </template>
 
@@ -165,7 +165,8 @@ export default {
       });
     },
     loginDing(){
-      window.open('https://oapi.dingtalk.com/connect/oauth2/sns_authorize?appid=dingiva41ovpwg6hbb25&response_type=code&scope=snsapi_login&state=STATE&redirect_uri=https://testh5.outiejun.com/login')
+      // window.open('https://oapi.dingtalk.com/connect/oauth2/sns_authorize?appid=dingiva41ovpwg6hbb25&response_type=code&scope=snsapi_login&state=STATE&redirect_uri=https://testh5.outiejun.com/login')
+      window.open('https://oapi.dingtalk.com/connect/oauth2/sns_authorize?appid=dingiva41ovpwg6hbb25&response_type=code&scope=snsapi_login&state=STATE&redirect_uri=https://sale-dev1.harmay.com/login')
     },
     getQueryVariable(variable) {
       var query = window.location.search.substring(1);
