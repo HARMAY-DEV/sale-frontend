@@ -88,13 +88,17 @@ export type HttpParams = PlainObject | URLSearchParams;
 class HttpService {
   constructor() {
     const token = Storage.getItem(StorageKey.TOKEN);
-
+    console.log('打印token')
+    console.log(token)
     if (token) {
       this.setAuthorizationToken(token);
+    }else{
+      this.setAuthorizationToken2('APPCODE f4acfdb82053482fa9b51cf8f901bf7a');
     }
   }
 
   setAuthorizationToken(token: string) {
+    // console.log('进入token')
     if (!instance.defaults.headers) {
       instance.defaults.headers = { Authorization: token };
     } else {
@@ -102,8 +106,12 @@ class HttpService {
         Object.assign(header, { Authorization: `${HEADER_PREFIX} ${token}` });
       });
     }
-
+    // console.log(token)
     Storage.setItem(StorageKey.TOKEN, token);
+  }
+  setAuthorizationToken2(token: string) {
+    // console.log('进入')
+    instance.defaults.headers = { Authorization: token }
   }
 
   get<T = any>(url: string, params?: HttpParams, cache = true): Promise<T> {

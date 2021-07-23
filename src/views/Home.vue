@@ -25,9 +25,19 @@
 </template>
 
 <script>
+import {addOrder} from "@/api/index"
 export default {
   name: "Home",
+
+  methods:{
+    chuw(){
+        addOrder().then(res=>{
+          console.log(res,'ddddd');
+        })
+    }
+  }
 };
+
 </script>
 
 <style lang="scss">

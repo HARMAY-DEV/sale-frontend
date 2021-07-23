@@ -32,7 +32,11 @@ const routes: RouteConfig[] = [
         path: 'profile',
         name: 'profile',
         component: () => import(/* webpackPrefetch: true */ '@/views/Profile.vue'),
-      }
+      },{
+        path: '/refund',
+        name: 'Refund',
+        component: () => import(/* webpackPrefetch: true */ '@/views/refund.vue'),
+    }
     ],
     beforeEnter(to, from, next) {
       const isLogin = localStorage.getItem(StorageKey.IS_LOGIN);
@@ -57,6 +61,7 @@ const routes: RouteConfig[] = [
 
 const router = new VueRouter({
   mode: 'history',
+  // base: 'harmay/harmayCS/'+process.env.BASE_URL,
   base: process.env.BASE_URL,
   routes,
 });

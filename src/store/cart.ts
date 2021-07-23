@@ -16,6 +16,7 @@ interface GoodsInfo {
   picture: string;
   stock: number;
   quantity: number;
+  sn:string
 }
 
 interface CartData {
@@ -23,6 +24,7 @@ interface CartData {
   price: number;
   cartId?: string;
   quantity?: number;
+  sn:string
 }
 
 export interface CartState {
@@ -58,10 +60,13 @@ const mutations: MutationTree<CartState> = {
   },
 
   updateGoodsInfo(state, goods: GoodsInfo) {
+    console.log(goods)
     state.searchGoods = goods;
   },
 
   updateGoodsList(state, { goodsList, totalAmount, totalCount }) {
+    // console.log(state)
+    // if(state.sn)
     if (goodsList.length === 0) {
       state.cartId = '';
       Storage.removeItem(StorageKey.CART_ID);
@@ -95,18 +100,23 @@ const actions: ActionTree<CartState, RootState> = {
     commit('updateGoodsList', result);
   },
 
-  async addToCart({ state, commit }, { goodsId, price, cartId = state.cartId, quantity = 1 }: CartData) {
-    const { cartId: _cartId, ...data }  = await CartService.addGoodsToShoppingCart(goodsId, cartId, price, quantity);
-
+  async addToCart({ state, commit }, { goodsId, price, cartId = state.cartId, quantity = 1, sn}: CartData) {
+    const { cartId: _cartId, ...data }  = await CartService.addGoodsToShoppingCart(goodsId, cartId, price, quantity,sn);
+    console.log('打印222--')
+    console.log(sn)
+    console.log(goodsId)
     commit('updateCartId', _cartId);
     commit('updateGoodsList', data);
   },
 
-  async removeFromCart({ state, commit }, { goodsId, cartId = state.cartId, quantity = 1 }: CartData) {
-    const { cartId: _cartId, ...data }  = await CartService.removeGoodsFromShoppingCart(goodsId, cartId, quantity);
-
+  async removeFromCart({ state, commit }, { goodsId, cartId = state.cartId, quantity = 1, sn}: CartData) {
+    const { cartId: _cartId, ...data }  = await CartService.removeGoodsFromShoppingCart(goodsId, cartId, quantity, sn);
+    console.log('打印--')
+    console.log(sn)
+    console.log(goodsId)
     commit('updateCartId', _cartId);
     commit('updateGoodsList', data);
+
   }
 };
 

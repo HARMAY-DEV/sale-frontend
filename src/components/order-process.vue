@@ -1,5 +1,6 @@
 <template>
   <div class="order-process">
+    <p>订单编号{{orderInfo.id}}</p>
     <el-steps :active="orderStatus" align-center>
       <el-step title="待支付"></el-step>
       <el-step title="支付中"></el-step>
@@ -55,6 +56,7 @@
     <div v-if="orderStatus === 3" class="iframe-container">
       <iframe src="/receipt.html" width="400" height="360" frameborder="0"></iframe>
     </div>
+    <ticket ref="mychild" :id="orderInfo.id"></ticket>
   </div>
 </template>
 
@@ -65,10 +67,11 @@ import { waitingDynamicId } from '@/utils/scan-code-gun';
 import NumberKeyboard from './number-keyboard';
 import { stringToNumber } from '@/utils/money';
 import { delay } from '@/utils/delay';
+import ticket from './smallTicket'
 
 export default {
   name: 'OrderProcess',
-  components: { NumberKeyboard },
+  components: { NumberKeyboard,ticket },
   data() {
     return {
       PaymentMethod,
@@ -195,6 +198,7 @@ export default {
 
         await this.waitAndQueryOrderStatus();
         this.amountString = this.waitingPaidAmount.toString();
+        this.$refs.mychild.detail()
       } catch (error) {
         this.payFailedMessage = error.message;
       } finally {
@@ -203,7 +207,8 @@ export default {
     },
      
     print() {
-      this.updateOrderStatus(OrderStatus.PRINT);
+      // this.updateOrderStatus(OrderStatus.PRINT);
+      this.$refs.mychild.print();
     }
   },
 }

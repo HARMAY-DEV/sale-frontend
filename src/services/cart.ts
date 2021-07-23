@@ -27,10 +27,12 @@ export interface GoodsListResponse {
       num: number,
       created_at: string;
       updated_at: string;
+      sn:string;
     }>;
     shop_cart_id: string;
     total_amount: number;
     total_count: number;
+    sn:string;
   };
 }
 
@@ -38,11 +40,13 @@ function goodsInfoTransformer(data: any) {
   if (!data.goods_id && !data.goods_no) {
     throw new Error('商品信息查询有误！');
   }
-  
+  // console.log('商品信息')
+  // console.log(data)
   return {
     id: data.goods_id || data.goods_no,
     name: data.goods_name,
     price: fenToYuan(data.price || 0),
+    sn: data.sn,
     stock: data.stock || Infinity, // 库存只做展示用途，默认无限
     picture: data.img_url,
     spec: {
@@ -51,9 +55,12 @@ function goodsInfoTransformer(data: any) {
     },
     quantity: data.num || 0,
   };
+
 }
 
-function cartAction({ shopCartGoods: { goods, shop_cart_id, total_amount, total_count } }: GoodsListResponse) {
+function cartAction({ shopCartGoods: { goods, shop_cart_id, total_amount, total_count,sn} }: GoodsListResponse) {
+  // console.log('打印11-1-1-1')
+  // console.log(shop_cart_id)
   const cartId = shop_cart_id;
   const goodsList = goods.map(goodsInfoTransformer);
   return { cartId, goodsList, totalAmount: fenToYuan(total_amount), totalCount: total_count };
@@ -85,13 +92,17 @@ class CartService {
    * @param price 商品价格
    * @param quantity 添加的数量
    * @returns null
+   * @param sn 购物车sn
    */
-  addGoodsToShoppingCart(goodsId: string, cartId: string, price: number, quantity: number) {
+  addGoodsToShoppingCart(goodsId: string, cartId: string, price: number, quantity: number, sn:string) {
+    // console.log('sn  sn  sn')
+    // console.log(sn)
     return http.post<GoodsListResponse>('/shop_cart', {
       goods_no: goodsId,
       shop_cart_id: cartId,
       price: yuanToFen(price),
       num: quantity,
+      sn:sn
     }).then(cartAction);
   }
   
@@ -102,12 +113,14 @@ class CartService {
    * @param quantity 删除的数量
    * @returns null
    */
-  removeGoodsFromShoppingCart(goodsId: string, cartId: string, quantity: number) {
+  removeGoodsFromShoppingCart(goodsId: string, cartId: string, quantity: number, sn:string) {
     return http.delete<GoodsListResponse>('/shop_cart', {
       goods_no: goodsId,
       shop_cart_id: cartId,
       num: -quantity,
+      sn:sn
     }).then(cartAction);
+
   }
 }
 
