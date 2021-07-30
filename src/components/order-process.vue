@@ -1,6 +1,7 @@
 <template>
   <div class="order-process">
-    <p>订单编号{{orderInfo.id}}</p>
+    <p>订单编号{{orderInfo.id}}
+    <p>{{orderStatus}}</p>
     <el-steps :active="orderStatus" align-center>
       <el-step title="待支付"></el-step>
       <el-step title="支付中"></el-step>
