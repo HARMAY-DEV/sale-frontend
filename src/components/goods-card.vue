@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="!fromSearch" class="list" @touchstart="touchStart" @touchmove="touchMove" @touchend="touchEnd">
+    <div @click="goodsBtn()" v-if="!fromSearch" class="list" @touchstart="touchStart" @touchmove="touchMove" @touchend="touchEnd">
       <div :style="{right: marginRight + 'px'}" class="listDetail">
         <div class="listDetail-img">
           <img v-if="picture != '' && picture != null" :src="picture" style="width: 100%; height: 100%;">
@@ -8,10 +8,10 @@
         </div>
         <div class="listBox">
           <div style="display: flex;align-items: center;width:100%;">
-            <p style="font-size:20px;color#000;">{{ name }}</p>
+            <p style="font-size:20px;color:#000;">{{ name }}</p>
             <img src="../assets/images/discount01.png" style="width: 20px;height: 20px;margin-left: 14px;" alt="">
             <div style="flex:1;"></div>
-            <p style="font-size:20px;color#000;">¥{{ price }}</p>
+            <p style="font-size:20px;color:#000;">¥{{ price }}</p>
           </div>
           <p style="text-align: right;font-size: 18px;color: #656565;margin-top: 15px;">X{{ quantity }}</p>
           <div style="display: flex;align-items: center;width:100%;">
@@ -164,6 +164,9 @@ export default {
     },
     clearSn(){
       this.$parent.clearSn()
+    },
+    goodsBtn(){
+      this.$parent.goodsDiscountBtn();
     }
   }
 };

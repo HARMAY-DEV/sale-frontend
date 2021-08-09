@@ -1,111 +1,103 @@
 <template>
-  <div class="refund">
-    <div class="refund_hed">
+ <div style="background: #F8F8F8;padding: 0;position: relative;">
+   <div style="display: none;" class="refund">
+     <div class="refund_hed">
       <span @click="previous"
-        ><i class="el-icon-arrow-left" style="font-weight: 600"></i
-        >返回订单管理</span
+      ><i class="el-icon-arrow-left" style="font-weight: 600"></i
+      >返回订单管理</span
       >
-      <div>订单号:{{ tid }}</div>
-      {{goodsTableDatas}}
-    </div>
-    <!-- <div>
-      <el-input ref="searchInput" type="search" v-model="searchGoodsNo">
-        <el-button
-          slot="append"
-          icon="el-icon-search"
-          @click="search()"
-        ></el-button>
-      </el-input>
-    </div> -->
-    <div class="refund_cont">
-      <div class="cont_shp" style="position: relative">
-        <span>可退商品列表</span>
-        <ul>
-          <li
-            @touchstart="touchStart" @touchmove="touchMove" @touchend="touchEnd"
-            v-for="(item, i) in goodsTableData"
-            :key="i"
-            @click="refundMode(item, i)"
-          >
-            <div class="refou_list">
-              <div style="margin-right: 10px">
-                <img src="../images/5.png" alt="" style="width: 60px" />
-              </div>
-              <div>
-                <div class="refou_list_top">
-                  <p>{{ item.name }}</p>
-                  <span>{{ item.spec }}</span>
-                </div>
-              </div>
-            </div>
-            <div class="refou_list_top" style="width: 32%; text-align: center;">
-              <span>￥{{ item.price }}</span>
-              <div v-if="!item.sn">
-                <el-button style="but" @click.stop="submit('Addition', i)"
-                  >-</el-button
-                >
-                <span style="display: inline-block; margin: 0 5px">{{
-                  item.quantity
-                }}</span>
-                <el-button style="but" @click.stop="submit('subtraction', i)"
-                  >+</el-button
-                >
-              </div>
-              <div v-else style="position: absolute;right:20px;">
-                <span>编码:{{ item.sn.substr(0,5)+'******' }}</span>
-              </div>
-            </div>
-          </li>
-        </ul>
-      </div>
-      <div class="cont_shp" style="border-left: 1px solid #bbbbbb">
-        <span>退货商品列表</span>
-        <ul>
-            
-          <li
-            v-for="(item, i) in goodsTableDatas"
-            :key="i"
-            @touchstart="touchStart"
-            @touchmove="touchMove"
-            @touchend="touchEnd"
-            @mouseout="hid = false"
-            @mouseover="hid = true"
-            style="position: relative; margin-bottom: 10px"
-          >
-            <div class="refou_list">
-              <div style="margin-right: 10px">
-                <img src="../images/5.png" alt="" style="width: 60px" />
-              </div>
-              <div>
-                <div class="refou_list_top">
-                  <p>{{ item.name }}</p>
-                  <span>{{ item.spec }}</span>
-                </div>
-              </div>
-            </div>
-            <div class="refou_list_top2" :style="{marginRight: marginRight + 'px'}">
-              <span>￥{{ item.price }}</span>
-              <div>
-                <span v-if="!item.sn">x{{ item.quantity }}</span>
-                <span v-else>编码:{{ item.sn.substr(0,7)+'******' }}</span>
-              </div>
-            </div>
-<!--            <div-->
-<!--              style="-->
-<!--                background: #000;-->
-<!--                width: 50px;-->
-<!--                text-align: center;-->
-<!--                line-height: 45px;-->
-<!--              "-->
-<!--              @click="cancel(i,item)"-->
-<!--              v-show="hid"-->
-<!--            >-->
-<!--              <p style="color: #fff; font-size: 12px; height: 10px">取</p>-->
+       <div>订单号:{{ tid }}</div>
+       {{goodsTableDatas}}
+     </div>
+     <div class="refund_cont">
+       <div class="cont_shp" style="position: relative">
+         <span>可退商品列表</span>
+         <ul>
+           <li
+               @touchstart="touchStart" @touchmove="touchMove" @touchend="touchEnd"
+               v-for="(item, i) in goodsTableData"
+               :key="i"
+               @click="refundMode(item, i)"
+           >
+             <div class="refou_list">
+               <div style="margin-right: 10px">
+                 <img src="../images/5.png" alt="" style="width: 60px" />
+               </div>
+               <div>
+                 <div class="refou_list_top">
+                   <p>{{ item.name }}</p>
+                   <span>{{ item.spec }}</span>
+                 </div>
+               </div>
+             </div>
+             <div class="refou_list_top" style="width: 32%; text-align: center;">
+               <span>￥{{ item.price }}</span>
+               <div v-if="!item.sn">
+                 <el-button style="but" @click.stop="submit('Addition', i)"
+                 >-</el-button
+                 >
+                 <span style="display: inline-block; margin: 0 5px">{{
+                     item.quantity
+                   }}</span>
+                 <el-button style="but" @click.stop="submit('subtraction', i)"
+                 >+</el-button
+                 >
+               </div>
+               <div v-else style="position: absolute;right:20px;">
+                 <span>编码:{{ item.sn.substr(0,5)+'******' }}</span>
+               </div>
+             </div>
+           </li>
+         </ul>
+       </div>
+       <div class="cont_shp" style="border-left: 1px solid #bbbbbb">
+         <span>退货商品列表</span>
+         <ul>
 
-<!--              <p style="color: #fff; font-size: 12px; height: 10px">消</p>-->
-<!--            </div>-->
-                <div
-                  style="
+           <li
+               v-for="(item, i) in goodsTableDatas"
+               :key="i"
+               @touchstart="touchStart"
+               @touchmove="touchMove"
+               @touchend="touchEnd"
+               @mouseout="hid = false"
+               @mouseover="hid = true"
+               style="position: relative; margin-bottom: 10px"
+           >
+             <div class="refou_list">
+               <div style="margin-right: 10px">
+                 <img src="../images/5.png" alt="" style="width: 60px" />
+               </div>
+               <div>
+                 <div class="refou_list_top">
+                   <p>{{ item.name }}</p>
+                   <span>{{ item.spec }}</span>
+                 </div>
+               </div>
+             </div>
+             <div class="refou_list_top2" :style="{marginRight: marginRight + 'px'}">
+               <span>￥{{ item.price }}</span>
+               <div>
+                 <span v-if="!item.sn">x{{ item.quantity }}</span>
+                 <span v-else>编码:{{ item.sn.substr(0,7)+'******' }}</span>
+               </div>
+             </div>
+             <!--            <div-->
+             <!--              style="-->
+             <!--                background: #000;-->
+             <!--                width: 50px;-->
+             <!--                text-align: center;-->
+             <!--                line-height: 45px;-->
+             <!--              "-->
+             <!--              @click="cancel(i,item)"-->
+             <!--              v-show="hid"-->
+             <!--            >-->
+             <!--              <p style="color: #fff; font-size: 12px; height: 10px">取</p>-->
+
+             <!--              <p style="color: #fff; font-size: 12px; height: 10px">消</p>-->
+             <!--            </div>-->
+             <div
+                 style="
                     background: #000;
                     width: 50px;
                     text-align: center;
@@ -114,67 +106,97 @@
                     right: 0;
                     height: 70px;
                   "
-                  @click="cancel(i,item)"
-                >
-                  <p style="color: #fff; font-size: 12px; height: 10px">取</p>
+                 @click="cancel(i,item)"
+             >
+               <p style="color: #fff; font-size: 12px; height: 10px">取</p>
 
-                  <p style="color: #fff; font-size: 12px; height: 10px">消</p>
-                </div>
+               <p style="color: #fff; font-size: 12px; height: 10px">消</p>
+             </div>
 
-          </li>
-        </ul>
-      </div>
-    </div>
-    <div class="fun_btom">
-      <div>退款信息：</div>
-      <div>
-        
+           </li>
+         </ul>
+       </div>
+     </div>
+     <div class="fun_btom">
+       <div>退款信息：</div>
+       <div>
+
         <span
-          style="margin-right: 15px"
-          v-for="(item, i) in items"
-          :key="i"
-          >{{ item.ptype }}:
+            style="margin-right: 15px"
+            v-for="(item, i) in items"
+            :key="i"
+        >{{ item.ptype }}:
           <i
-            >￥{{
+          >￥{{
               item.price
             }}</i
           ></span
         >
-      </div>
-      <div>
-        总计: <i>￥{{ funBt }}</i>
-      </div>
-      <div class="refun_confirm" @click="firmrefund">确认退货</div>
-    </div>
+       </div>
+       <div>
+         总计: <i>￥{{ funBt }}</i>
+       </div>
+       <div class="refun_confirm" @click="firmrefund">确认退货</div>
+     </div>
+     <div class="refund_prop" v-if="prop">
+       <div class="prop">
+         <img src="../images/6.png" alt="" style="width: 60px" />
+         <div style="margin:20px 0;">退款成功</div>
+         <div style="color:rgba(142, 142, 142, 100);">已完成退款(2秒后自动关闭)</div>
+       </div>
+     </div>
+     <div class="Refund_me" v-show="refundMe">
+       <div class="Refund_me-cont">
+         <refunMe
+             name="refunMe"
+             :refundMe="[orderTableDatas, refundMe, refundSn]"
+             @amounts="amounts"
+         ></refunMe>
+       </div>
+     </div>
+     <div class="Refund_mode" v-show="refundModes">
+       <div class="Refund_me-cont">
 
-
-
-    <div class="refund_prop" v-if="prop">
-        <div class="prop">
-            <img src="../images/6.png" alt="" style="width: 60px" />
-            <div style="margin:20px 0;">退款成功</div>
-            <div style="color:rgba(142, 142, 142, 100);">已完成退款(2秒后自动关闭)</div>
+         <refundMode
+             :orderTableDatas="[orderTableDatas, flowTableData]"
+             @products="products"
+         ></refundMode>
+       </div>
+     </div>
+   </div>
+   <div >
+     <div @click="previous" class="top">
+       <i class="el-icon-arrow-left" style="font-weight: 600;font-size: 24px;position: absolute;left: 0;"></i>
+       <p style="font-size: 19px;color: #282828;line-height: 25px;font-weight: 600;position: absolute;left: 24px;">可退商品列表</p>
+       <p style="font-size: 19px;color: #282828;line-height: 25px;font-weight: 600;text-align: center;">订单号：1000001</p>
+     </div>
+     <div class="list">
+       <img src="" class="listImg" alt="">
+       <div class="listRight">
+        <div style="display: flex;align-items: center;">
+          <p style="font-size: 20px;color: #000000;line-height: 28px;flex: 1;">WIS 净透理肤套装 水乳套盒正品补水控油化妆品清爽保湿水乳官网</p>
+          <p style="font-size: 20px;color: #000000;font-weight: 600;">¥ 530.5</p>
         </div>
-    </div>
-    <div class="Refund_me" v-show="refundMe">
-      <div class="Refund_me-cont">
-        <refunMe
-          name="refunMe"
-          :refundMe="[orderTableDatas, refundMe, refundSn]"
-          @amounts="amounts"
-        ></refunMe>
-      </div>
-    </div>
-    <div class="Refund_mode" v-show="refundModes">
-      <div class="Refund_me-cont">
-        
-        <refundMode
-          :orderTableDatas="[orderTableDatas, flowTableData]"
-          @products="products"
-        ></refundMode>
-      </div>
-    </div>
-  </div>
+         <p style="font-size: 18px;color: #7C8285;text-align: right;line-height: 25px;margin-top: 15px;margin-right: 6px;">X1</p>
+         <div style="display: flex;align-items: center;">
+           <span style="background: #F8F8F8;border-radius: 3px;font-size: 18px;color: #7C8285;line-height: 36px;padding: 0 14px 0 5px;">【补水焕肤 提亮肤色】4件套   50ml</span>
+           <p style="flex: 1;text-align: right;font-size: 18px;color: #7C8285;margin-right: 6px;">条码：4571193601221</p>
+         </div>
+       </div>
+     </div>
+     <div class="footer">
+        <div class="footerLeft">
+          <p style="font-size: 18px;line-height: 25px;">退款信息：</p>
+          <div style="display: flex;align-items: center;margin-top: 18px;">
+            <p style="font-size: 16px;line-height: 22px;margin-right: 48px;">支付宝：<span style="color: #B51F29;">¥ 0</span></p>
+            <p style="font-size: 16px;line-height: 22px;margin-right: 48px;">微信：<span style="color: #B51F29;">¥ 0</span></p>
+          </div>
+          <p style="font-size: 16px;margin-top: 9px;line-height: 22px;">总计：<span style="color: #B51F29;">¥ 0</span></p>
+        </div>
+        <el-button style="width: 134px;height: 66px;background: #000;color: #fff;border-radius: 10px;margin-right: 24px;font-size: 20px;">确认退款</el-button>
+     </div>
+   </div>
+ </div>
 </template>
 <script>
 import { FlowService, OrderService } from "@/services";
@@ -720,8 +742,8 @@ export default {
   font-size: 14px;
 }
 p {
+  padding: 0;
   margin: 0;
-  margin-bottom: 8px;
   font-size: 14px;
   color: rgba(16, 16, 16, 100);
 }
@@ -742,4 +764,49 @@ li {
   height: 70px;
   min-width: 50px;
 }
+
+//改版UI
+.top{
+  position: relative;
+  width: 98%;
+  padding-top: 30px;
+  margin: 0 auto 22px auto;
+}
+.list{
+  width: 97%;
+  margin: 12px auto 0 auto;
+  background: #fff;
+  border-radius: 2px;
+  height: 144px;
+  display: flex;
+  align-items: center;
+  .listImg{
+    width: 100px;
+    height: 100px;
+    background: #eee;
+    margin-left: 28px;
+  }
+  .listRight{
+    margin-left: 20px;
+    flex: 1;
+    margin-right: 36px;
+  }
+}
+.footer{
+  width: 100%;
+  height: 140px;
+  background: #fff;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  .footerLeft{
+    margin-left: 24px;
+    color: #fff;
+    flex: 1;
+  }
+}
+
+
 </style>

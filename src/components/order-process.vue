@@ -1,62 +1,85 @@
 <template>
   <div class="order-process">
-    <p>订单编号{{orderInfo.id}}
-    <p>{{orderStatus}}</p>
-    <el-steps :active="orderStatus" align-center>
-      <el-step title="待支付"></el-step>
-      <el-step title="支付中"></el-step>
-      <el-step title="支付完成"></el-step>
-      <el-step title="打印小票"></el-step>
-    </el-steps>
-    
-    <div class="pay-info" v-if="orderStatus !== 3">
-      <div>等待支付：{{ waitingPaidAmount }}元</div>
-      <span>应收：{{ payableAmount | money }}元</span>
-      <span>实收：{{ paidAmount | money }}元</span>
-    </div>
-
-    <div v-if="orderStatus === 0 || orderStatus === 1" class="pay-container">
-      <div class="left-panel">
-        <el-button :type="paymentMethod === PaymentMethod.B_SCAN_C ? 'primary' : ''" @click="selectPaymentMethod(PaymentMethod.B_SCAN_C)">我扫顾客</el-button>
-        <el-button :type="paymentMethod === PaymentMethod.C_SCAN_B ? 'primary' : ''" @click="selectPaymentMethod(PaymentMethod.C_SCAN_B)" disabled>顾客扫我</el-button>
-        <el-button :type="paymentMethod === PaymentMethod.CARD ? 'primary' : ''"  @click="selectPaymentMethod(PaymentMethod.CARD)" disabled>刷卡支付</el-button>
-        <el-button :type="paymentMethod === PaymentMethod.CASH ? 'primary' : ''" @click="selectPaymentMethod(PaymentMethod.CASH)">现金支付</el-button>
+<!--    <p>订单编号{{orderInfo.id}}-->
+<!--    <p>{{orderStatus}}</p>-->
+<!--    <el-steps :active="orderStatus" align-center>-->
+<!--      <el-step title="待支付"></el-step>-->
+<!--      <el-step title="支付中"></el-step>-->
+<!--      <el-step title="支付完成"></el-step>-->
+<!--      <el-step title="打印小票"></el-step>-->
+<!--    </el-steps>-->
+    <div class="state">
+      <div class="stateList">
+        <img src="../assets/images/payIcon02.png" class="stateImg" alt="">
+        <p class="stateName">待支付</p>
       </div>
+      <div :style="orderStatus >= 1 ?'':'color: #969696'" class="stateLine">----------</div>
+      <div class="stateList">
+        <img :src="orderStatus >= 1 ? require('../assets/images/payIcon12.png'):require('../assets/images/payIcon04.png')" class="stateImg" alt="">
+        <p :style="orderStatus >= 1 ?'':'color: #969696'" class="stateName">支付中</p>
+      </div>
+      <div :style="orderStatus >= 2 ?'':'color: #969696'" class="stateLine">----------</div>
+      <div class="stateList">
+        <img :src="orderStatus >= 2 ? require('../assets/images/payIcon11.png'):require('../assets/images/payIcon03.png')" class="stateImg" alt="">
+        <p :style="orderStatus >= 2 ?'':'color: #969696'" class="stateName">支付完成</p>
+      </div>
+      <div :style="orderStatus >= 3 ?'':'color: #969696'" style="color: #979797" class="stateLine">----------</div>
+      <div class="stateList">
+        <img :src="orderStatus >= 3 ? require('../assets/images/payIcon08.png'):require('../assets/images/payIcon01.png')" class="stateImg" alt="">
+        <p :style="orderStatus >= 3 ?'':'color: #969696'" style="color: #969696" class="stateName">打印小票</p>
+      </div>
+    </div>
+    <div class="box">
+<!--      <div class="pay-info" v-if="orderStatus !== 3">-->
+<!--        <div>等待支付：{{ waitingPaidAmount }}元</div>-->
+<!--        <span>应收：{{ payableAmount | money }}元</span>-->
+<!--        <span>实收：{{ paidAmount | money }}元</span>-->
+<!--      </div>-->
 
-      <div class="right-panel" v-loading="orderStatus === 1 && this.payLoading" element-loading-text="等待确认中...">
-        <div v-if="showSuccessMask" class="pay-result-box">
-          <ip-check-one theme="filled" size="48" fill="#67C23A" />
-          <p>支付成功</p>
+      <div v-if="orderStatus === 0 || orderStatus === 1" class="pay-container">
+        <div class="left-panel">
+          <el-button :type="paymentMethod === PaymentMethod.B_SCAN_C ? 'primary' : ''" @click="selectPaymentMethod(PaymentMethod.B_SCAN_C)">我扫顾客</el-button>
+          <el-button :type="paymentMethod === PaymentMethod.C_SCAN_B ? 'primary' : ''" @click="selectPaymentMethod(PaymentMethod.C_SCAN_B)" disabled>顾客扫我</el-button>
+          <el-button :type="paymentMethod === PaymentMethod.CARD ? 'primary' : ''"  @click="selectPaymentMethod(PaymentMethod.CARD)" disabled>刷卡支付</el-button>
+          <el-button :type="paymentMethod === PaymentMethod.CASH ? 'primary' : ''" @click="selectPaymentMethod(PaymentMethod.CASH)">现金支付</el-button>
         </div>
 
-        <div v-if="showFailMask" class="pay-result-box">
-          <ip-caution theme="filled" size="48" fill="#F56C6C"/>
-          <p>支付失败</p>
-          <div>{{ payFailedMessage }}</div>
+        <div class="right-panel" v-loading="orderStatus === 1 && this.payLoading" element-loading-text="等待确认中...">
+          <div v-if="showSuccessMask" class="pay-result-box">
+            <ip-check-one theme="filled" size="48" fill="#67C23A" />
+            <p>支付成功</p>
+          </div>
+
+          <div v-if="showFailMask" class="pay-result-box">
+            <ip-caution theme="filled" size="48" fill="#F56C6C"/>
+            <p>支付失败</p>
+            <div>{{ payFailedMessage }}</div>
+          </div>
+
+          <number-keyboard placeholder="请输入收款金额" v-model="amountString">
+            <el-button :disabled="amount <= 0" type="success" @click="pay()">支付</el-button>
+          </number-keyboard>
         </div>
+      </div>
 
-        <number-keyboard placeholder="请输入收款金额" v-model="amountString">
-          <el-button :disabled="amount <= 0" type="success" @click="pay()">支付</el-button>
-        </number-keyboard>
+      <div v-if="orderStatus === 2" class="pay-detail">
+        <div style="font-size: 16px; font-weight: 500; margin-bottom: 5px;">支付动态：</div>
+        <div class="flow-item" v-for="flow in flowList" :key="flow.id">
+          <template v-if="flow.payType">
+            <div>使用 <span>{{ flow.payType }}</span> 支付 <span>{{ flow.amount }}</span></div>
+            <span class="flow-time">{{ flow.time }}</span>
+          </template>
+        </div>
+        <div style="margin-top: 10px; text-align: center;">
+          <el-button @click="print()">去打印小票</el-button>
+        </div>
+      </div>
+
+      <div v-if="orderStatus === 3" class="iframe-container">
+        <iframe src="/receipt.html" width="400" height="360" frameborder="0"></iframe>
       </div>
     </div>
 
-    <div v-if="orderStatus === 2" class="pay-detail">
-      <div style="font-size: 16px; font-weight: 500; margin-bottom: 5px;">支付动态：</div>
-      <div class="flow-item" v-for="flow in flowList" :key="flow.id">
-        <template v-if="flow.payType">
-          <div>使用 <span>{{ flow.payType }}</span> 支付 <span>{{ flow.amount }}</span></div>
-          <span class="flow-time">{{ flow.time }}</span>
-        </template>
-      </div>
-      <div style="margin-top: 10px; text-align: center;">
-        <el-button @click="print()">去打印小票</el-button>
-      </div>
-    </div>
-
-    <div v-if="orderStatus === 3" class="iframe-container">
-      <iframe src="/receipt.html" width="400" height="360" frameborder="0"></iframe>
-    </div>
     <ticket ref="mychild" :id="orderInfo.id"></ticket>
   </div>
 </template>
@@ -225,6 +248,10 @@ export default {
 </style>
 
 <style lang="scss" scoped>
+p{
+  padding: 0;
+  margin: 0;
+}
 .pay-info {
   display: flex;
   margin: 10px;
@@ -317,6 +344,38 @@ export default {
 .iframe-container {
   display: flex;
   justify-content: center;
+}
+//订单支付状态
+.state{
+  width: 394px;
+  margin: 40px auto 0 auto;
+  display: flex;
+  justify-content: center;
+  .stateList{
+    align-items: center;
+    .stateImg{
+      display: block;
+      width: 20px;
+      height: 20px;
+      margin: 0 auto;
+    }
+    .stateName{
+      font-size: 14px;
+      color: #000;
+      margin-top: 8px;
+      line-height: 20px;
+    }
+  }
+  .stateLine{
+    color: #282828;
+    margin: 28px 7px 0 7px;
+  }
+}
+.box{
+  width: 508px;
+  height: 394px;
+  background: #F8F8F8;
+  margin: 0 auto;
 }
 
 </style>
