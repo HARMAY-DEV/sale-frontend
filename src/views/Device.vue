@@ -41,7 +41,7 @@
       <img ref="conf2" style="display: none" src="../assets/images/code02.png">
       <img ref="conf3" style="display: none" src="../assets/images/code3.png">
       <img ref="conf4" style="display: none" src="../assets/images/code04.png">
-      <canvas id="mycanvas" width="794" height="1020"></canvas>
+<!--      <canvas id="mycanvas" width="794" height="1020"></canvas>-->
 <!--      <canvas id="mycanvas2" width="794" height="1020"></canvas>-->
 <!--      <canvas id="ticket03" width="794" height="1020"></canvas>-->
     </div>
@@ -981,7 +981,7 @@ export default {
     // this.smallTicket1()
     // this.smallTicket2()
     // this.smallTicket3()
-    this.smallTicket4()
+    // this.smallTicket4()
 
   },
 
