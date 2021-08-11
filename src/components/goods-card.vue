@@ -11,7 +11,7 @@
             <p style="font-size:20px;color:#000;">{{ name }}</p>
             <img src="../assets/images/discount01.png" style="width: 20px;height: 20px;margin-left: 14px;" alt="">
             <div style="flex:1;"></div>
-            <p style="font-size:20px;color:#000;">¥{{ price }}</p>
+            <p class="price">¥ <span>{{ price }}</span></p>
           </div>
           <p style="text-align: right;font-size: 18px;color: #656565;margin-top: 15px;">X{{ quantity }}</p>
           <div style="display: flex;align-items: center;width:100%;">
@@ -56,7 +56,7 @@
         <div class="listBox">
           <div style="display: flex;align-items: center;width:100%;">
             <p style="flex:1;font-size:20px;color#000;">{{ name }}</p>
-            <p style="font-size:20px;color#000;">¥{{ price }}</p>
+            <p class="price">¥ <span>{{ price }}</span></p>
           </div>
           <div style="display: flex;align-items: center;width:100%;margin-top: 23px;">
             <span class="listBox-txt">{{ spec.name }}</span>
@@ -275,15 +275,24 @@ p{
     .listBox{
       margin-left: 20px;
       flex: 1;
+      .price {
+        font-size:20px;
+        color:#000;
+        font-weight: bold;
+        span {
+          display: inline-block;
+          margin-left: 3px;
+        }
+      }
     }
   }
   .listDelete{
     width: 52px;
-    height: 144px;
+    height: 142px;
     background: #000;
     position: absolute;
     right: 10px;
-    top: 0;
+    top: 1px;
     z-index: 0;
     border-radius: 2px;
     p{

@@ -1,29 +1,37 @@
 <template>
   <div class="cart-container" style="background: #F8F8F8;">
     <div class="input-container">
-      <el-input style="width: 80%;margin: 20px auto 0 10%;height: 40px;" ref="searchInput" type="search" @keyup.enter.native="search()" clearable v-model="searchGoodsNo">
-        <el-button slot="append" icon="el-icon-search" @click="search()"></el-button>
-      </el-input>
+      <div class="input-group">
+        <el-input style="width: 80%;height: 40px;" ref="searchInput" type="search" @keyup.enter.native="search()" clearable v-model="searchGoodsNo" placeholder="条码、名称、商家编码">
+          <i slot="prefix" class="el-input__icon el-icon-search"></i>
+          <!-- <el-button slot="append" icon="el-icon-search" @click="search()"></el-button> -->
+        </el-input>
+      </div>
+      <div class="member-group">
+        <div class="img-box">
+          <img src="../assets/images/head_photo.png" alt="">
+        </div>
+        <p class="tips">未登录会员</p>
+      </div>
     </div>
     <div v-if="goodsList.length" class="goods-list">
       <goods-card v-for="goods in goodsList" :key="goods.id" v-bind="goods"></goods-card>
     </div>
     <div v-else class="goods-list" @touchmove.stop>
-      <h2 class="empty-goods">暂无商品，扫码添加</h2>
+      <h2 class="empty-goods">空空如也~</h2>
     </div>
     <div class="footer">
-      <div @click="discountBtn()" style="width: 140px;height: 66px;border-radius: 10px;background: #000;color: #fff;text-align: center;line-height: 66px;margin-left: 24px;">添加门店优惠</div>
-      <div @click="discountBtn2()" style="width: 140px;height: 66px;border-radius: 10px;background: #000;color: #fff;text-align: center;line-height: 66px;margin-left: 15px;">添加会员优惠</div>
+      <el-button @click="discountBtn()" :class="['btn add-btn', {active: goodsList&&goodsList.length>0}]">添加临时优惠</el-button>
+      <el-button @click="discountBtn2()" :class="['btn choose-btn', {active: goodsList&&goodsList.length>0}]">选择优惠</el-button>
 <!--      <el-button :disabled="!goodsList.length" type="danger" @click="clearSn()">移除一物一码</el-button>-->
-      <p @click="clearCart()" style="font-size: 16px;margin-left: 45px;flex: 1;">清除购物车</p>
-      <div v-show="goodsList.length" class="goods-summary">
-        <p style="flex: 1;text-align: right;color: #282828;font-size: 16px;line-height: 33px;">以选商品 </p>
-        <p style="font-size: 24px;color: #E31A22;line-height: 33px;"> {{ totalCount }} </p>
-        <p style="text-align: right;color: #282828;font-size: 16px;line-height: 33px;">以选商品</p>
-        <p style="text-align: right;color: #282828;font-size: 16px;line-height: 33px;margin-left: 20px;">合计：</p>
-        <p style="font-size: 24px;color: #E31A22;line-height: 33px;margin-right: 10px;"> {{ totalAmount }} </p>
-<!--        <div>{{ totalCount }} 件</div>-->
-<!--        <div>￥ {{ totalAmount }}</div>-->
+      <p @click="clearCart()" style="font-size: 16px;margin-left: 45px;flex: 1;">清空购物车</p>
+      <div class="goods-summary">
+        <p class="list-len-box">
+          以选商品 <span>{{totalCount}} </span>件
+        </p>
+        <p class="total-box">
+          合计： <span>{{totalAmount}}</span>
+        </p>
       </div>
       <!-- 这里的付款实际上为创建订单，付款弹窗的付款才为实际的付款 -->
       <el-button style="width: 134px;height: 66px;background: #000;color: #fff;margin-right: 24px;border-radius: 10px;" :disabled="!goodsList.length" type="success" @click="createNewOrder()">结算</el-button>
@@ -40,7 +48,7 @@
     >
       <div v-if="searchGoods">
         <goods-card v-bind="searchGoods" from-search @close-panel="searchPanelVisible = false"></goods-card>
-        <div @click="closeDrawer" style="width: 100%;height: 96px;text-align: center;line-height: 96px;background: #F8F8F8;font-size: 18px;color: #000;position: absolute;bottom: 0;">取消</div>
+        <div @click="closeDrawer" style="width: 100%;height: 96px;text-align: center;line-height: 96px;background: #F8F8F8;font-size: 18px;color: #000;position: absolute;bottom: 0;left:0;right:0;font-weight:bold;">取消</div>
       </div>
       <p v-else>找不到该商品，请核实</p>
     </el-drawer>
@@ -126,7 +134,7 @@
             <div class="discount-left" style="margin-left: 82px;">
               <div class="discountTop">
                 <div class="discountTop-line"></div>
-                <p class="discountTop-name">会员优惠</p>
+                <p class="discountTop-name">门店优惠</p>
               </div>
               <div class="discountList">
                 <div class="discountList-left">
@@ -142,8 +150,8 @@
             </div>
           </div>
           <div class="discountFooter">
-            <p style="font-size: 24px;color: #000;margin-left: 30px;font-weight: 500;">¥279</p>
-            <p style="font-size: 16px;color: #969696;margin-left: 16px;flex: 1;margin-top: 4px;">¥350</p>
+            <p style="font-size: 24px;color: #000;margin-left: 30px;font-weight: bold;">¥279</p>
+            <p style="font-size: 16px;color: #969696;margin-left: 16px;flex: 1;margin-top: 4px;text-decoration: line-through;">¥350</p>
             <el-button style="width: 114px;height: 54px;border-radius: 10px;background:#000;font-size: 18px;color: #fff;margin-right: 30px;">确定</el-button>
           </div>
         </div>
@@ -169,8 +177,8 @@
         <p class="temporaryTitle" style="padding-top: 44px;">临时优惠</p>
         <el-input style="width: 345px;margin-top: 20px;margin-left: 30px;" v-model="input" placeholder="请输入订单备注"></el-input>
         <div class="discountFooter">
-          <p style="font-size: 24px;color: #000;margin-left: 30px;font-weight: 500;">¥279</p>
-          <p style="font-size: 16px;color: #969696;margin-left: 16px;flex: 1;margin-top: 4px;">¥350</p>
+          <p style="font-size: 24px;color: #000;margin-left: 30px;font-weight: bold;">¥279</p>
+          <p style="font-size: 16px;color: #969696;margin-left: 16px;flex: 1;margin-top: 4px;text-decoration: line-through;">¥350</p>
           <el-button style="width: 114px;height: 54px;border-radius: 10px;background:#000;font-size: 18px;color: #fff;margin-right: 30px;">确定</el-button>
         </div>
       </div>
@@ -191,11 +199,11 @@
               <p @click="temporaryChange(1)" class="temporaryNav-name2">减价</p>
             </div>
             <div v-if="temporaryType == 0" class="temporaryDetail">
-              <input style="margin-left: 135px;width: 140px;background: none;font-size: 16px;padding: 0;border: none;outline: none" v-model="discountNum" placeholder="请输入折扣数字"></input>
+              <input style="margin-left: 135px;width: 140px;background: none;font-size: 16px;padding: 0;border: none;outline: none" v-model="discountNum" placeholder="请输入折扣数字"/>
               <p style="font-size: 20px;color: #282828;margin-left: 20px">%</p>
             </div>
             <div v-if="temporaryType == 1" class="temporaryDetail2">
-              <input style="margin-left: 135px;width: 140px;background: none;font-size: 16px;padding: 0;border: none;outline: none" v-model="discountNum" placeholder="请输入优惠价格"></input>
+              <input style="margin-left: 135px;width: 140px;background: none;font-size: 16px;padding: 0;border: none;outline: none" v-model="discountNum" placeholder="请输入优惠价格"/>
               <p style="font-size: 20px;color: #282828;margin-left: 20px">元</p>
             </div>
           </div>
@@ -228,11 +236,15 @@
             </div>
           </div>
         </div>
-        <div class="discountFooter">
-          <p style="font-size: 24px;color: #000;margin-left: 30px;font-weight: 500;">¥279</p>
-          <p style="font-size: 16px;color: #969696;margin-left: 16px;flex: 1;margin-top: 4px;">¥350</p>
-          <el-input-number v-model="num" :min="1" :max="10" label="描述文字"></el-input-number>
-          <el-button style="width: 114px;height: 54px;border-radius: 10px;background:#000;font-size: 18px;color: #fff;margin-right: 30px;">确定</el-button>
+        <div class="footer-group">
+          <div class="footer-lf">
+            <p class="price">¥279</p>
+            <p class="del-price">¥350</p>
+          </div>
+          <div class="footer-rg">
+            <el-input-number v-model="num" :min="1" :max="10" label="描述文字"></el-input-number>
+            <el-button class="sure-btn">确定</el-button>
+          </div>
         </div>
       </div>
     </div>
@@ -467,6 +479,7 @@ export default {
 <style lang="scss">
 .search-panel {
   padding: 12px;
+  border-radius: 30px 30px 0 0;
 }
 </style>
 
@@ -480,10 +493,30 @@ p {
   background: none !important;
 }
 .input-container{
-  width: 46%;
-  height: 8%;
-  background: #fff;
-  border-radius: 2px;
+  display: flex;
+  // height: 100%;
+  justify-content: space-between;
+  & > div {
+    width: 49%;
+    height: 100px;
+    background: #fff;
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+  }
+  .input-group {
+    justify-content: center;
+  }
+  .member-group {
+    .img-box {
+      margin-left: 36px;
+      cursor: pointer;
+    }
+    .tips {
+      color: #282828;
+      margin-left: 22px;
+    }
+  }
 }
 .el-input-group--append .el-input__inner, .el-input-group__prepend{
   height: 40px;
@@ -512,6 +545,8 @@ p {
     .empty-goods {
       margin: auto;
       text-align: center;
+      color: #969696;
+      font-size: 16px;
     }
   }
 
@@ -524,11 +559,53 @@ p {
     bottom: 0;
     left: 0;
     align-items: center;
+    .btn {
+      width: 140px;
+      height: 66px;
+      border-radius: 10px;
+      background: #F8F8F8;
+      color: #B6B6B6;
+      text-align: center;
+      font-size: 16px;
+      &.active {
+        background: #000;
+        color: #fff;
+      }
+    }
+    .add-btn {
+      margin-left: 24px;
+    }
+    .choose-btn {
+      margin-left: 15px;
+    }
     .goods-summary {
       margin-right: 12px;
       display: flex;
-      //flex: 1;
+      flex: 1;
       text-align: right;
+      .list-len-box {
+        text-align: right;
+        color: #282828;
+        font-size: 16px;
+        line-height: 33px;
+        span {
+          font-size: 24px;
+          color: #E31A22;
+          font-weight: bold;
+        }
+      }
+      .total-box {
+        text-align: right;
+        color: #282828;
+        font-size: 16px;
+        line-height: 33px;
+        margin-left: 20px;
+        span {
+          font-size: 24px;
+          color: #E31A22;
+          font-weight: bold;
+        }
+      }
     }
   }
   .sn{
@@ -787,6 +864,47 @@ p {
     }
     .discountList-right{
       margin-left: 30px;
+    }
+  }
+  .footer-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 99px;
+    width: 100%;
+    position: absolute;
+    bottom: 0;
+    border-top: 1px solid #EEEEEE;
+    .footer-lf {
+      display: flex;
+      align-items: center;
+      margin-left: 30px;
+      .price {
+        font-size: 24px;
+        color: #000;
+        font-weight: bold;
+      }
+      .del-price {
+        font-size: 16px;
+        color: #969696;
+        margin-left: 16px;
+        margin-top: 4px;
+        text-decoration: line-through;
+      }
+    }
+    .footer-rg {
+      display: flex;
+      align-items: center;
+      margin-right: 30px;
+      .sure-btn {
+        width: 114px;
+        height: 54px;
+        border-radius: 10px;
+        background:#000;
+        font-size: 18px;
+        color: #fff;
+        margin-left: 100px;
+      }
     }
   }
 }
