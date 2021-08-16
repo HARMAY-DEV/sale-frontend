@@ -7,7 +7,7 @@
           <!-- <el-button slot="append" icon="el-icon-search" @click="search()"></el-button> -->
         </el-input>
       </div>
-      <div class="member-group">
+      <div class="member-group" @click="memberLogin">
         <div class="img-box">
           <img src="../assets/images/head_photo.png" alt="">
         </div>
@@ -15,7 +15,7 @@
       </div>
     </div>
     <div v-if="goodsList.length" class="goods-list">
-      <goods-card v-for="goods in goodsList" :key="goods.id" v-bind="goods"></goods-card>
+      <goods-card v-for="goods in goodsList" :key="goods.id" v-bind="goods" :goodObj="goods" @bindGoodItem="bindGoodItem"></goods-card>
     </div>
     <div v-else class="goods-list" @touchmove.stop>
       <h2 class="empty-goods">空空如也~</h2>
@@ -52,15 +52,15 @@
       </div>
       <p v-else>找不到该商品，请核实</p>
     </el-drawer>
-
+    <!-- 支付弹窗 -->
     <el-dialog :visible.sync="payDialogVisible" :show-close="false" :close-on-click-modal="false" width="674px">
-<!--      <span slot="title" @click="backCart()"><i class="el-icon-arrow-left"></i>返回点单</span>-->
-      <div class="snTitle" style="margin-top: -50px;margin-left: 0;" @click="backCart()">
+      <div class="nav-title" style="margin-top: -50px;margin-left: 0;" @click="backCart()">
         <img src="../assets/images/return01.png" style="width: 17px;height: 17px;" alt="">
         <p style="font-size: 14px;color: #000;margin-left: 13px;">返回点单</p>
       </div>
       <order-process></order-process>
     </el-dialog>
+
 <!--    移除一物一码-->
     <div v-if="snState == 1">
       <div @click="snCancle()" style="width: 100%;height: 100%;position: fixed;z-index: 1000;top: 0;left: 0;background: #000;opacity: 0.6;"></div>
@@ -82,187 +82,40 @@
         </div>
       </div>
     </div>
-<!--    会员优惠券-->
-    <div v-if="discountState == 1">
-      <div @click="discountClose()" style="background: rgba(0, 0, 0, 0.5);width: 100%;height: 100%;position: fixed;z-index: 1;top: 0;left: 0;"></div>
-      <div class="discount">
-        <div style="position: relative;width: 100%;height: 100%;">
-          <div style="display: flex;">
-            <div class="discount-left">
-              <div class="discountTop">
-                <div class="discountTop-line"></div>
-                <p class="discountTop-name">会员优惠</p>
-              </div>
-              <div class="discountList">
-                <div class="discountList-left">
-                  <p style="font-size: 32px;color: #B51F29;font-weight: bold">¥20</p>
-                  <p style="font-size: 10px;color: #969696;margin-top: 3px;">满100元使用</p>
-                </div>
-                <div class="discountList-right">
-                  <p style="font-size: 14px;color: #000;line-height: 20px;">纯露化妆水无门槛20元券</p>
-                  <p style="font-size: 11px;color: #969696;line-height: 16px;margin-top: 8px;">范围：单品优惠</p>
-                  <p style="font-size: 11px;color: #969696;line-height: 16px;margin-top: 3px;">期限：2021.01.08-2021.10.08</p>
-                </div>
-              </div>
-              <div class="discountList">
-                <div class="discountList-left">
-                  <p style="font-size: 32px;color: #B51F29;font-weight: bold">8折</p>
-                  <p style="font-size: 10px;color: #969696;margin-top: 3px;">满100元使用</p>
-                </div>
-                <div class="discountList-right">
-                  <p style="font-size: 14px;color: #000;line-height: 20px;">纯露化妆水无门槛20元券</p>
-                  <p style="font-size: 11px;color: #969696;line-height: 16px;margin-top: 8px;">范围：单品优惠</p>
-                  <p style="font-size: 11px;color: #969696;line-height: 16px;margin-top: 3px;">期限：2021.01.08-2021.10.08</p>
-                </div>
-              </div>
-              <div class="discountTop" style="margin-top: 32px;">
-                <div class="discountTop-line"></div>
-                <p class="discountTop-name">不可用</p>
-              </div>
-              <div class="discountList2">
-                <div class="discountList-left">
-                  <p style="font-size: 32px;color: #C0C0C0;font-weight: bold">¥20</p>
-                  <p style="font-size: 10px;color: #C0C0C0;margin-top: 3px;">满100元使用</p>
-                </div>
-                <div class="discountList-right">
-                  <p style="font-size: 14px;color: #C0C0C0;line-height: 20px;">纯露化妆水无门槛20元券</p>
-                  <p style="font-size: 11px;color: #C0C0C0;line-height: 16px;margin-top: 8px;">范围：单品优惠</p>
-                  <p style="font-size: 11px;color: #C0C0C0;line-height: 16px;margin-top: 3px;">期限：2021.01.08-2021.10.08</p>
-                </div>
-              </div>
-            </div>
-            <div class="discount-left" style="margin-left: 82px;">
-              <div class="discountTop">
-                <div class="discountTop-line"></div>
-                <p class="discountTop-name">门店优惠</p>
-              </div>
-              <div class="discountList">
-                <div class="discountList-left">
-                  <p style="font-size: 32px;color: #B51F29;font-weight: bold">¥20</p>
-                  <p style="font-size: 10px;color: #969696;margin-top: 3px;">满100元使用</p>
-                </div>
-                <div class="discountList-right">
-                  <p style="font-size: 14px;color: #000;line-height: 20px;">纯露化妆水无门槛20元券</p>
-                  <p style="font-size: 11px;color: #969696;line-height: 16px;margin-top: 8px;">范围：单品优惠</p>
-                  <p style="font-size: 11px;color: #969696;line-height: 16px;margin-top: 3px;">期限：2021.01.08-2021.10.08</p>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="discountFooter">
-            <p style="font-size: 24px;color: #000;margin-left: 30px;font-weight: bold;">¥279</p>
-            <p style="font-size: 16px;color: #969696;margin-left: 16px;flex: 1;margin-top: 4px;text-decoration: line-through;">¥350</p>
-            <el-button style="width: 114px;height: 54px;border-radius: 10px;background:#000;font-size: 18px;color: #fff;margin-right: 30px;">确定</el-button>
-          </div>
-        </div>
-      </div>
-    </div>
-<!--    临时优惠-->
-    <div v-if="temporaryState == 1">
-      <div @click="discountClose()" style="background: rgba(0, 0, 0, 0.5);width: 100%;height: 100%;position: fixed;z-index: 1;top: 0;left: 0;"></div>
-      <div class="temporary">
-        <p class="temporaryTitle">临时优惠</p>
-        <div class="temporaryNav">
-          <p @click="temporaryChange(0)" style="margin-left: 10px;" class="temporaryNav-name">折扣</p>
-          <p @click="temporaryChange(1)" class="temporaryNav-name2">减价</p>
-        </div>
-        <div v-if="temporaryType == 0" class="temporaryDetail">
-          <input style="margin-left: 135px;width: 140px;background: none;font-size: 16px;padding: 0;border: none;outline: none" v-model="discountNum" placeholder="请输入折扣数字"></input>
-          <p style="font-size: 20px;color: #282828;margin-left: 20px">%</p>
-        </div>
-        <div v-if="temporaryType == 1" class="temporaryDetail2">
-          <input style="margin-left: 135px;width: 140px;background: none;font-size: 16px;padding: 0;border: none;outline: none" v-model="discountNum" placeholder="请输入优惠价格"></input>
-          <p style="font-size: 20px;color: #282828;margin-left: 20px">元</p>
-        </div>
-        <p class="temporaryTitle" style="padding-top: 44px;">临时优惠</p>
-        <el-input style="width: 345px;margin-top: 20px;margin-left: 30px;" v-model="input" placeholder="请输入订单备注"></el-input>
-        <div class="discountFooter">
-          <p style="font-size: 24px;color: #000;margin-left: 30px;font-weight: bold;">¥279</p>
-          <p style="font-size: 16px;color: #969696;margin-left: 16px;flex: 1;margin-top: 4px;text-decoration: line-through;">¥350</p>
-          <el-button style="width: 114px;height: 54px;border-radius: 10px;background:#000;font-size: 18px;color: #fff;margin-right: 30px;">确定</el-button>
-        </div>
-      </div>
-    </div>
-<!--    商品优惠-->
-    <div v-if="temporaryState == 2">
-      <div @click="discountClose()" style="background: rgba(0, 0, 0, 0.5);width: 100%;height: 100%;position: fixed;z-index: 1;top: 0;left: 0;"></div>
-      <div class="goosdDiscount">
-        <p class="goosdDiscount-title">WIS 净透理肤套装 水乳套盒正品补水控油化妆品清爽保湿水乳官网</p>
-        <div style="display: flex;margin-top: 40px;">
-          <div>
-            <div class="discountTop" style="margin-left: 30px;">
-              <div class="discountTop-line"></div>
-              <p class="discountTop-name">会员优惠</p>
-            </div>
-            <div class="temporaryNav">
-              <p @click="temporaryChange(0)" style="margin-left: 11px;" class="temporaryNav-name">折扣</p>
-              <p @click="temporaryChange(1)" class="temporaryNav-name2">减价</p>
-            </div>
-            <div v-if="temporaryType == 0" class="temporaryDetail">
-              <input style="margin-left: 135px;width: 140px;background: none;font-size: 16px;padding: 0;border: none;outline: none" v-model="discountNum" placeholder="请输入折扣数字"/>
-              <p style="font-size: 20px;color: #282828;margin-left: 20px">%</p>
-            </div>
-            <div v-if="temporaryType == 1" class="temporaryDetail2">
-              <input style="margin-left: 135px;width: 140px;background: none;font-size: 16px;padding: 0;border: none;outline: none" v-model="discountNum" placeholder="请输入优惠价格"/>
-              <p style="font-size: 20px;color: #282828;margin-left: 20px">元</p>
-            </div>
-          </div>
-          <div style="margin-left: 82px">
-            <div class="discountTop">
-              <div class="discountTop-line"></div>
-              <p class="discountTop-name">可用会员优惠券</p>
-            </div>
-            <div class="discountList">
-              <div class="discountList-left">
-                <p style="font-size: 32px;color: #B51F29;font-weight: bold">¥20</p>
-                <p style="font-size: 10px;color: #969696;margin-top: 3px;">满100元使用</p>
-              </div>
-              <div class="discountList-right">
-                <p style="font-size: 14px;color: #000;line-height: 20px;">纯露化妆水无门槛20元券</p>
-                <p style="font-size: 11px;color: #969696;line-height: 16px;margin-top: 8px;">范围：单品优惠</p>
-                <p style="font-size: 11px;color: #969696;line-height: 16px;margin-top: 3px;">期限：2021.01.08-2021.10.08</p>
-              </div>
-            </div>
-            <div class="discountList">
-              <div class="discountList-left">
-                <p style="font-size: 32px;color: #B51F29;font-weight: bold">8折</p>
-                <p style="font-size: 10px;color: #969696;margin-top: 3px;">满100元使用</p>
-              </div>
-              <div class="discountList-right">
-                <p style="font-size: 14px;color: #000;line-height: 20px;">纯露化妆水无门槛20元券</p>
-                <p style="font-size: 11px;color: #969696;line-height: 16px;margin-top: 8px;">范围：单品优惠</p>
-                <p style="font-size: 11px;color: #969696;line-height: 16px;margin-top: 3px;">期限：2021.01.08-2021.10.08</p>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="footer-group">
-          <div class="footer-lf">
-            <p class="price">¥279</p>
-            <p class="del-price">¥350</p>
-          </div>
-          <div class="footer-rg">
-            <el-input-number v-model="num" :min="1" :max="10" label="描述文字"></el-input-number>
-            <el-button class="sure-btn">确定</el-button>
-          </div>
-        </div>
-      </div>
-    </div>
-
+    <!-- 会员优惠券 -->
+    <template v-if="discountState == 1">
+      <temporary-discount @discountClose="discountClose"></temporary-discount>
+    </template>
+    <!-- 选择优惠 -->
+    <template v-if="temporaryState == 1">
+      <choose-discount @discountClose="discountClose"></choose-discount>
+    </template>
+    <!-- 商品优惠 -->
+    <template v-if="temporaryState==2">
+      <good-discount @discountClose="discountClose" ref="goodDiscount"></good-discount>
+    </template>
   </div>
 </template>
 
 <script>
 import { mapState, mapActions, mapMutations } from 'vuex';
-
 import GoodsCard from '@/components/goods-card.vue';
-import OrderProcess from '@/components/order-process.vue';
+import OrderProcess from '@/components/OrderProcess.vue';
 import { OrderStatus } from '@/utils/consts';
+import GoodDiscount from '@/components/GoodDiscount'
+import TemporaryDiscount from '@/components/TemporaryDiscount'
+import ChooseDiscount from '@/components/ChooseDiscount'
 // import { websocketLink } from "../utils/websocket";
 // import { getHeaderImage } from "@/api/user"
 export default {
   name: 'Cart',
-  components: { GoodsCard, OrderProcess },
+  components: {
+    GoodsCard,
+    OrderProcess,
+    GoodDiscount,
+    TemporaryDiscount,
+    ChooseDiscount
+  },
 
   data() {
     const url = require("../assets/images/select01.png")
@@ -311,7 +164,6 @@ export default {
     ...mapMutations('cart', ['clearCart']),
     ...mapActions('cart', ['getGoodsInfo', 'getCartGoodsList','removeFromCart']),
     ...mapActions('order', ['createOrder', 'refundWholeOrder']),
-    // ...mapActions(["getImages"]),
     gunHandler(event) {
       if (this.$refs.searchInput.focused || this.payDialogVisible) {
         return;
@@ -332,7 +184,16 @@ export default {
         this.keyboardNo += event.key;
       }
     },
-
+    // click商品item
+    bindGoodItem(obj) {
+      this.temporaryState = 2
+      this.$nextTick(()=> {
+        this.$refs.goodDiscount.setEdit(obj)
+      })
+    },
+    memberLogin() {
+      this.$router.push('/member-login')
+    },
     async search() {
       // console.log('打印购物车')
       // console.log(this.goodsList)
@@ -468,9 +329,6 @@ export default {
     },
     discountBtn2(){
       this.temporaryState = 1
-    },
-    goodsDiscountBtn(){
-      this.temporaryState = 2
     }
   }
 }
@@ -627,286 +485,13 @@ p {
       margin-top: 76px;
     }
   }
-  .snTitle{
-    padding-top: 23px;
-    display: flex;
-    align-items: center;
-    margin-left: 20px;
-    cursor: pointer;
-  }
 }
-//会员优惠券
-.discount{
-  width: 713px;
-  height: 572px;
-  background: #fff;
-  border-radius: 8px;
-  position: fixed;
-  z-index: 10;
-  top: 50%;
-  left: 50%;
-  margin-top: -286px;
-  margin-left: -356px;
-  .discount-left{
-    margin-left: 30px;
-    margin-top: 40px;
-    .discountTop{
-      display: flex;
-      align-items: center;
-      padding-bottom: 8px;
-      .discountTop-line{
-        width: 2px;
-        height: 12px;
-        background: #B51F29;
-      }
-      .discountTop-name{
-        font-size: 16px;
-        color: #000;
-        line-height: 22px;
-        margin-left: 8px;
-      }
-    }
-    .discountList{
-      width: 287px;
-      height: 94px;
-      background-image: url("../assets/images/discountBck.png");
-      background-size: 100% auto;
-      margin-top: 11px;
-      display: flex;
-      align-items: center;
-      .discountList-left{
-        margin-left: 10px;
-        text-align: center;
-      }
-      .discountList-right{
-        margin-left: 30px;
-      }
-    }
-    .discountList2{
-      width: 287px;
-      height: 94px;
-      background-image: url("../assets/images/discountBck2.png");
-      background-size: 100% auto;
-      margin-top: 11px;
-      display: flex;
-      align-items: center;
-      .discountList-left{
-        margin-left: 10px;
-        text-align: center;
-      }
-      .discountList-right{
-        margin-left: 30px;
-      }
-    }
-  }
-  .discountFooter{
-    height: 99px;
-    width: 100%;
-    position: absolute;
-    bottom: 0;
-    border-top: 1px solid #EEEEEE;
-    display: flex;
-    align-items: center;
-  }
-}
-//临时优惠
-.temporary{
-  width: 583px;
-  height: 512px;
-  background: #fff;
-  border-radius: 8px;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  margin-top: -256px;
-  margin-left: -292px;
-  z-index: 10;
-  .temporaryTitle{
-    font-size: 18px;
-    color: #000000;
-    padding-top: 40px;
-    margin-left: 30px;
-  }
-  .temporaryNav{
-    display: flex;
-    align-items: center;
-    margin: 38px 0 0 30px;
-    .temporaryNav-name{
-      font-size: 16px;
-      color: #160000;
-      line-height: 22px;
-      font-weight: 600;
-    }
-    .temporaryNav-name2{
-      font-size: 16px;
-      color: #525252;
-      line-height: 22px;
-      font-weight: 400;
-      margin-left: 30px;
-    }
-  }
-  .temporaryDetail{
-    width: 345px;
-    height: 98px;
-    background-image: url("../assets/images/discountBck3.png");
-    background-size: 100% auto;
-    display: flex;
-    align-items: center;
-    margin: 20px 0 0 30px;
-  }
-  .temporaryDetail2{
-    width: 345px;
-    height: 98px;
-    background-image: url("../assets/images/discountBck4.png");
-    background-size: 100% auto;
-    display: flex;
-    align-items: center;
-    margin: 20px 0 0 30px;
-  }
-  .discountFooter{
-    height: 99px;
-    width: 100%;
-    position: absolute;
-    bottom: 0;
-    border-top: 1px solid #EEEEEE;
-    display: flex;
-    align-items: center;
-  }
-}
-//商品优惠
-.goosdDiscount{
-  width: 773px;
-  height: 512px;
-  background: #fff;
-  border-radius: 8px;
-  position: fixed;
-  z-index: 10;
-  top: 50%;
-  left: 50%;
-  margin-top: -256px;
-  margin-left: -386px;
-  .goosdDiscount-title{
-    font-size: 18px;
-    padding-top: 40px;
-    margin-left: 30px;
-  }
-  .discountFooter{
-    height: 99px;
-    width: 100%;
-    position: absolute;
-    bottom: 0;
-    border-top: 1px solid #EEEEEE;
-    display: flex;
-    align-items: center;
-  }
-  .temporaryNav{
-    display: flex;
-    align-items: center;
-    margin: 20px 0 0 30px;
-    .temporaryNav-name{
-      font-size: 16px;
-      color: #160000;
-      line-height: 22px;
-      font-weight: 600;
-    }
-    .temporaryNav-name2{
-      font-size: 16px;
-      color: #525252;
-      line-height: 22px;
-      font-weight: 400;
-      margin-left: 30px;
-    }
-  }
-  .temporaryDetail{
-    width: 345px;
-    height: 98px;
-    background-image: url("../assets/images/discountBck3.png");
-    background-size: 100% auto;
-    display: flex;
-    align-items: center;
-    margin: 20px 0 0 30px;
-  }
-  .temporaryDetail2{
-    width: 345px;
-    height: 98px;
-    background-image: url("../assets/images/discountBck4.png");
-    background-size: 100% auto;
-    display: flex;
-    align-items: center;
-    margin: 20px 0 0 30px;
-  }
-  .discountTop{
-    display: flex;
-    align-items: center;
-    .discountTop-line{
-      width: 2px;
-      height: 12px;
-      background: #B51F29;
-    }
-    .discountTop-name{
-      font-size: 16px;
-      color: #000;
-      line-height: 22px;
-      margin-left: 8px;
-    }
-  }
-  .discountList{
-    width: 287px;
-    height: 94px;
-    background-image: url("../assets/images/discountBck.png");
-    background-size: 100% auto;
-    margin-top: 11px;
-    display: flex;
-    align-items: center;
-    .discountList-left{
-      margin-left: 10px;
-      text-align: center;
-    }
-    .discountList-right{
-      margin-left: 30px;
-    }
-  }
-  .footer-group {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    height: 99px;
-    width: 100%;
-    position: absolute;
-    bottom: 0;
-    border-top: 1px solid #EEEEEE;
-    .footer-lf {
-      display: flex;
-      align-items: center;
-      margin-left: 30px;
-      .price {
-        font-size: 24px;
-        color: #000;
-        font-weight: bold;
-      }
-      .del-price {
-        font-size: 16px;
-        color: #969696;
-        margin-left: 16px;
-        margin-top: 4px;
-        text-decoration: line-through;
-      }
-    }
-    .footer-rg {
-      display: flex;
-      align-items: center;
-      margin-right: 30px;
-      .sure-btn {
-        width: 114px;
-        height: 54px;
-        border-radius: 10px;
-        background:#000;
-        font-size: 18px;
-        color: #fff;
-        margin-left: 100px;
-      }
-    }
-  }
+.nav-title {
+  padding-top: 23px;
+  display: flex;
+  align-items: center;
+  margin-left: 20px;
+  cursor: pointer;
 }
 
 </style>

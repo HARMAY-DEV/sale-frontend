@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div @click="goodsBtn()" v-if="!fromSearch" class="list" @touchstart="touchStart" @touchmove="touchMove" @touchend="touchEnd">
+    <div @click="bindItem" v-if="!fromSearch" class="list" @touchstart="touchStart" @touchmove="touchMove" @touchend="touchEnd">
       <div :style="{right: marginRight + 'px'}" class="listDetail">
         <div class="listDetail-img">
           <img v-if="picture != '' && picture != null" :src="picture" style="width: 100%; height: 100%;">
@@ -83,6 +83,7 @@ export default {
     };
   },
   props: {
+    goodObj: Object,
     id: String,
     picture: String,
     name: String,
@@ -95,6 +96,9 @@ export default {
       type: Boolean,
       'default': false,
     },
+  },
+  mounted() {
+    console.log(this.goodObj);
   },
   computed: {
     // 实时库存
@@ -165,8 +169,8 @@ export default {
     clearSn(){
       this.$parent.clearSn()
     },
-    goodsBtn(){
-      this.$parent.goodsDiscountBtn();
+    bindItem(){
+      this.$emit('bindGoodItem', this.goodObj)
     }
   }
 };

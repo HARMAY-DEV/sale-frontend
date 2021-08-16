@@ -15,8 +15,21 @@ body {
   text-rendering: optimizeLegibility;
   font-family: PingFang SC, Helvetica Neue, Helvetica, Hiragino Sans GB, Microsoft YaHei, Arial, sans-serif;
 }
-
+p {
+  margin: 0;
+  padding: 0;
+}
 a {
   text-decoration: none;
   outline: none;
+}
+.el-button--primary {
+  background: #000;
+  color: #fff;
+  border-color: #000;
+}
+.el-button--primary:focus, .el-button--primary:hover {
+  background: #000;
+  color: #fff;
+
 }

@@ -1,10 +1,16 @@
 <template>
   <div class="device-container" style="overflow:auto;">
-    <h2>打印机</h2>
+    <div class="title-group">
+      <h2>打印机</h2>
+      <p>
+        <img src="../assets/images/saoyisao.png" alt="">
+        <span>扫描设备二维码</span>
+      </p>
+    </div>
     <div class="device-list">
 
     </div>
-    <h2>其他设备</h2>
+    <!-- <h2>其他设备</h2> -->
     <div class="device-list">
 
     </div>
@@ -22,9 +28,42 @@
         <p style="margin-right: 10px;">Device ID</p>
         <el-input style="width: 200px;margin-right: 20px;" v-model="deviceID" placeholder="bananalab_epos"></el-input>
       </div>
-      <el-button @click="connect()">连接</el-button>
+      <el-button @click="connect()" class="connect-btn">连接</el-button>
+      <el-button class="noconnect-btn">断开连接</el-button>
     </div>
     <el-button @click="print()">打印</el-button>
+    <div class="device-group">
+      <div class="title-group">
+        <h2>设备列表</h2>
+        <p>
+          <img src="../assets/images/refresh.png" alt="">
+          <span>重新搜索</span>
+        </p>
+      </div>
+      <div class="device-list">
+        <div class="device-item">
+          <div class="item-info">
+            <img src="../assets/images/dayinji.png" alt="">
+            <span>TM-T82111_153</span>
+          </div>
+          <p>连接打印机</p>
+        </div>
+        <div class="device-item">
+          <div class="item-info">
+            <img src="../assets/images/dayinji.png" alt="">
+            <span>TM-T82111_153</span>
+          </div>
+          <p>连接打印机</p>
+        </div>
+        <div class="device-item">
+          <div class="item-info">
+            <img src="../assets/images/dayinji.png" alt="">
+            <span>TM-T82111_153</span>
+          </div>
+          <p>连接打印机</p>
+        </div>
+      </div>
+    </div>
     <div style="display: none;">
       <canvas id="canvas" width="0" height="0"></canvas>
       <canvas id="canvas2" width="0" height="0"></canvas>
@@ -991,6 +1030,64 @@ export default {
 <style lang="scss" scoped>
 .device-container {
   padding: 10px;
+  .title-group {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    p {
+      display: flex;
+      align-items: center;
+      span {
+        display: inline-block;
+        margin-left: 12px;
+        font-size: 18px;
+      }
+    }
+  }
+  .connect-btn {
+    background: #000;
+    color: #fff;
+  }
+  .noconnect-btn {
+    background: #fff;
+    border: 1px solid #000;
+    &.el-button:focus, &.el-button:hover {
+      color: #000;
+    }
+  }
+}
+.device-group {
+  margin-top: 30px;
+  .device-list {
+    display: flex;
+    .device-item {
+      & + .device-item {
+        margin-left: 60px;
+      }
+      width: 262px;
+      border: 1px solid #D9D9D9;
+      border-radius: 2px;
+      .item-info {
+        padding: 24px 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        span {
+          display: inline-block;
+          margin-left: 12px;
+        }
+      }
+      p {
+        height: 42px;
+        line-height: 42px;
+        background: #F7F9FA;
+        font-size: 14px;
+        font-weight: bold;
+        margin: 0;
+        text-align: center;
+      }
+    }
+  }
 }
 #mycanvas {
   border: 1px solid rgb(199, 198, 198);

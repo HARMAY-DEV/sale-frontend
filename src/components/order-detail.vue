@@ -66,7 +66,11 @@
         <!--        <el-table-column prop="time" width="200" label="支付时间"></el-table-column>-->
         <!--        <el-table-column prop="amount" label="支付金额"></el-table-column>-->
         <!--      </el-table>-->
-
+        <div class="total-footer-group">
+          <p>应付： <span>¥ 397.00</span></p>
+          <p>优惠： <span>¥ 37.00</span></p>
+          <p>微信： <span>¥ 7.00</span></p>
+        </div>
       </div>
 
     </div>
@@ -269,6 +273,22 @@ p{
   background: #fff;
   border-radius: 7px;
   z-index: 10;
+}
+.total-footer-group {
+  border-top: 1px solid #EEEEEE;
+  padding: 20px 30px 5px 30px;
+  text-align: right;
+  p {
+    color: #000;
+    font-size: 16px;
+    span {
+      display: inline-block;
+      width: 120px;
+    }
+    & + p {
+      margin-top: 12px;
+    }
+  }
 }
 
 
