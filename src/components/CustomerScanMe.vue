@@ -33,9 +33,11 @@
           <p :class="['stateName', {active: item.orderState<=orderStatus}]">{{item.label}} <span :class="['stateLine', {active: item.orderState<=orderStatus}]" v-if="index!=stateList.length-1">----------</span></p>
         </div>
       </div>
-      <number-keyboard placeholder="请输入收款金额" v-model="inputPrice">
-        <el-button type="primary" @click="bindPay" class="pay-btn" :disabled="amount <= 0" :loading="payLoading">支付</el-button>
-      </number-keyboard>
+      <div v-loading="orderStatus==1&&payLoading">
+        <number-keyboard placeholder="请输入收款金额" v-model="inputPrice">
+          <el-button type="primary" @click="bindPay" class="pay-btn" :disabled="amount <= 0" :loading="payLoading">确认</el-button>
+        </number-keyboard>
+      </div>
     </div>
   </el-dialog>
 </template>
@@ -43,6 +45,7 @@
 <script>
 import NumberKeyboard from './NumberKeyboard';
 import { mapState, mapGetters, mapActions, mapMutations } from 'vuex';
+import { FlowStatus, OrderStatus, PaymentMethod } from '@/utils/consts';
 
 export default {
   name: 'CustomerScanMe',
@@ -80,12 +83,15 @@ export default {
         {id: 3, label: '付款成功', icon: require('../assets/images/payIcon03.png'), iconActive: require('../assets/images/payIcon11.png'), orderState: 2}
       ],
       inputPrice: '',
-      orderStatus: 0,
       isShow: false,
-      payLoading: false
+      payLoading: false,
+      flowList: [],
+      showSuccessMask: false,
+      showFailMask: false
     };
   },
   methods: {
+    ...mapActions('flow', ['createFlow', 'payFlow', 'getFlowList', 'cancelLoopFlowDetail']),
     close() {
       this.isShow = false
       this.$parent.btnIndex = -1
@@ -93,14 +99,22 @@ export default {
     back() {
       this.close()
     },
+    // async orderStatus(status) {
+    //   if (status === OrderStatus.PAID) {
+    //     this.flowList = await this.getFlowList();
+    //   }
+    //   if (status !== OrderStatus.PAYING) {
+    //     this.payLoading = false;
+    //     this.showSuccessMask = false;
+    //     this.showFailMask = false;
+    //     this.cancelLoopFlowDetail();
+    //   }
+    // },
     bindPay() {
-      console.log(1);
       if (this.payLoading) {
         return
       }
       this.payLoading = true
-      this.orderStatus = 1
-      // this.$emit('bindPay')
     }
   },
 };

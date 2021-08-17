@@ -36,7 +36,7 @@
               </div>
             </div>
           </div>
-          <!-- <div v-if="showSuccessMask" class="pay-result-box">
+          <div v-if="showSuccessMask" class="pay-result-box">
             <ip-check-one theme="filled" size="48" fill="#67C23A" />
             <p>支付成功</p>
           </div>
@@ -46,7 +46,7 @@
             <div>{{ payFailedMessage }}</div>
           </div>
 
-          <number-keyboard placeholder="请输入收款金额" v-model="amountString">
+          <!-- <number-keyboard placeholder="请输入收款金额" v-model="amountString">
             <el-button :disabled="amount <= 0" type="success" @click="pay()">支付</el-button>
           </number-keyboard> -->
         </div>
@@ -72,7 +72,48 @@
 
     <ticket ref="mychild" :id="orderInfo.id"></ticket>
     <!-- 顾客扫我 -->
-    <customer-scan-me :isVisible="btnIndex!==-1" :amountString="amountString" :amount="amount" :title="stateTitle"></customer-scan-me>
+    <!-- <customer-scan-me :isVisible="btnIndex!==-1" :amountString="amountString" :amount="amount" :title="stateTitle"></customer-scan-me> -->
+     <el-dialog
+        :visible="btnIndex!==-1 && (!showSuccessMask || !showFailMask)"
+        :show-close="false"
+        :close-on-click-modal="false"
+        width="674px"
+        append-to-body
+        class="my-dialog"
+      >
+        <div
+          class="nav-title"
+          style="margin-top: -50px;margin-left: 0;"
+          @click="back"
+        >
+          <img
+            src="../assets/images/return01.png"
+            style="width: 17px;height: 17px;"
+            alt=""
+          />
+          <p style="font-size: 14px;color: #000;margin-left: 13px;">
+            切换其他支付方式
+          </p>
+        </div>
+        <div class="content-box">
+          <h2>{{stateTitle}}</h2>
+          <div class="price">
+            <span>已收：0元</span>
+            <span>未收：{{amountString}}元</span>
+          </div>
+          <div class="state-list">
+            <div class="state-item" v-for="(item,index) in stateList1" :key="item.id">
+              <img :src="item.orderState<=orderStatus?item.iconActive:item.icon" class="stateImg">
+              <p :class="['stateName', {active: item.orderState<=orderStatus}]">{{item.label}} <span :class="['stateLine', {active: item.orderState<=orderStatus}]" v-if="index!=stateList1.length-1">----------</span></p>
+            </div>
+          </div>
+          <div v-loading="orderStatus==1&&payLoading">
+            <number-keyboard placeholder="请输入收款金额" v-model="amountString">
+              <el-button type="primary" @click="pay" class="pay-btn" :disabled="amount <= 0" :loading="payLoading">确认</el-button>
+            </number-keyboard>
+          </div>
+        </div>
+      </el-dialog>
   </div>
 </template>
 
@@ -80,7 +121,7 @@
 import { mapState, mapGetters, mapActions, mapMutations } from 'vuex';
 import { FlowStatus, OrderStatus, PaymentMethod } from '@/utils/consts';
 import { waitingDynamicId } from '@/utils/scan-code-gun';
-// import NumberKeyboard from './number-keyboard';
+import NumberKeyboard from './NumberKeyboard';
 import { stringToNumber } from '@/utils/money';
 import { delay } from '@/utils/delay';
 import ticket from './smallTicket'
@@ -88,7 +129,7 @@ import CustomerScanMe from '@/components/CustomerScanMe'
 
 export default {
   name: 'OrderProcess',
-  components: { ticket, CustomerScanMe },
+  components: { ticket, CustomerScanMe, NumberKeyboard },
   props: {
     isVisible: {
       type: Boolean,
@@ -116,9 +157,19 @@ export default {
         {id: 2, icon: require('../assets/images/paybtn02.png'), label: '顾客扫我'},
         {id: 3, icon: require('../assets/images/paybtn03.png'), label: '刷卡支付'},
         {id: 4, icon: require('../assets/images/paybtn04.png'), label: '现金支付'}
-      ],
+      ], 
       btnIndex: -1,
-      stateTitle: ''
+      stateTitle: '',
+      stateList1: [
+        {id: 1, label: '确认金额', icon: require('../assets/images/payIcon02.png'), iconActive: require('../assets/images/payIcon02.png'), orderState: 0},
+        {id: 2, label: '付款中', icon: require('../assets/images/payIcon04.png'), iconActive: require('../assets/images/payIcon12.png'), orderState: 1},
+        {id: 3, label: '付款成功', icon: require('../assets/images/payIcon03.png'), iconActive: require('../assets/images/payIcon11.png'), orderState: 2}
+      ],
+      isShow: false,
+      payLoading: false,
+      flowList: [],
+      showSuccessMask: false,
+      showFailMask: false,
     };
   },
   mounted() {
@@ -247,7 +298,10 @@ export default {
     print() {
       // this.updateOrderStatus(OrderStatus.PRINT);
       this.$refs.mychild.print();
-    }
+    },
+    back() {
+      this.btnIndex = -1
+    },
   },
 }
 </script>
@@ -447,5 +501,73 @@ export default {
     }
   }
 }
-
+.el-dialog__body {
+  height: 575px;
+}
+.nav-title {
+  padding-top: 23px;
+  display: flex;
+  align-items: center;
+  margin-left: 20px;
+  cursor: pointer;
+}
+.my-dialog {
+  .content-box {
+    height: 575px;
+  }
+}
+.content-box {
+  text-align: center;
+  margin-top: 20px;
+  h2 {
+    font-size: 22px;
+    color: #000;
+  }
+  .price {
+    color: #969696;
+    font-size: 14px;
+    margin-top: 18px;
+    span {
+      display: inline-+block;
+      & + span {
+        margin-left: 33px;
+      }
+    }
+  }
+  .state-list {
+    margin: 40px auto 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    .state-item {
+      .stateLine{
+        color: #969696;
+        margin: 28px 7px 0 7px;
+        &.active {
+          color: #000;
+        }
+      }
+      .stateImg{
+        display: block;
+        width: 20px;
+        height: 20px;
+        margin-left: 14px;
+      }
+      .stateName{
+        font-size: 14px;
+        color: #969696;
+        margin-top: 8px;
+        white-space: nowrap;
+        &.active {
+          color: #000;
+        }
+      }
+    }
+  }
+}
+.pay-btn {
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+}
 </style>

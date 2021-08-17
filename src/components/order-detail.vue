@@ -67,9 +67,9 @@
         <!--        <el-table-column prop="amount" label="支付金额"></el-table-column>-->
         <!--      </el-table>-->
         <div class="total-footer-group">
-          <p>应付： <span>¥ 397.00</span></p>
-          <p>优惠： <span>¥ 37.00</span></p>
-          <p>微信： <span>¥ 7.00</span></p>
+          <p>应付： <span>¥ {{orderTableData[0].payableAmount}}</span></p>
+          <p>优惠： <span>¥ {{orderTableData[0].paidAmount-orderTableData[0].payableAmount }}</span></p>
+          <p>{{orderTableData[0].payType}}： <span>¥ {{orderTableData[0].paidAmount}}</span></p>
         </div>
       </div>
 
@@ -191,6 +191,10 @@ export default {
       this.orderStatus = orderInfo.payStatus;
       this.orderTableData = [orderInfo];
       this.goodsTableData = goodsList;
+      console.log('orderinfo', orderInfo);
+    console.log('goodsTableData',this.goodsTableData);
+    console.log('orderTableData',this.orderTableData);
+
       this.flowTableData = flowList.map(flow => ({...flow, status: statusMap[flow.status] || '未知状态'}));
     },
     print(){
@@ -206,6 +210,8 @@ export default {
       this.getOrderList();
     }
   },
+  mounted() {
+  }
 }
 </script>
 
