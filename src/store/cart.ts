@@ -72,7 +72,7 @@ const mutations: MutationTree<CartState> = {
       Storage.removeItem(StorageKey.CART_ID);
     }
     state.goodsList = goodsList;
-    state.totalAmount = totalAmount;
+    state.totalAmount = totalAmount.toFixed(2);
     state.totalCount = totalCount;
   },
 

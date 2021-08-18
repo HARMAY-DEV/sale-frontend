@@ -27,7 +27,7 @@
       <p @click="clearCart()" style="font-size: 16px;margin-left: 45px;flex: 1;">清空购物车</p>
       <div class="goods-summary">
         <p class="list-len-box">
-          以选商品 <span>{{totalCount}} </span>件
+          已选商品 <span>{{totalCount}} </span>件
         </p>
         <p class="total-box">
           合计： <span>{{totalAmount}}</span>
