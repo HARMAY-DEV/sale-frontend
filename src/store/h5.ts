@@ -1,9 +1,6 @@
 import type { ActionTree, Module, MutationTree } from 'vuex';
 import { getHeaderImage } from "@/api/user"
-
 import { RootState } from './root';
-
-
 
 export interface H5State {
   userObj: {
@@ -46,12 +43,12 @@ const state: H5State = {
 };
 
 const mutations: MutationTree<H5State> = {
-
   SET_USEROBJ: (state, data) => {
     state.userObj = data
     state.type = 1
   },
   SET_IMAGE: (state, data) => {
+    console.log('state', data);
     state.Image = data
   }
 };
@@ -59,6 +56,7 @@ const mutations: MutationTree<H5State> = {
 const actions: ActionTree<H5State,RootState> = {
   getImages({ commit }) {
     getHeaderImage().then(res => {
+      console.log('msg', res.data.msg);
         commit("SET_IMAGE", res.data.msg)
     })
 }

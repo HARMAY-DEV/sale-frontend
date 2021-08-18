@@ -26,7 +26,6 @@
         @click="chexSn"
         >确定</el-button
       >
-
     </div>
   </div>
 </template>
@@ -59,7 +58,7 @@ export default {
     };
   },
   mounted() {
-    
+    console.log('this.orderTableDatas',this.orderTableDatas);
     // this.orderTableDatas2=this.orderTableDatas
     this.orderTableDatas[1].forEach((v) => {
       this.$set(v, "commodity", true);
@@ -105,15 +104,18 @@ export default {
       let reValue = 0
       
       this.refunValue.forEach((v,i)=>{
-        if(v.price > this.orderTableDatas[1][i].amount - this.$parent.items[i].price){
-          this.$message.error(`超出${v.ptype}退款金额`);
-          return;
+        console.log(this.orderTableDatas[1][i]);
+        if( this.orderTableDatas[1][i]) {
+          if(v.price > this.orderTableDatas[1][i].amount - this.$parent.items[i].price){
+            this.$message.error(`超出${v.ptype}退款金额`);
+            return;
+          }
+          if(!v.price || v.price == null || v.price == undefined){
+            v.price = 0
+          }
+          // 计算总计
+          reValue = Number(reValue) + Number(v.price)
         }
-        if(!v.price || v.price == null || v.price == undefined){
-          v.price = 0
-        }
-        // 计算总计
-        reValue = Number(reValue) + Number(v.price)
       })
       // 判断总计是否超出或小于
       if(reValue > this.orderTableDatas[0].price * this.orderTableDatas[0].quantity){

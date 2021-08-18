@@ -24,6 +24,11 @@ const routes: RouteConfig[] = [
         component: () => import(/* webpackPrefetch: true */ '@/views/Order.vue'),
       },
       {
+        path: 'member-login',
+        name: '/member-login',
+        component: () => import(/* webpackPrefetch: true */ '@/views/member/MemberLogin.vue'),
+      },
+      {
         path: 'device',
         name: 'device',
         component: () => import(/* webpackPrefetch: true */ '@/views/Device.vue'),

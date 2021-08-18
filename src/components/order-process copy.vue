@@ -1,55 +1,74 @@
 <template>
   <div class="order-process">
-<!--    <p>订单编号{{orderInfo.id}}-->
-<!--    <p>{{orderStatus}}</p>-->
-<!--    <el-steps :active="orderStatus" align-center>-->
-<!--      <el-step title="待支付"></el-step>-->
-<!--      <el-step title="支付中"></el-step>-->
-<!--      <el-step title="支付完成"></el-step>-->
-<!--      <el-step title="打印小票"></el-step>-->
-<!--    </el-steps>-->
     <div class="state">
-      <div class="stateList">
-        <img src="../assets/images/payIcon02.png" class="stateImg" alt="">
-        <p class="stateName">待支付</p>
-      </div>
-      <div :style="orderStatus >= 1 ?'':'color: #969696'" class="stateLine">----------</div>
-      <div class="stateList">
-        <img :src="orderStatus >= 1 ? require('../assets/images/payIcon12.png'):require('../assets/images/payIcon04.png')" class="stateImg" alt="">
-        <p :style="orderStatus >= 1 ?'':'color: #969696'" class="stateName">支付中</p>
-      </div>
-      <div :style="orderStatus >= 2 ?'':'color: #969696'" class="stateLine">----------</div>
-      <div class="stateList">
-        <img :src="orderStatus >= 2 ? require('../assets/images/payIcon11.png'):require('../assets/images/payIcon03.png')" class="stateImg" alt="">
-        <p :style="orderStatus >= 2 ?'':'color: #969696'" class="stateName">支付完成</p>
-      </div>
-      <div :style="orderStatus >= 3 ?'':'color: #969696'" style="color: #979797" class="stateLine">----------</div>
-      <div class="stateList">
-        <img :src="orderStatus >= 3 ? require('../assets/images/payIcon08.png'):require('../assets/images/payIcon01.png')" class="stateImg" alt="">
-        <p :style="orderStatus >= 3 ?'':'color: #969696'" style="color: #969696" class="stateName">打印小票</p>
+      <div class="stateList" v-for="(item,index) in stateList" :key="item.id">
+        <img :src="item.orderState<=orderStatus?item.iconActive:item.icon" class="stateImg">
+        <p :class="['stateName', {active: item.orderState<=orderStatus}]">{{item.label}} <span :class="['stateLine', {active: item.orderState<=orderStatus}]" v-if="index!=stateList.length-1">----------</span></p>
       </div>
     </div>
-    <div class="box">
+    <div class="content-box">
 <!--      <div class="pay-info" v-if="orderStatus !== 3">-->
 <!--        <div>等待支付：{{ waitingPaidAmount }}元</div>-->
 <!--        <span>应收：{{ payableAmount | money }}元</span>-->
 <!--        <span>实收：{{ paidAmount | money }}元</span>-->
 <!--      </div>-->
-
       <div v-if="orderStatus === 0 || orderStatus === 1" class="pay-container">
         <div class="left-panel">
-          <el-button :type="paymentMethod === PaymentMethod.B_SCAN_C ? 'primary' : ''" @click="selectPaymentMethod(PaymentMethod.B_SCAN_C)">我扫顾客</el-button>
-          <el-button :type="paymentMethod === PaymentMethod.C_SCAN_B ? 'primary' : ''" @click="selectPaymentMethod(PaymentMethod.C_SCAN_B)" disabled>顾客扫我</el-button>
-          <el-button :type="paymentMethod === PaymentMethod.CARD ? 'primary' : ''"  @click="selectPaymentMethod(PaymentMethod.CARD)" disabled>刷卡支付</el-button>
-          <el-button :type="paymentMethod === PaymentMethod.CASH ? 'primary' : ''" @click="selectPaymentMethod(PaymentMethod.CASH)">现金支付</el-button>
+          <p class="title">支付方式：</p>
+          <el-button type="primary" v-for="(item, index) in btnList" :key="item.id" @click="bindBtn(index)">
+            <div class="btn-box">
+              <img :src="item.icon">
+              <span>{{item.label}}</span>
+            </div>
+          </el-button>
+          <!-- <el-button :type="paymentMethod === PaymentMethod.B_SCAN_C ? 'primary' : ''" @click="selectPaymentMethod(PaymentMethod.B_SCAN_C)">
+            <div class="btn-box">
+              <img src="../assets/images/paybtn01.png">
+              <span>我扫顾客</span>
+            </div>
+          </el-button>
+          <el-button :type="paymentMethod === PaymentMethod.C_SCAN_B ? 'primary' : ''" @click="selectPaymentMethod(PaymentMethod.C_SCAN_B)">
+            <div class="btn-box">
+              <img src="../assets/images/paybtn02.png">
+              <span>顾客扫我</span>
+            </div>
+          </el-button>
+          <el-button :type="paymentMethod === PaymentMethod.CARD ? 'primary' : ''"  @click="selectPaymentMethod(PaymentMethod.CARD)">
+            <div class="btn-box">
+              <img src="../assets/images/paybtn03.png">
+              <span>刷卡支付</span>
+            </div>
+          </el-button>
+          <el-button :type="paymentMethod === PaymentMethod.CASH ? 'primary' : ''" @click="selectPaymentMethod(PaymentMethod.CASH)">
+            <div class="btn-box">
+              <img src="../assets/images/paybtn04.png">
+              <span>现金支付</span>
+            </div>
+          </el-button> -->
         </div>
-
         <div class="right-panel" v-loading="orderStatus === 1 && this.payLoading" element-loading-text="等待确认中...">
-          <div v-if="showSuccessMask" class="pay-result-box">
+          <div class="stay-pay-group">
+            <p class="stay-price">待付金额： <span>154154元</span></p>
+            <div class="other-price">
+              <span>应收金额：12元</span>
+              <span>实际金额：0元</span>
+            </div>
+            <!-- <p class="tips">等待支付~</p> -->
+            <div class="pay-detail-box">
+              <div class="pay-detail-item">
+                <span>微信</span>
+                <span>20元</span>
+              </div>
+              <div class="pay-detail-item">
+                <span>微信</span>
+                <span>20元</span>
+              </div>
+            </div>
+          </div>
+          <!-- <div v-if="showSuccessMask" class="pay-result-box">
             <ip-check-one theme="filled" size="48" fill="#67C23A" />
             <p>支付成功</p>
           </div>
-
           <div v-if="showFailMask" class="pay-result-box">
             <ip-caution theme="filled" size="48" fill="#F56C6C"/>
             <p>支付失败</p>
@@ -58,11 +77,11 @@
 
           <number-keyboard placeholder="请输入收款金额" v-model="amountString">
             <el-button :disabled="amount <= 0" type="success" @click="pay()">支付</el-button>
-          </number-keyboard>
+          </number-keyboard> -->
         </div>
       </div>
 
-      <div v-if="orderStatus === 2" class="pay-detail">
+      <div v-else-if="orderStatus === 2" class="pay-detail">
         <div style="font-size: 16px; font-weight: 500; margin-bottom: 5px;">支付动态：</div>
         <div class="flow-item" v-for="flow in flowList" :key="flow.id">
           <template v-if="flow.payType">
@@ -75,12 +94,14 @@
         </div>
       </div>
 
-      <div v-if="orderStatus === 3" class="iframe-container">
+      <div v-else class="iframe-container">
         <iframe src="/receipt.html" width="400" height="360" frameborder="0"></iframe>
       </div>
     </div>
 
     <ticket ref="mychild" :id="orderInfo.id"></ticket>
+    <!-- 顾客扫我 -->
+    <customer-scan-me :isVisible="btnIndex==1" ></customer-scan-me>
   </div>
 </template>
 
@@ -92,10 +113,11 @@ import NumberKeyboard from './number-keyboard';
 import { stringToNumber } from '@/utils/money';
 import { delay } from '@/utils/delay';
 import ticket from './smallTicket'
+import CustomerScanMe from '@/components/CustomerScanMe'
 
 export default {
   name: 'OrderProcess',
-  components: { NumberKeyboard,ticket },
+  components: { NumberKeyboard, ticket, CustomerScanMe },
   data() {
     return {
       PaymentMethod,
@@ -106,12 +128,26 @@ export default {
       showFailMask: false,
       payLoading: false,
       flowList: [],
+      stateList: [
+        {id: 1, label: '待支付', icon: require('../assets/images/payIcon02.png'), iconActive: require('../assets/images/payIcon02.png'), orderState: 0},
+        {id: 2, label: '支付中', icon: require('../assets/images/payIcon04.png'), iconActive: require('../assets/images/payIcon12.png'), orderState: 1},
+        {id: 3, label: '支付完成', icon: require('../assets/images/payIcon03.png'), iconActive: require('../assets/images/payIcon11.png'), orderState: 2},
+        {id: 4, label: '打印小票', icon: require('../assets/images/payIcon01.png'), iconActive: require('../assets/images/payIcon08.png'), orderState: 3}
+      ],
+      btnList: [
+        {id: 1, icon: require('../assets/images/paybtn01.png'), label: '我扫顾客'},
+        {id: 2, icon: require('../assets/images/paybtn02.png'), label: '顾客扫我'},
+        {id: 3, icon: require('../assets/images/paybtn03.png'), label: '刷卡支付'},
+        {id: 4, icon: require('../assets/images/paybtn04.png'), label: '现金支付'}
+      ],
+      btnIndex: -1,
     };
+  },
+  mounted() {
   },
   computed: {
     ...mapState('order', ['orderStatus', 'orderInfo']),
     ...mapGetters('flow', ['currentFlowStatus']),
-
     amount() {
       return stringToNumber(this.amountString);
     },
@@ -191,7 +227,10 @@ export default {
     ...mapMutations('order', ['updateOrderStatus']),
     ...mapActions('order', ['getOrderDetail']),
     ...mapMutations('cart', ['clearCart']),
-
+    // 左侧按钮事件
+    bindBtn(index) {
+      this.btnIndex = index
+    },
     selectPaymentMethod(method) {
       this.paymentMethod = method;
     },
@@ -239,19 +278,9 @@ export default {
 </script>
 
 <style lang="scss">
-.left-panel {
-  .el-button + .el-button {
-    margin-left: 0;
-    margin-top: 40px;
-  }
-}
 </style>
 
 <style lang="scss" scoped>
-p{
-  padding: 0;
-  margin: 0;
-}
 .pay-info {
   display: flex;
   margin: 10px;
@@ -275,29 +304,91 @@ p{
   }
 }
 
+.content-box{
+  width: 508px;
+  height: 394px;
+  background: #F8F8F8;
+  margin: 20px auto 0;
+  padding: 28px 20px;
+  border-radius: 8px;
+}
 .pay-container {
   display: flex;
-
   .left-panel {
     box-sizing: border-box;
-    width: 40%;
+    width: 35%;
     padding: 10px 10px 20px;
     margin-right: 10px;
     flex: none;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    .title {
+      color: #000;
+      font-weight: bold;
+      font-size: 16px;
+      padding-bottom: 12px;
+    }
+    .el-button {
+      width: 116px;
+      margin-top: 21px;
+      margin-left: 0;
+    }
+    .btn-box {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      span {
+        display: inline-block;
+        margin-left: 8px;
+      }
+    }
   }
-
   .right-panel {
     position: relative;
     flex: auto;
-    margin: 10px 10px 20px;
-    padding: 10px;
-    box-shadow: 0 2px 12px 0 rgb(0 0 0 / 10%);
-    border: 1px solid #ebeef5;
     border-radius: 2px;
-    
+    .stay-pay-group {
+      .stay-price {
+        font-size: 14px;
+        color: #000;
+        font-weight: bold;
+        span {
+          font-size: 22px;
+        }
+      }
+      .other-price {
+        margin-top: 14px;
+        span {
+          display: inline-block;
+          color: #7C8285;
+          font-size: 14px;
+          & + span {
+            margin-left: 22px;
+          }
+        }
+      }
+      .tips {
+        text-align: center;
+        margin-top: 100px;
+        color: #969696;
+      }
+      .pay-detail-box {
+        margin-top: 13px;
+        .pay-detail-item {
+          & + .pay-detail-item {
+            margin-top: 8px;
+          }
+          border: 1px solid #E2E2E2;
+          padding: 0 15px;
+          height: 30px;
+          line-height: 30px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+      }
+    }
     .pay-result-box {
       position: absolute;
       top: 0;
@@ -357,25 +448,25 @@ p{
       display: block;
       width: 20px;
       height: 20px;
-      margin: 0 auto;
+      margin-left: 13px;
     }
     .stateName{
       font-size: 14px;
-      color: #000;
+      color: #969696;
       margin-top: 8px;
-      line-height: 20px;
+      white-space: nowrap;
+      &.active {
+        color: #000;
+      }
     }
   }
   .stateLine{
-    color: #282828;
+    color: #969696;
     margin: 28px 7px 0 7px;
+    &.active {
+      color: #000;
+    }
   }
-}
-.box{
-  width: 508px;
-  height: 394px;
-  background: #F8F8F8;
-  margin: 0 auto;
 }
 
 </style>

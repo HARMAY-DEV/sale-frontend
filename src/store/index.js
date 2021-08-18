@@ -35,12 +35,10 @@ const mutations = {
 const actions = {
     getImages({ commit }) {
         getHeaderImage().then(res => {
-
             commit("SET_IMAGE", res.data.msg)
         })
     }
 };
-
 const store = new Vuex.Store({
     state,
     mutations,
