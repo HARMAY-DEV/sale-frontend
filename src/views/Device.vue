@@ -3,7 +3,7 @@
     <div class="title-group">
       <h2>打印机</h2>
       <p>
-        <img src="../assets/images/saoyisao.png" alt="">
+        <img src="../assets/images/scanning.png" alt="">
         <span>扫描设备二维码</span>
       </p>
     </div>
@@ -80,9 +80,9 @@
       <img ref="conf2" style="display: none" src="../assets/images/code02.png">
       <img ref="conf3" style="display: none" src="../assets/images/code3.png">
       <img ref="conf4" style="display: none" src="../assets/images/code04.png">
-<!--      <canvas id="mycanvas" width="794" height="1020"></canvas>-->
-<!--      <canvas id="mycanvas2" width="794" height="1020"></canvas>-->
-<!--      <canvas id="ticket03" width="794" height="1020"></canvas>-->
+     <canvas id="mycanvas" width="794" height="1020"></canvas>
+     <canvas id="mycanvas2" width="794" height="1020"></canvas>
+     <canvas id="ticket03" width="794" height="1020"></canvas>
     </div>
   </div>
 </template>
@@ -1020,7 +1020,7 @@ export default {
     // this.smallTicket1()
     // this.smallTicket2()
     // this.smallTicket3()
-    // this.smallTicket4()
+    this.smallTicket4()
 
   },
 
@@ -1034,6 +1034,10 @@ export default {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    img {
+      width: 30px;
+      height: 30px;
+    }
     p {
       display: flex;
       align-items: center;

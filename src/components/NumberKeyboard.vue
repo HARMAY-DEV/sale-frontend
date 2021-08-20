@@ -1,25 +1,24 @@
 <template>
   <div class="number-keyboard-container">
     <div class="input-group">
-      <span>输入金额</span>
       <el-input placeholder="请输入金额" v-model="value" class="input" readonly></el-input>
+      <img src="../assets/images/keyword-del.png" class="img" @click.prevent.stop="backspace($event)" @touchend.prevent.stop="backspace($event)">
     </div>
     <div class="number-keyboard" @click.prevent.stop="clickHandler($event)" @touchstart.prevent.stop="highlight($event)" @touchend.prevent.stop="handler($event)">
       <span>1</span>
       <span>2</span>
       <span>3</span>
-      <span @click.prevent.stop="backspace($event)" @touchend.prevent.stop="backspace($event)">
-        <img src="../assets/images/keyword-del.png">
-      </span>
       <span>4</span>
       <span>5</span>
       <span>6</span>
-      <span @touchstart.stop @touchend.stop @click.prevent.stop class="pay-btn row-3"><slot></slot></span>
       <span>7</span>
       <span>8</span>
       <span>9</span>
-      <span class="column-2">0</span>
       <span>.</span>
+      <span>0</span>
+      <span>
+        <img src="" alt="">
+      </span>
     </div>
   </div>
 </template>
@@ -87,11 +86,19 @@ export default {
     align-items: center;
   }
 }
+.input {
+  border-radius: 10px;
+  margin-left: 14px;
+  width: 150px;
+  .el-input__inner {
+    border: 0;
+    border-color: transparent;
+  }
+}
 </style>
 
 <style lang="scss" scoped>
 .number-keyboard-container {
-  padding-bottom: 50px;
   width: 100%;
   height: 100%;
   display: flex;
@@ -101,40 +108,37 @@ export default {
   touch-callout: none;
   -webkit-touch-callout: none;
   .input-group {
-    margin-top: 39px;
-    span {
-      font-size: 16px;
-      color: #000;
-      font-weight: bold;
-    }
-    .input {
-      width: 291px;
-      height: 49px;
-      border-radius: 10px;
-      margin-left: 14px;
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    .img {
+      margin-left: 10px;
     }
   }
 }
 
 .number-keyboard {
   width: 376px;
-  height: 210px;
   margin: 0 auto;
   flex: auto;
-  margin-top: 50px;
+  margin-top: 34px;
   display: grid;
-  grid-template-rows: repeat(4, minmax(25%, 1fr));
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: 88px 88px 88px 88px;
+  grid-template-columns: 88px 88px 88px;
+  grid-row-gap: 37px;
+  grid-column-gap: 37px;
 
   > span {
     display: flex;
     justify-content: center;
     align-items: center;
-    border: 1px solid #ebeef5;
     font-size: 16px;
     font-weight: 600;
     transition: all ease 0.1s;
     overflow: hidden;
+    background: #F1F1F1;
+    border-radius: 50%;
     &:active, &:focus {
       background-color: #ebeef5;
     }

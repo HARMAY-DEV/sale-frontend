@@ -1,5 +1,6 @@
 <template>
   <div class="order-process">
+    <!-- 支付状态进度条 -->
     <div class="state">
       <div class="stateList" v-for="(item,index) in stateList" :key="item.id">
         <img :src="item.orderState<=orderStatus?item.iconActive:item.icon" class="stateImg">
@@ -7,11 +8,6 @@
       </div>
     </div>
     <div class="content-box">
-<!--      <div class="pay-info" v-if="orderStatus !== 3">-->
-<!--        <div>等待支付：{{ waitingPaidAmount }}元</div>-->
-<!--        <span>应收：{{ payableAmount | money }}元</span>-->
-<!--        <span>实收：{{ paidAmount | money }}元</span>-->
-<!--      </div>-->
       <div v-if="orderStatus === 0 || orderStatus === 1" class="pay-container">
         <div class="left-panel">
           <p class="title">支付方式：</p>
@@ -21,40 +17,16 @@
               <span>{{item.label}}</span>
             </div>
           </el-button>
-          <!-- <el-button :type="paymentMethod === PaymentMethod.B_SCAN_C ? 'primary' : ''" @click="selectPaymentMethod(PaymentMethod.B_SCAN_C)">
-            <div class="btn-box">
-              <img src="../assets/images/paybtn01.png">
-              <span>我扫顾客</span>
-            </div>
-          </el-button>
-          <el-button :type="paymentMethod === PaymentMethod.C_SCAN_B ? 'primary' : ''" @click="selectPaymentMethod(PaymentMethod.C_SCAN_B)">
-            <div class="btn-box">
-              <img src="../assets/images/paybtn02.png">
-              <span>顾客扫我</span>
-            </div>
-          </el-button>
-          <el-button :type="paymentMethod === PaymentMethod.CARD ? 'primary' : ''"  @click="selectPaymentMethod(PaymentMethod.CARD)">
-            <div class="btn-box">
-              <img src="../assets/images/paybtn03.png">
-              <span>刷卡支付</span>
-            </div>
-          </el-button>
-          <el-button :type="paymentMethod === PaymentMethod.CASH ? 'primary' : ''" @click="selectPaymentMethod(PaymentMethod.CASH)">
-            <div class="btn-box">
-              <img src="../assets/images/paybtn04.png">
-              <span>现金支付</span>
-            </div>
-          </el-button> -->
         </div>
         <div class="right-panel" v-loading="orderStatus === 1 && this.payLoading" element-loading-text="等待确认中...">
           <div class="stay-pay-group">
-            <p class="stay-price">待付金额： <span>154154元</span></p>
+            <p class="stay-price">待付金额： <span>{{payableAmount}}元</span></p>
             <div class="other-price">
-              <span>应收金额：12元</span>
-              <span>实际金额：0元</span>
+              <span>应收金额：{{payableAmount}}元</span>
+              <span>实收金额：{{amount}}元</span>
             </div>
-            <!-- <p class="tips">等待支付~</p> -->
-            <div class="pay-detail-box">
+            <p class="tips" v-if="orderStatus==0">等待支付~</p>
+            <div class="pay-detail-box" v-else-if="orderStatus==1">
               <div class="pay-detail-item">
                 <span>微信</span>
                 <span>20元</span>
@@ -65,7 +37,7 @@
               </div>
             </div>
           </div>
-          <!-- <div v-if="showSuccessMask" class="pay-result-box">
+          <div v-if="showSuccessMask" class="pay-result-box">
             <ip-check-one theme="filled" size="48" fill="#67C23A" />
             <p>支付成功</p>
           </div>
@@ -74,13 +46,8 @@
             <p>支付失败</p>
             <div>{{ payFailedMessage }}</div>
           </div>
-
-          <number-keyboard placeholder="请输入收款金额" v-model="amountString">
-            <el-button :disabled="amount <= 0" type="success" @click="pay()">支付</el-button>
-          </number-keyboard> -->
         </div>
       </div>
-
       <div v-else-if="orderStatus === 2" class="pay-detail">
         <div style="font-size: 16px; font-weight: 500; margin-bottom: 5px;">支付动态：</div>
         <div class="flow-item" v-for="flow in flowList" :key="flow.id">
@@ -101,7 +68,47 @@
 
     <ticket ref="mychild" :id="orderInfo.id"></ticket>
     <!-- 顾客扫我 -->
-    <customer-scan-me :isVisible="btnIndex==1" ></customer-scan-me>
+    <el-dialog
+        :visible="btnIndex!==-1 && (!showSuccessMask || !showFailMask)"
+        :show-close="false"
+        :close-on-click-modal="false"
+        width="674px"
+        append-to-body
+        class="my-dialog"
+      >
+        <div
+          class="nav-title"
+          style="margin-top: -50px;margin-left: 0;"
+          @click="back"
+        >
+          <img
+            src="../assets/images/return01.png"
+            style="width: 17px;height: 17px;"
+            alt=""
+          />
+          <p style="font-size: 14px;color: #000;margin-left: 13px;">
+            切换其他支付方式
+          </p>
+        </div>
+        <div class="content-box">
+          <h2>{{stateTitle}}</h2>
+          <div class="price">
+            <span>已收：0元</span>
+            <span>未收：{{amountString}}元</span>
+          </div>
+          <div class="state-list">
+            <div class="state-item" v-for="(item,index) in stateList1" :key="item.id">
+              <img :src="item.orderState<=orderStatus?item.iconActive:item.icon" class="stateImg">
+              <p :class="['stateName', {active: item.orderState<=orderStatus}]">{{item.label}} <span :class="['stateLine', {active: item.orderState<=orderStatus}]" v-if="index!=stateList1.length-1">----------</span></p>
+            </div>
+          </div>
+          <div v-loading="orderStatus==1&&payLoading">
+            <number-keyboard placeholder="请输入收款金额" v-model="amountString">
+              <el-button type="primary" @click="pay" class="pay-btn" :disabled="amount <= 0" :loading="payLoading">确认</el-button>
+            </number-keyboard>
+          </div>
+        </div>
+      </el-dialog>
   </div>
 </template>
 
@@ -109,15 +116,20 @@
 import { mapState, mapGetters, mapActions, mapMutations } from 'vuex';
 import { FlowStatus, OrderStatus, PaymentMethod } from '@/utils/consts';
 import { waitingDynamicId } from '@/utils/scan-code-gun';
-import NumberKeyboard from './number-keyboard';
+import NumberKeyboard from './NumberKeyboard';
 import { stringToNumber } from '@/utils/money';
 import { delay } from '@/utils/delay';
 import ticket from './smallTicket'
-import CustomerScanMe from '@/components/CustomerScanMe'
 
 export default {
   name: 'OrderProcess',
-  components: { NumberKeyboard, ticket, CustomerScanMe },
+  components: { ticket, NumberKeyboard },
+  props: {
+    isVisible: {
+      type: Boolean,
+      default: false
+    }
+  },
   data() {
     return {
       PaymentMethod,
@@ -139,11 +151,23 @@ export default {
         {id: 2, icon: require('../assets/images/paybtn02.png'), label: '顾客扫我'},
         {id: 3, icon: require('../assets/images/paybtn03.png'), label: '刷卡支付'},
         {id: 4, icon: require('../assets/images/paybtn04.png'), label: '现金支付'}
-      ],
+      ], 
       btnIndex: -1,
+      stateTitle: '',
+      stateList1: [
+        {id: 1, label: '确认金额', icon: require('../assets/images/payIcon02.png'), iconActive: require('../assets/images/payIcon02.png'), orderState: 0},
+        {id: 2, label: '付款中', icon: require('../assets/images/payIcon04.png'), iconActive: require('../assets/images/payIcon12.png'), orderState: 1},
+        {id: 3, label: '付款成功', icon: require('../assets/images/payIcon03.png'), iconActive: require('../assets/images/payIcon11.png'), orderState: 2}
+      ],
+      isShow: false,
+      payLoading: false,
+      flowList: [],
+      showSuccessMask: false,
+      showFailMask: false,
     };
   },
   mounted() {
+    console.log(this.orderStatus);
   },
   computed: {
     ...mapState('order', ['orderStatus', 'orderInfo']),
@@ -151,15 +175,12 @@ export default {
     amount() {
       return stringToNumber(this.amountString);
     },
-
     payableAmount() {
       return this.orderInfo.payableAmount;
     },
-
     paidAmount() {
       return this.orderInfo.paidAmount;
     },
-
     waitingPaidAmount() {
       const value = this.payableAmount - this.paidAmount;
       if (value % 1 === 0) return value;
@@ -208,7 +229,6 @@ export default {
         this.amountString = this.waitingPaidAmount.toString();
       }
     },
-
     async orderStatus(status) {
       if (status === OrderStatus.PAID) {
         this.flowList = await this.getFlowList();
@@ -227,9 +247,9 @@ export default {
     ...mapMutations('order', ['updateOrderStatus']),
     ...mapActions('order', ['getOrderDetail']),
     ...mapMutations('cart', ['clearCart']),
-    // 左侧按钮事件
     bindBtn(index) {
       this.btnIndex = index
+      this.stateTitle = this.btnList[index].label
     },
     selectPaymentMethod(method) {
       this.paymentMethod = method;
@@ -272,15 +292,22 @@ export default {
     print() {
       // this.updateOrderStatus(OrderStatus.PRINT);
       this.$refs.mychild.print();
-    }
+    },
+    back() {
+      this.btnIndex = -1
+    },
   },
 }
 </script>
 
-<style lang="scss">
-</style>
-
 <style lang="scss" scoped>
+.snTitle{
+  padding-top: 23px;
+  display: flex;
+  align-items: center;
+  margin-left: 20px;
+  cursor: pointer;
+}
 .pay-info {
   display: flex;
   margin: 10px;
@@ -468,5 +495,73 @@ export default {
     }
   }
 }
-
+.el-dialog__body {
+  height: 575px;
+}
+.nav-title {
+  padding-top: 23px;
+  display: flex;
+  align-items: center;
+  margin-left: 20px;
+  cursor: pointer;
+}
+.my-dialog {
+  .content-box {
+    height: 575px;
+  }
+}
+.content-box {
+  text-align: center;
+  margin-top: 20px;
+  h2 {
+    font-size: 22px;
+    color: #000;
+  }
+  .price {
+    color: #969696;
+    font-size: 14px;
+    margin-top: 18px;
+    span {
+      display: inline-+block;
+      & + span {
+        margin-left: 33px;
+      }
+    }
+  }
+  .state-list {
+    margin: 40px auto 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    .state-item {
+      .stateLine{
+        color: #969696;
+        margin: 28px 7px 0 7px;
+        &.active {
+          color: #000;
+        }
+      }
+      .stateImg{
+        display: block;
+        width: 20px;
+        height: 20px;
+        margin-left: 14px;
+      }
+      .stateName{
+        font-size: 14px;
+        color: #969696;
+        margin-top: 8px;
+        white-space: nowrap;
+        &.active {
+          color: #000;
+        }
+      }
+    }
+  }
+}
+.pay-btn {
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+}
 </style>
