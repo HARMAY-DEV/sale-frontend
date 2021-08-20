@@ -1,23 +1,13 @@
 <template>
   <div class="number-keyboard-container">
     <div class="input-group">
-      <el-input placeholder="请输入金额" v-model="value" class="input" readonly></el-input>
+      <el-input placeholder="请输入收款金额" v-model="value" class="input" readonly></el-input>
       <img src="../assets/images/keyword-del.png" class="img" @click.prevent.stop="backspace($event)" @touchend.prevent.stop="backspace($event)">
     </div>
-    <div class="number-keyboard" @click.prevent.stop="clickHandler($event)" @touchstart.prevent.stop="highlight($event)" @touchend.prevent.stop="handler($event)">
-      <span>1</span>
-      <span>2</span>
-      <span>3</span>
-      <span>4</span>
-      <span>5</span>
-      <span>6</span>
-      <span>7</span>
-      <span>8</span>
-      <span>9</span>
-      <span>.</span>
-      <span>0</span>
-      <span>
-        <img src="" alt="">
+    <div class="number-keyboard">
+      <span v-for="(item, index) in keywordOptions" :key="index" @click.prevent.stop="clickHandler($event)" @touchstart.prevent.stop="highlight($event)" @touchend.prevent.stop="handler($event)">{{item}}</span>
+      <span @click="bindQrcodePay">
+        <img src="../assets/images/keyword-qrcode.png" alt="">
       </span>
     </div>
   </div>
@@ -28,15 +18,30 @@ export default {
   name: 'NumberKeyboard',
   props: {
     value: String,
-    placeholder: String
+    placeholder: String,
+    keywordList: {
+      type: Array,
+      default: ()=> {
+        return ['1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '0']
+      }
+    }
   },
   data() {
     return {
+      keywordOptions: []
+    }
+  },
+  watch: {
+    keywordList() {
+      this.keywordOptions = this.keywordList 
     }
   },
   model: {
     prop: 'value',
     event: 'typing',
+  },
+  mounted() {
+    this.keywordOptions = this.keywordList
   },
   methods: {
     highlight({ target }) {
@@ -48,28 +53,27 @@ export default {
         console.log('support touch event');
         return;
       }
-
       this.handler(event);
     },
     handler({ target }) {
       target.style.backgroundColor = '';
       const numStr = target.innerText;
-
       if (this.value.includes('.') && numStr === '.') {
         return;
       }
-
       if (this.value === '0' && numStr === '0') {
         this.$emit('typing', '0');
         return;
       }
-
       this.$emit('typing', this.value + numStr);
     },
     backspace({target}) {
       target.style.backgroundColor = '';
       if (this.value.length  === 0) return;
       this.$emit('typing', this.value.slice(0, -1));
+    },
+    bindQrcodePay() {
+      this.$emit('bindQrcodePay')
     }
   }
 }
@@ -77,6 +81,7 @@ export default {
 
 <style lang="scss">
 .number-keyboard-container {
+  min-width: 470px;
   .el-input__inner:focus {
     border-color: #DCDFE6;
   }
@@ -119,7 +124,7 @@ export default {
 }
 
 .number-keyboard {
-  width: 376px;
+  // width: 376px;
   margin: 0 auto;
   flex: auto;
   margin-top: 34px;

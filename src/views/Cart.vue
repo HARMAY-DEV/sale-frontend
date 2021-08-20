@@ -75,7 +75,7 @@
         "
         :disabled="!goodsList.length"
         type="success"
-        @click="createNewOrder()"
+        @click="createNewOrder"
         >结算</el-button
       >
     </div>
@@ -118,7 +118,7 @@
       <p v-else>找不到该商品，请核实</p>
     </el-drawer>
     <!-- 支付弹窗 -->
-    <order-process :payDialogVisible="payDialogVisible"></order-process>
+    <order-process :payDialogVisible="payDialogVisible" @closePayDialog="closePayDialog"></order-process>
     <!--    移除一物一码-->
     <div v-if="snState == 1">
       <div
@@ -251,6 +251,7 @@ export default {
     const url2 = require("../assets/images/select02.png");
     return {
       searchPanelVisible: false,
+      payDialogVisible: false,
       searchGoodsNo: "",
       searchGoodsNo2: "",
       keyboardNo: "",
@@ -260,12 +261,6 @@ export default {
       temporaryState: 0,
       temporaryType: 0,
       num: 1,
-      bindTypeList: [
-        {id: 1, label: '扫描会员码' },
-        {id: 2, label: '输入手机号' },
-        {id: 3, label: '展示签到码' }
-      ],
-      memberTypeIdx: 0
     };
   },
 
@@ -302,14 +297,14 @@ export default {
       "removeFromCart",
     ]),
     ...mapActions("order", ["createOrder", "refundWholeOrder"]),
+    closePayDialog(isShow) {
+      this.payDialogVisible = isShow
+    },
     bindGoodItem(obj) {
       this.temporaryState = 2;
       this.$nextTick(() => {
         this.$refs.goodDiscount.setEdit(obj);
       });
-    },
-    bindMemberType(index) {
-      this.memberTypeIdx = index
     },
     gunHandler(event) {
       if (this.$refs.searchInput.focused || this.payDialogVisible) {
@@ -372,6 +367,7 @@ export default {
     },
 
     async createNewOrder() {
+      this.payDialogVisible = false;
       await this.createOrder();
       this.payDialogVisible = true;
     },

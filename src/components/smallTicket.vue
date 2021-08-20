@@ -1,5 +1,5 @@
 <template>
-    <div class="device-container">
+    <div class="device-container" style="display: none;">
 <!--        <el-button @click="print()">打印</el-button>-->
         <div style="display: none;">
             <canvas id="canvas" width="0" height="0"></canvas>
