@@ -98,13 +98,14 @@ class HttpService {
   }
 
   setAuthorizationToken(token: string) {
-    // console.log('进入token')
+    console.log('进入token')
     if (!instance.defaults.headers) {
       instance.defaults.headers = { Authorization: token };
     } else {
-      Object.values(instance.defaults.headers).forEach((header) => {
-        Object.assign(header, { Authorization: `${HEADER_PREFIX} ${token}` });
-      });
+      // Object.values(instance.defaults.headers).forEach((header) => {
+      //   Object.assign(header, { Authorization: `${HEADER_PREFIX} ${token}` });
+      // });
+      instance.defaults.headers = { Authorization: `${HEADER_PREFIX} ${token}` };
     }
     // console.log(token)
     Storage.setItem(StorageKey.TOKEN, token);

@@ -1,10 +1,16 @@
 <template>
-  <div class="device-container">
-    <h2>打印机</h2>
+  <div class="device-container" style="overflow:auto;">
+    <div class="title-group">
+      <h2>打印机</h2>
+      <p>
+        <img src="../assets/images/scanning.png" alt="">
+        <span>扫描设备二维码</span>
+      </p>
+    </div>
     <div class="device-list">
 
     </div>
-    <h2>其他设备</h2>
+    <!-- <h2>其他设备</h2> -->
     <div class="device-list">
 
     </div>
@@ -22,9 +28,42 @@
         <p style="margin-right: 10px;">Device ID</p>
         <el-input style="width: 200px;margin-right: 20px;" v-model="deviceID" placeholder="bananalab_epos"></el-input>
       </div>
-      <el-button @click="connect()">连接</el-button>
+      <el-button @click="connect()" class="connect-btn">连接</el-button>
+      <el-button class="noconnect-btn">断开连接</el-button>
     </div>
     <el-button @click="print()">打印</el-button>
+    <div class="device-group">
+      <div class="title-group">
+        <h2>设备列表</h2>
+        <p>
+          <img src="../assets/images/refresh.png" alt="">
+          <span>重新搜索</span>
+        </p>
+      </div>
+      <div class="device-list">
+        <div class="device-item">
+          <div class="item-info">
+            <img src="../assets/images/dayinji.png" alt="">
+            <span>TM-T82111_153</span>
+          </div>
+          <p>连接打印机</p>
+        </div>
+        <div class="device-item">
+          <div class="item-info">
+            <img src="../assets/images/dayinji.png" alt="">
+            <span>TM-T82111_153</span>
+          </div>
+          <p>连接打印机</p>
+        </div>
+        <div class="device-item">
+          <div class="item-info">
+            <img src="../assets/images/dayinji.png" alt="">
+            <span>TM-T82111_153</span>
+          </div>
+          <p>连接打印机</p>
+        </div>
+      </div>
+    </div>
     <div style="display: none;">
       <canvas id="canvas" width="0" height="0"></canvas>
       <canvas id="canvas2" width="0" height="0"></canvas>
@@ -35,6 +74,16 @@
 <!--    <img style="width: 300px;height: 300px;" src="https://api.qrserver.com/v1/create-qr-code?data=https://6441ace61742439ba654b9f399be07e8-cn-hangzhou-vpc.alicloudapi.com/uinvoice/apply?BC=30006&CA=2500&CN=858011511841358848&NC=3351&SN=ums001&TN=0&TS=1625219365820&AS=6B4A3FEE23DC89235005C7802D7984DF" >-->
     <div style="display: none;" class="qrcode" id="qrcode" ref="qrcodeContainer"></div>
     <img style="display: none;" id="barcode"/>
+<!--    小票样式-->
+    <div style="width: 794px;margin: 0 auto">
+      <img ref="conf0" style="display: none" src="../assets/images/code01.png">
+      <img ref="conf2" style="display: none" src="../assets/images/code02.png">
+      <img ref="conf3" style="display: none" src="../assets/images/code3.png">
+      <img ref="conf4" style="display: none" src="../assets/images/code04.png">
+     <canvas id="mycanvas" width="794" height="1020"></canvas>
+     <canvas id="mycanvas2" width="794" height="1020"></canvas>
+     <canvas id="ticket03" width="794" height="1020"></canvas>
+    </div>
   </div>
 </template>
 
@@ -62,7 +111,8 @@ export default {
       qrCode:'',
       baseUrl:'',
       barcode:'',
-      orderId:'858011511841358848'
+      orderId:'858011511841358848',
+      thisY:270
     }
   },
   methods: {
@@ -413,6 +463,499 @@ export default {
       // console.log(qrcodeUrl[0].toDataURL('image/png'))
       this.baseUrl = qrcodeUrl[0].toDataURL('image/png')
     },
+    // canvae文本换行
+    drawtext(ctx,t,x,y,w){
+      //参数说明
+      //ctx：canvas的 2d 对象，t：绘制的文字，x,y:文字坐标，w：文字最大宽度
+      let chr = t.split("")
+      let temp = ""
+      let row = []
+
+      for (let a = 0; a<chr.length;a++){
+        if( ctx.measureText(temp).width < w && ctx.measureText(temp+(chr[a])).width <= w){
+          temp += chr[a];
+        }else{
+          row.push(temp);
+          temp = chr[a];
+        }
+      }
+      row.push(temp)
+      for(let b=0;b<row.length;b++){
+        ctx.fillText(row[b],x,y+(b+1)*20);//每行字体y坐标间隔20
+        this.thisY = y+(b+1)*20
+      }
+
+    },
+    // 线上-订单信息
+    smallTicket1(){
+      var canvas = document.getElementById("mycanvas")
+      //  由于弹窗，确保已获取到
+      var a = setInterval(() =>{
+        //  重复获取
+        canvas = document.getElementById("mycanvas")
+        if(!canvas){
+          return false
+        } else {
+          clearInterval(a)
+          var ctx=canvas.getContext("2d");
+
+          ctx.font="12px Rotunda";
+          ctx.fillText("2021.06.20  SUN.",48,50);
+          ctx.font="12px Rotunda";
+          ctx.fillText("SHOPPING LIST",348,50);
+          ctx.font="ALEX";
+          ctx.fillText("ALEX",716,50);
+
+          ctx.beginPath();
+          ctx.lineCap="round";
+          ctx.moveTo(48,72);
+          ctx.lineTo(745,72);
+          ctx.stroke();
+          // PLEASE CHECK THE ORDER DETAILS
+          ctx.font="12px Rotunda";
+          ctx.fillText("PLEASE CHECK THE ORDER DETAILS",48,100);
+          ctx.font="12px Rotunda";
+          ctx.fillText("AND KEEP THIS RETURN SLIP FOR REFUND OR EXCHANGES.",48,116);
+          ctx.font="32px Rotunda";
+          ctx.fillText("1",710,110);
+          ctx.font="12px Rotunda";
+          ctx.fillText("/2",730,96);
+          ctx.font="12px Rotunda";
+          ctx.fillText("请仔细核对您购买的商品明细，并保留此清单作为退换货的凭证。",48,132);
+          // HARMAYCONCEPT.TMALL.COM
+          ctx.font="12px Rotunda";
+          ctx.fillText("HARMAYCONCEPT.TMALL.COM",48,160);
+          ctx.font="12px Rotunda";
+          ctx.fillText("ID:飞行的小宇宙",48,176);
+          ctx.font="12px Rotunda";
+          ctx.fillText("袁女士",48,192);
+          ctx.font="12px Rotunda";
+          ctx.fillText("15298340032",48,208);
+          ctx.font="12px Rotunda";
+          ctx.fillText("SF EXPRESS",48,224);
+          ctx.font="12px Rotunda";
+          ctx.fillText("18293847382938493289",598,180);
+          var img=this.$refs.conf0
+          ctx.drawImage(img,566,190,181,34);
+          // 订单列表
+          this.thisY = 270
+          ctx.fillText("MAISON FRANCIS KURKDJIAN",48,this.thisY);
+          ctx.fillText("景润旅行套装MOODY美瞳420度",240,this.thisY);
+          ctx.fillText("CNY 345.00",568,this.thisY);
+          ctx.fillText("优惠",652,this.thisY);
+          ctx.lineWidth="1";
+          ctx.rect(646,this.thisY-12,36,16);
+          ctx.stroke();
+          ctx.fillText("CNY 345.00",568,this.thisY+20);
+          ctx.fillText("1",738,this.thisY);
+          this.drawtext(ctx,'柠檬生姜香型古龙水8ML+红橙罗勒香型古龙水8ML+青柠肉豆蔻香型古龙水8ML+白桃芫荽香型古龙水8ML+藏红花鸢尾花香型古龙水8ML',240,this.thisY,296)
+          this.thisY = this.thisY + 30
+          ctx.fillText("LANCOME",48,this.thisY);
+          ctx.fillText("箐纯清滢柔肤水",240,this.thisY);
+          ctx.fillText("CNY 45.00",568,this.thisY);
+          ctx.fillText("5",738,this.thisY);
+          this.thisY = this.thisY + 20
+          ctx.fillText("400ML",240,this.thisY);
+          ctx.fillText("CNY 45.00",568,this.thisY);
+          this.thisY = this.thisY + 30
+          ctx.fillText("LANCOME",48,this.thisY);
+          ctx.fillText("箐纯清滢柔肤水",240,this.thisY);
+          ctx.fillText("CNY 45.00",568,this.thisY);
+          ctx.fillText("5",738,this.thisY);
+          this.thisY = this.thisY + 20
+          ctx.fillText("400ML",240,this.thisY);
+          ctx.fillText("CNY 45.00",568,this.thisY);
+          this.thisY = this.thisY + 30
+          ctx.fillText("MAISON FRANCIS KURKDJIAN",48,this.thisY);
+          ctx.fillText("景润旅行套装MOODY美瞳420度",240,this.thisY);
+          ctx.fillText("CNY 345.00",568,this.thisY);
+          ctx.fillText("CNY 345.00",568,this.thisY+20);
+          ctx.fillText("1",738,270);
+          this.drawtext(ctx,'柠檬生姜香型古龙水8ML+红橙罗勒香型古龙水8ML+青柠肉豆蔻香型古龙水8ML+白桃芫荽香型古龙水8ML+藏红花鸢尾花香型古龙水8ML',240,this.thisY,296)
+          this.thisY = this.thisY + 30
+          ctx.fillText("LANCOME",48,this.thisY);
+          ctx.fillText("箐纯清滢柔肤水",240,this.thisY);
+          ctx.fillText("CNY 45.00",568,this.thisY);
+          ctx.fillText("5",738,this.thisY);
+          this.thisY = this.thisY + 20
+          ctx.fillText("400ML",240,this.thisY);
+          ctx.fillText("CNY 45.00",568,this.thisY);
+          var logo=this.$refs.conf2
+          ctx.drawImage(logo,332,940,126,15);
+
+
+        }
+      },1)
+    },
+    smallTicket2(){
+      var canvas = document.getElementById("mycanvas")
+      //  由于弹窗，确保已获取到
+      var a = setInterval(() =>{
+        //  重复获取
+        canvas = document.getElementById("mycanvas")
+        if(!canvas){
+          return false
+        } else {
+          clearInterval(a)
+          var ctx=canvas.getContext("2d");
+
+          ctx.font="12px Rotunda";
+          ctx.fillText("2021.06.20  SUN.",48,50);
+          ctx.font="12px Rotunda";
+          ctx.fillText("SHOPPING LIST",348,50);
+          ctx.font="ALEX";
+          ctx.fillText("ALEX",716,50);
+
+          ctx.beginPath();
+          ctx.lineCap="round";
+          ctx.moveTo(48,72);
+          ctx.lineTo(745,72);
+          ctx.stroke();
+          // PLEASE CHECK THE ORDER DETAILS
+          ctx.font="12px Rotunda";
+          ctx.fillText("PLEASE CHECK THE ORDER DETAILS",48,100);
+          ctx.font="12px Rotunda";
+          ctx.fillText("AND KEEP THIS RETURN SLIP FOR REFUND OR EXCHANGES.",48,116);
+          ctx.font="32px Rotunda";
+          ctx.fillText("1",710,110);
+          ctx.font="12px Rotunda";
+          ctx.fillText("/2",730,96);
+          ctx.font="12px Rotunda";
+          ctx.fillText("请仔细核对您购买的商品明细，并保留此清单作为退换货的凭证。",48,132);
+          // HARMAYCONCEPT.TMALL.COM
+          ctx.font="12px Rotunda";
+          ctx.fillText("HARMAYCONCEPT.TMALL.COM",48,160);
+          ctx.font="12px Rotunda";
+          ctx.fillText("ID:飞行的小宇宙",48,176);
+          ctx.font="12px Rotunda";
+          ctx.fillText("袁女士",48,192);
+          ctx.font="12px Rotunda";
+          ctx.fillText("15298340032",48,208);
+          ctx.font="12px Rotunda";
+          ctx.fillText("SF EXPRESS",48,224);
+          ctx.font="12px Rotunda";
+          ctx.fillText("18293847382938493289",598,180);
+          var img=this.$refs.conf0
+          ctx.drawImage(img,566,190,181,34);
+          // 订单列表
+          this.thisY = 270
+          ctx.fillText("MAISON FRANCIS KURKDJIAN",48,this.thisY);
+          ctx.fillText("景润旅行套装MOODY美瞳420度",240,this.thisY);
+          ctx.fillText("CNY 345.00",568,this.thisY);
+          ctx.fillText("优惠",652,this.thisY);
+          ctx.lineWidth="1";
+          ctx.rect(646,this.thisY-12,36,16);
+          ctx.stroke();
+          ctx.fillText("CNY 345.00",568,this.thisY+20);
+          ctx.fillText("1",738,this.thisY);
+          this.drawtext(ctx,'柠檬生姜香型古龙水8ML+红橙罗勒香型古龙水8ML+青柠肉豆蔻香型古龙水8ML+白桃芫荽香型古龙水8ML+藏红花鸢尾花香型古龙水8ML',240,this.thisY,296)
+          this.thisY = this.thisY + 30
+          ctx.fillText("LANCOME",48,this.thisY);
+          ctx.fillText("箐纯清滢柔肤水",240,this.thisY);
+          ctx.fillText("CNY 45.00",568,this.thisY);
+          ctx.fillText("5",738,this.thisY);
+          this.thisY = this.thisY + 20
+          ctx.fillText("400ML",240,this.thisY);
+          ctx.fillText("CNY 45.00",568,this.thisY);
+          this.thisY = this.thisY + 30
+          ctx.fillText("LANCOME",48,this.thisY);
+          ctx.fillText("箐纯清滢柔肤水",240,this.thisY);
+          ctx.fillText("CNY 45.00",568,this.thisY);
+          ctx.fillText("5",738,this.thisY);
+          this.thisY = this.thisY + 20
+          ctx.fillText("400ML",240,this.thisY);
+          ctx.fillText("CNY 45.00",568,this.thisY);
+          this.thisY = this.thisY + 30
+          ctx.fillText("LANCOME",48,this.thisY);
+          ctx.fillText("箐纯清滢柔肤水",240,this.thisY);
+          ctx.fillText("CNY 45.00",568,this.thisY);
+          ctx.fillText("5",738,this.thisY);
+          this.thisY = this.thisY + 20
+          ctx.fillText("400ML",240,this.thisY);
+          ctx.fillText("CNY 45.00",568,this.thisY);
+          var logo=this.$refs.conf2
+          ctx.drawImage(logo,332,940,126,15);
+          this.thisY = this.thisY + 70
+          ctx.font="18px Rotunda";
+          ctx.fillText("TOTAL",48,this.thisY);
+          ctx.fillText("CNY 30025.00",568,this.thisY);
+          ctx.fillText("45",720,this.thisY);
+          this.thisY = this.thisY + 10
+          ctx.beginPath();
+          ctx.lineWidth=1;
+          ctx.lineCap="butt";
+          ctx.moveTo(48,this.thisY);
+          ctx.lineTo(745,this.thisY);
+          ctx.stroke();
+          this.thisY = this.thisY + 20
+          var logo=this.$refs.conf3
+          ctx.drawImage(logo,50,this.thisY,80,80);
+          ctx.font="12px Rotunda";
+          ctx.fillText("应付",570,this.thisY);
+          ctx.fillText("35035.00",632,this.thisY);
+          this.thisY = this.thisY + 18
+          ctx.fillText("优惠",570,this.thisY);
+          ctx.fillText("CNY 1000.00",632,this.thisY);
+          this.thisY = this.thisY + 18
+          ctx.fillText("話梅",570,this.thisY);
+          ctx.fillText("17000 颗",632,this.thisY);
+          this.thisY = this.thisY + 18
+          ctx.fillText("在线付",570,this.thisY);
+          ctx.fillText("CNY 25000.00",632,this.thisY);
+          this.thisY = this.thisY + 44
+          ctx.fillText("微信扫码联系客服",50,this.thisY);
+          this.thisY = this.thisY + 18
+          ctx.fillText("参与调查问卷",50,this.thisY);
+          this.thisY = this.thisY + 18
+          ctx.fillText("解锁50颗話梅积分奖励",50,this.thisY);
+          // 底部信息
+          this.thisY = this.thisY + 80
+          ctx.fillText('"颗"IS HARMAY’S CREDIT UNIT, 100颗POINTS = CNY 1.00',48,this.thisY);
+          this.thisY = this.thisY + 18
+          ctx.fillText("FOR PRODUCTS HYGIENE AND SAFETY CONSIDERATIONS, ",48,this.thisY);
+          this.thisY = this.thisY + 18
+          ctx.fillText("NO REFUNDS OR RETURNS AFTER PRODUCTS LEAVE THE STORE,",48,this.thisY);
+          this.thisY = this.thisY + 18
+          ctx.fillText("THANK YOU FOR YOUR UNDERSTANDING.",48,this.thisY);
+          this.thisY = this.thisY + 22
+          ctx.fillText('"颗"为話梅积分单位，100颗話梅 = CNY 1.00',48,this.thisY);
+          this.thisY = this.thisY + 18
+          ctx.fillText('出于商品卫生安全考虑，商品离店后非质量问题不支持退换，请你谅解。',48,this.thisY);
+
+        }
+      },1)
+    },
+    smallTicket3(){
+      var canvas = document.getElementById("mycanvas")
+      //  由于弹窗，确保已获取到
+      var a = setInterval(() =>{
+        //  重复获取
+        canvas = document.getElementById("mycanvas")
+        if(!canvas){
+          return false
+        } else {
+          clearInterval(a)
+          var ctx=canvas.getContext("2d");
+          ctx.fillStyle ="#1A1311";
+          ctx.font="18px Rotunda";
+          ctx.fillText("感 谢 你 选 择 話 梅",322,58);
+          ctx.font="12px Rotunda";
+          ctx.fillText("HARMAY IS A NEW GENERATION RETAIL BRAND WITH A WAREHOUSE CULTURE. HARMAY WAS ORIGINALLY",52,100);
+          ctx.fillText("BORN IN A HUMBLE WAREHOUSE. IT BEGAN AS AN ONLINE COSMETICS STORE, WHERE STAFF RUSHED",52,120);
+          ctx.fillText("BETWEEN EACH SHELF, STAIRCASE AND WORKSTATION EVERY DAY, SORTING, TIDYING, AND PACKAGING",52,140);
+          ctx.fillText("VARIOUS GOODS. LATER, HARMAY TOOK THE \"WAREHOUSE CULTURE\" OFFLINE TO ITS CURRENT",52,160);
+          ctx.fillText("INSPIRATIONAL FORM.",52,180);
+          ctx.fillText("WE ALWAYS ADHERE TO STRICT QUALITY STANDARDS, TO ENSURE THE PRODUCTS ARE SOLD 100% FOR",52,200);
+          ctx.fillText("AUTHENTICITY AND IS COMMITTED TO PROVIDE YOU WITH UNIFIED BRAND, IMPROVE THE SAFE SERVICE",52,220);
+          ctx.fillText("EXPERIENCE",52,240);
+          ctx.fillStyle ="#5F5E5E";
+          ctx.fillText("HARMAY 話梅是仓储型新零售品牌。話梅的最初是在一间不起眼的仓库中开启的。 起初，门店的前身是一家在线化妆品店，",52,270);
+          ctx.fillText("员工每天来回于各个货架、楼梯与操作台之间，忙碌在纷繁复杂的货品之中，反复进行着整理、分类、打包等操作。后来，",52,290);
+          ctx.fillText("話梅开创性地将一直坚持的「仓储文化」带到了线下，才有了如今门店的模样。",52,310);
+          ctx.fillText("我们始终坚持严苛的选品标准，保证所售产品100%为正品，并致力于为你提供品牌统一、完善无忧的服务体验。",52,330);
+          ctx.fillStyle ="#1A1311";
+          ctx.font="18px Rotunda";
+          ctx.fillText("RETURN AND EXCHANGE PROCESS",50,470);
+          ctx.font="12px Rotunda";
+          ctx.fillText("退换货流程",50,490);
+          ctx.fillStyle="#F1F1F1";
+          ctx.fillRect(50,510,695,104);
+          var logo=this.$refs.conf3
+          ctx.drawImage(logo,72,524,80,80);
+          ctx.fillStyle ="#1A1311";
+          ctx.font="12px Rotunda";
+          ctx.fillText("扫码联系客",172,560);
+          ctx.fillText("服",172,580);
+          var next=this.$refs.conf4
+          ctx.drawImage(next,272,552,11,22);
+          ctx.fillText("客服审核通过后",298,550);
+          ctx.fillText("填写退换货登记表",298,570);
+          ctx.fillText("与商品一同寄回",298,590);
+          ctx.drawImage(next,426,552,11,22);
+          ctx.fillText("商品签收后 ",452,560);
+          ctx.fillText("进行退换货条件质检",452,580);
+          ctx.drawImage(next,596,552,11,22);
+          ctx.fillText("退款 ",624,560);
+          ctx.fillText("或补发换货商品",624,580);
+          ctx.font="18px Rotunda";
+          ctx.fillText("REGISTER",50,650);
+          ctx.font="12px Rotunda";
+          ctx.fillText("退换货登记表",50,670);
+          ctx.fillStyle="#F1F1F1";
+          ctx.fillRect(50,690,695,156);
+          ctx.fillStyle ="#1A1311";
+          ctx.font="12px Rotunda";
+          ctx.fillText("服 务 内 容",74,720);
+          ctx.rect(152,704,22,22);
+          // ctx.stroke();
+          ctx.fillText("退 货",186,720);
+          ctx.rect(230,704,22,22);
+          ctx.fillText("换 货",264,720);
+          ctx.fillText("购 买 平 台",442,720);
+          ctx.rect(520,704,22,22);
+          ctx.fillText("小 程 序",552,720);
+          ctx.rect(614,704,22,22);
+          ctx.fillText("天 猫",646,720);
+          // ctx.stroke();
+          ctx.fillText("订 单 编 号",74,755);
+          ctx.fillText("收件人姓名",74,790);
+          ctx.fillText("收件人电话",442,790);
+          ctx.fillText("退 换 原 因",74,825);
+          ctx.moveTo(152,760);
+          ctx.lineTo(726,760);
+          ctx.moveTo(152,795);
+          ctx.lineTo(360,795);
+          ctx.moveTo(520,795);
+          ctx.lineTo(727,795);
+          ctx.moveTo(152,830);
+          ctx.lineTo(726,830);
+          ctx.stroke();
+          ctx.fillStyle="#5F5E5E";
+          ctx.fillText("当 发 生 以下情况时，你的退换货申请将被退回：",50,880);
+          ctx.fillText(" ●未与客服取得联系，或订单退货申请审核不通过，私自将商品寄回。●使用平邮、闪送、到付等非HARMAY支",50,900);
+
+
+
+
+
+        }
+      },1)
+    },
+    smallTicket4(){
+      var canvas = document.getElementById("mycanvas")
+      //  由于弹窗，确保已获取到
+      var a = setInterval(() =>{
+        //  重复获取
+        canvas = document.getElementById("mycanvas")
+        if(!canvas){
+          return false
+        } else {
+          clearInterval(a)
+          var ctx=canvas.getContext("2d");
+          ctx.fillStyle ="#1A1311";
+          ctx.font="12px Rotunda";
+          ctx.fillText("2021.06.20  SUN.",48,50);
+          ctx.font="12px Rotunda";
+          ctx.fillText("SHOPPING LIST",348,50);
+          ctx.font="ALEX";
+          ctx.fillText("ALEX",716,50);
+
+          ctx.beginPath();
+          ctx.lineCap="round";
+          ctx.moveTo(48,72);
+          ctx.lineTo(745,72);
+          ctx.stroke();
+          // PLEASE CHECK THE ORDER DETAILS
+          ctx.font="12px Rotunda";
+          ctx.fillText("PLEASE CHECK THE ORDER DETAILS",48,100);
+          ctx.font="12px Rotunda";
+          ctx.fillText("AND KEEP THIS RETURN SLIP FOR REFUND OR EXCHANGES.",48,116);
+          ctx.font="32px Rotunda";
+          ctx.fillText("1",710,110);
+          ctx.font="12px Rotunda";
+          ctx.fillText("/2",730,96);
+          ctx.fillStyle ="#5F5E5E";
+          ctx.font="12px Rotunda";
+          ctx.fillText("请仔细核对您购买的商品明细，并保留此清单作为退换货的凭证。",48,132);
+          // HARMAYCONCEPT.TMALL.COM
+          ctx.fillStyle ="#1A1311";
+          ctx.font="12px Rotunda";
+          ctx.fillText("BEIJING SANLITUN",48,160);
+          ctx.font="12px Rotunda";
+          ctx.fillText("2 WORKERS' SPORTS COMPLEX N RD, CHAOYANG DISTRICT, BEIJING",48,176);
+          ctx.fillText("BUSINESS HOUR: 10:00-22:00",48,192);
+          ctx.fillText("CONTACT: 15210678315",48,208);
+          ctx.fillStyle ="#5F5E5E";
+          ctx.fillText("北京三里屯店：朝阳区工体北路首北兆龙饭店一层",48,230);
+          ctx.fillText("营业时间：10:00-22:00",48,250);
+          ctx.fillText("电话：15210678315",48,270);
+          ctx.fillStyle ="#1A1311";
+          ctx.fillText("MD1571576228",654,230);
+          var img=this.$refs.conf0
+          ctx.drawImage(img,566,240,181,34);
+          // 订单列表
+          this.thisY = 320
+          ctx.fillStyle ="#1A1311";
+          ctx.fillText("MAISON FRANCIS KURKDJIAN",48,this.thisY);
+          ctx.fillText("景润旅行套装MOODY美瞳420度",240,this.thisY);
+          ctx.fillText("CNY 345.00",568,this.thisY);
+          ctx.fillText("优惠",652,this.thisY);
+          ctx.lineWidth="1";
+          ctx.rect(646,this.thisY-12,36,16);
+          ctx.stroke();
+          ctx.fillText("CNY 345.00",568,this.thisY+20);
+          ctx.fillText("1",738,this.thisY);
+          this.drawtext(ctx,'柠檬生姜香型古龙水8ML+红橙罗勒香型古龙水8ML+青柠肉豆蔻香型古龙水8ML+白桃芫荽香型古龙水8ML+藏红花鸢尾花香型古龙水8ML',240,this.thisY,296)
+          this.thisY = this.thisY + 30
+          ctx.fillText("LANCOME",48,this.thisY);
+          ctx.fillText("箐纯清滢柔肤水",240,this.thisY);
+          ctx.fillText("CNY 45.00",568,this.thisY);
+          ctx.fillText("5",738,this.thisY);
+          this.thisY = this.thisY + 20
+          ctx.fillText("400ML",240,this.thisY);
+          ctx.fillText("CNY 45.00",568,this.thisY);
+          this.thisY = this.thisY + 30
+          ctx.fillText("LANCOME",48,this.thisY);
+          ctx.fillText("箐纯清滢柔肤水",240,this.thisY);
+          ctx.fillText("CNY 45.00",568,this.thisY);
+          ctx.fillText("5",738,this.thisY);
+          this.thisY = this.thisY + 20
+          ctx.fillText("400ML",240,this.thisY);
+          ctx.fillText("CNY 45.00",568,this.thisY);
+
+          this.thisY = this.thisY + 60
+          ctx.font="18px Rotunda";
+          ctx.fillText("TOTAL",48,this.thisY);
+          ctx.fillText("CNY 30025.00",568,this.thisY);
+          ctx.fillText("45",720,this.thisY);
+          this.thisY = this.thisY + 10
+          ctx.beginPath();
+          ctx.lineWidth=1;
+          ctx.lineCap="butt";
+          ctx.moveTo(48,this.thisY);
+          ctx.lineTo(745,this.thisY);
+          ctx.stroke();
+          this.thisY = this.thisY + 20
+          var logo=this.$refs.conf3
+          ctx.drawImage(logo,50,this.thisY,80,80);
+          ctx.font="12px Rotunda";
+          ctx.fillText("应付",570,this.thisY);
+          ctx.fillText("35035.00",632,this.thisY);
+          this.thisY = this.thisY + 18
+          ctx.fillText("优惠",570,this.thisY);
+          ctx.fillText("CNY 1000.00",632,this.thisY);
+          this.thisY = this.thisY + 18
+          ctx.fillText("話梅",570,this.thisY);
+          ctx.fillText("17000 颗",632,this.thisY);
+          this.thisY = this.thisY + 18
+          ctx.fillText("在线付",570,this.thisY);
+          ctx.fillText("CNY 25000.00",632,this.thisY);
+          this.thisY = this.thisY + 44
+          ctx.fillText("微信扫码联系客服",50,this.thisY);
+          this.thisY = this.thisY + 18
+          ctx.fillText("参与调查问卷",50,this.thisY);
+          this.thisY = this.thisY + 18
+          ctx.fillText("解锁50颗話梅积分奖励",50,this.thisY);
+          // 底部信息
+          this.thisY = this.thisY + 80
+          ctx.fillText('"颗"IS HARMAY’S CREDIT UNIT, 100颗POINTS = CNY 1.00',48,this.thisY);
+          this.thisY = this.thisY + 18
+          ctx.fillText("FOR PRODUCTS HYGIENE AND SAFETY CONSIDERATIONS, ",48,this.thisY);
+          this.thisY = this.thisY + 18
+          ctx.fillText("NO REFUNDS OR RETURNS AFTER PRODUCTS LEAVE THE STORE,",48,this.thisY);
+          this.thisY = this.thisY + 18
+          ctx.fillText("THANK YOU FOR YOUR UNDERSTANDING.",48,this.thisY);
+          this.thisY = this.thisY + 22
+          ctx.fillText('"颗"为話梅积分单位，100颗話梅 = CNY 1.00',48,this.thisY);
+          this.thisY = this.thisY + 18
+          ctx.fillText('出于商品卫生安全考虑，商品离店后非质量问题不支持退换，请你谅解。',48,this.thisY);
+          var conf2=this.$refs.conf2
+          ctx.drawImage(conf2,332,940,126,15);
+
+
+        }
+      },1)
+    },
   },
   created() {
     // console.log('打印缓存数据')
@@ -472,11 +1015,14 @@ export default {
       })
 
     })
-    // addOrder().then(res=>{
-    // })
+
+
+    // this.smallTicket1()
+    // this.smallTicket2()
+    // this.smallTicket3()
+    this.smallTicket4()
 
   },
-
 
 }
 </script>
@@ -484,5 +1030,70 @@ export default {
 <style lang="scss" scoped>
 .device-container {
   padding: 10px;
+  .title-group {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    img {
+      width: 30px;
+      height: 30px;
+    }
+    p {
+      display: flex;
+      align-items: center;
+      span {
+        display: inline-block;
+        margin-left: 12px;
+        font-size: 18px;
+      }
+    }
+  }
+  .connect-btn {
+    background: #000;
+    color: #fff;
+  }
+  .noconnect-btn {
+    background: #fff;
+    border: 1px solid #000;
+    &.el-button:focus, &.el-button:hover {
+      color: #000;
+    }
+  }
+}
+.device-group {
+  margin-top: 30px;
+  .device-list {
+    display: flex;
+    .device-item {
+      & + .device-item {
+        margin-left: 60px;
+      }
+      width: 262px;
+      border: 1px solid #D9D9D9;
+      border-radius: 2px;
+      .item-info {
+        padding: 24px 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        span {
+          display: inline-block;
+          margin-left: 12px;
+        }
+      }
+      p {
+        height: 42px;
+        line-height: 42px;
+        background: #F7F9FA;
+        font-size: 14px;
+        font-weight: bold;
+        margin: 0;
+        text-align: center;
+      }
+    }
+  }
+}
+#mycanvas {
+  border: 1px solid rgb(199, 198, 198);
 }
 </style>

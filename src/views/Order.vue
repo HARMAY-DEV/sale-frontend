@@ -1,11 +1,11 @@
 <template>
-  <div class="order-container">
+  <div class="order-container" style="background: #F8F8F8;padding-right: 0;padding-bottom: 0;">
     <div class="order-list" @touchmove.stop>
-      <div style="position: sticky;top: 0;background: #fff;">
-        <div style="display: flex;align-items: center;margin-bottom: 20px;">
+      <div style="position: sticky;top: 0;background: #fff;padding-top: 20px;">
+        <div>
           <template>
-            <p style="font-size: 14px;color: #333333;margin-right: 10px;">支付方式 </p>
-            <el-select v-model="value" placeholder="请选择" @change="payType()">
+            <span style="font-size: 14px;color: #333333;margin-right: 10px;margin-left: 10px;">支付方式 </span>
+            <el-select v-model="value" placeholder="请选择" @change="payType()" style="width: 74%;">
               <el-option
                   v-for="item in options"
                   :key="item.value"
@@ -14,9 +14,12 @@
               </el-option>
             </el-select>
           </template>
+        </div>
+        <div style="margin-top: 10px;">
           <template>
-            <p style="font-size: 14px;color: #333333;margin-right: 10px;margin-left: 30px;">下单时间 </p>
+            <span style="font-size: 14px;color: #333333;margin-right: 10px;margin-left: 10px;">下单时间 </span>
             <el-date-picker
+                style="width: 74%;"
                 @change="dataChange()"
                 v-model="value1"
                 format="yyyy-MM-dd HH:hh:ss"
@@ -28,15 +31,19 @@
             </el-date-picker>
           </template>
         </div>
-        <el-input class="order-search-input" type="search" clearable v-model="searchId">
+        <el-input class="order-search-input" type="search" clearable v-model="searchId" style="width:92%;margin: 10px;" placeholder="请输入单号">
           <el-button @click="updateOrderId(searchId)" slot="append" icon="el-icon-search"></el-button>
         </el-input>
       </div>
 
-      <order-card v-if="changeType==0" @update-order-id="updateOrderId($event)" v-for="order in orderList" :key="order.orderId" v-bind="order"></order-card>
-      <order-card v-if="changeType==1" @update-order-id="updateOrderId($event)" v-for="order in orderList2" :key="order.orderId" v-bind="order"></order-card>
+      <div style="background: #fff;">
+        <order-card v-if="changeType==0" :orderId="orderId" @update-order-id="updateOrderId($event)" v-for="order in orderList" :key="order.orderId" v-bind="order"></order-card>
+        <order-card v-if="changeType==1" :orderId="orderId" @update-order-id="updateOrderId($event)" v-for="order in orderList2" :key="order.orderId" v-bind="order"></order-card>
+      </div>
     </div>
-    <order-detail :id="orderId"></order-detail>
+    <div style="flex: 1;">
+      <order-detail :id="orderId"></order-detail>
+    </div>
   </div>
 </template>
 
@@ -185,10 +192,10 @@ export default {
 }
 
 .order-list {
-  flex: 0 1 44%;
+  flex: 0 1 35%;
   margin-right: 10px;
   overflow-y: auto;
-
+  background: #fff;
   .order-search-input {
     //position: sticky;top: 60px;
   }

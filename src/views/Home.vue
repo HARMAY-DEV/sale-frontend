@@ -3,9 +3,9 @@
     <el-menu 
       :default-active="$route.name" 
       mode="horizontal"
-      background-color="#304156"
-      text-color="#bfcbd9"
-      active-text-color="#409EFF"
+      background-color="#000"
+      text-color="rgba(255, 255, 255, 0.6)"
+      active-text-color="#fff"
       router
     >
       <el-menu-item index="shopping-cart">收银</el-menu-item>
@@ -15,6 +15,7 @@
       <router-link to="/profile" class="avatar-container">
         <el-avatar icon="el-icon-user"></el-avatar>
       </router-link>
+      <div class="signOut">退出</div>
     </el-menu>
     <div class="main-content">
       <keep-alive>
@@ -42,7 +43,8 @@ export default {
 
 <style lang="scss">
 .home-container .el-menu-item {
-  padding: 0 40px;
+  padding: 0 10px;
+  margin: 0 30px;
 }
 </style>
 
@@ -55,7 +57,7 @@ export default {
 
 .avatar-container {
   position: absolute;
-  right: 0;
+  right: 50px;
   top: 0;
   bottom: 0;
   display: flex;
@@ -73,5 +75,12 @@ export default {
     height: 100%;
     padding: 12px;
   }
+}
+.signOut{
+  font-size: 16px;
+  color: #fff;
+  position: absolute;
+  right: 23px;
+  line-height: 60px;
 }
 </style>
