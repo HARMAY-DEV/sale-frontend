@@ -51,14 +51,12 @@
 import { mapActions, mapState } from 'vuex';
 import OrderCard from '@/components/order-card.vue';
 import OrderDetail from '@/components/order-detail.vue';
-import smallTicket from "../components/smallTicket";
 
 export default {
   name: 'Order',
   components: {
     OrderCard,
-    OrderDetail,
-    // smallTicket
+    OrderDetail
   },
   data() {
     return {
@@ -66,6 +64,10 @@ export default {
       orderId: '',
       first: true,
       options: [{
+        value: 1,
+        label: '微信'
+      }],
+      payStateList: [{
         value: 1,
         label: '全部'
       }, {
@@ -108,12 +110,10 @@ export default {
         this.orderId = '';
       }
     },
-
     '$route'(to) {
       if (to.path !== '/order' || this.first) {
         return;
       }
-
       this.getOrderList();
     }
   },

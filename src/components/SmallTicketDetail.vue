@@ -1,62 +1,14 @@
 <template>
-  <div class="device-container">
-    <div class="device-content-group">
- <!-- <div class="title-group">
-      <h2>打印机</h2>
-      <p>
-        <img src="../assets/images/scanning.png" alt="">
-        <span>扫描设备二维码</span>
-      </p>
-    </div> -->
-    <!-- <h2>其他设备</h2> -->
-<!--    <button @click="sendMessageSelf()">自己方法打印</button>-->
-    <!-- <div style="display: flex;align-items: center;margin-bottom: 20px;flex-wrap: wrap;">
-      <div style="display: flex;align-items: center;">
-        <p style="margin-right: 10px;">IP address</p>
-        <el-input style="width: 200px;margin-right: 20px;" v-model="ipAddress" placeholder="192.168.31.181"></el-input>
-      </div>
-      <div style="display: flex;align-items: center;">
-        <p style="margin-right: 10px;">Port</p>
-        <el-input style="width: 200px;margin-right: 20px;" v-model="port" placeholder="9001"></el-input>
-      </div>
-      <div style="display: flex;align-items: center;">
-        <p style="margin-right: 10px;">Device ID</p>
-        <el-input style="width: 200px;margin-right: 20px;" v-model="deviceID" placeholder="bananalab_epos"></el-input>
-      </div>
-      <el-button @click="connect()" class="connect-btn">连接设备</el-button>
-      <el-button class="noconnect-btn">断开连接</el-button>
-    </div>
-    <el-button @click="print()">打印</el-button> -->
-    <div class="device-group">
-      <div class="title-group">
-        <h2>设备列表</h2>
-        <p>
-          <img src="../assets/images/refresh.png" alt="">
-          <span>重新搜索</span>
-        </p>
-      </div>
-      <div class="device-list">
-        <div class="device-item" v-for="(item, index) in printOptions" :key="index" @click="bindSetPrint(item)">
-          <div class="item-info">
-            <img src="../assets/images/dayinji.png" alt="">
-            <span>{{item}}</span>
-          </div>
-          <p>选择打印机</p>
-        </div>
-      </div>
-    </div>
+  <div class="small-ticket-container">
     <div style="display: none;">
       <canvas id="canvas" width="0" height="0"></canvas>
       <canvas id="canvas2" width="0" height="0"></canvas>
       <canvas id="canvas3" width="0" height="0"></canvas>
       <canvas id="canvas4" width="0" height="0"></canvas>
-      <!-- <div id="qrcode" ref="qrcode"></div> -->
     </div>
-   <!-- <img style="width: 300px;height: 300px;" src="https://api.qrserver.com/v1/create-qr-code?data=https://6441ace61742439ba654b9f399be07e8-cn-hangzhou-vpc.alicloudapi.com/uinvoice/apply?BC=30006&CA=2500&CN=858011511841358848&NC=3351&SN=ums001&TN=0&TS=1625219365820&AS=6B4A3FEE23DC89235005C7802D7984DF" > -->
     <div style="display: none;" class="qrcode" id="qrcode" ref="qrcodeContainer"></div>
     <img style="display: none;" id="barcode"/>
-   <!-- 小票样式 -->
-    <div style="width: 794px;margin: 0 auto;">
+    <div style="width: 794px;margin: 0 auto;display:none;">
       <img ref="conf0" style="display: none" src="../assets/images/code01.png">
       <img ref="conf2" style="display: none" src="../assets/images/code02.png">
       <img ref="conf3" style="display: none" src="../assets/images/code3.png">
@@ -64,72 +16,51 @@
       <canvas id="mycanvas" width="794" height="1020"></canvas>
       <canvas id="mycanvas2" width="794" height="1020"></canvas>
       <canvas id="ticket03" width="794" height="1020"></canvas>
-      <canvas id="resultTicket" width="320" height="455"></canvas>
-    </div>
     </div>
   </div>
 </template>
-
 <script>
-  import QRCode from 'qrcodejs2'  // 引入qrcode
-  import SmallTicketDetail from '@/components/SmallTicketDetail.vue'
-  import jsbarcode from 'jsbarcode'
-  import {shopDetail,orderDetail,orderSync,addOrder, printerList, setPrint} from "@/api/index"
+import {setPrint} from "@/api/index"
 export default {
-  name: 'Device',
-  components: {
-    SmallTicketDetail
-  },
-  data(){
-    return{
-      crypto:false,
-      buffer:false,
-      printer:null,
-      ipAddress:'',
-      port:'',
-      deviceID:'',
-      ePosDev:new epson.ePOSDevice(),
-      shopList:[],
-      orderdetail:{},
-      thisShop:{},
-      payable_amount:'',
-      paid:'',
-      payMent:'',
-      qrCode:'',
-      baseUrl:'',
-      barcode:'',
-      orderId:'858011511841358848',
-      thisY:270,
-      printOptions: [],
+  data() {
+    return {
+      logoWidth: 100,
+      setRadio: false,
+      base64: ''
     }
   },
+  props: {
+    goodsTableData: Array
+  },
   mounted() {
-    this.getPrinterList()
     this.smallTicket4()
-    // var promise = new Promise(function(resolve, reject) {
-    //   _this.smallTicket4()
-    //   console.log(1);
-    //   resolve()
-    // });
-    // promise.then(()=> {
-    //   _this.resetDraw()
-    // })
   },
   methods: {
+    getPixelRatio(context) {
+      const backingStore =
+      context.backingStorePixelRatio ||
+      context.webkitBackingStorePixelRatio ||
+      context.mozBackingStorePixelRatio ||
+      context.msBackingStorePixelRatio ||
+      context.oBackingStorePixelRatio ||
+      context.backingStorePixelRatio || 1;
+      return (window.devicePixelRatio || 1) / backingStore;
+    },
     resetDraw() {
+      this.setRadio = true
       var canvas = document.getElementById("mycanvas");
-      var dataURL = canvas.toDataURL();
-      console.log(dataURL);
+      var dataURL = canvas.toDataURL("image/png", 2.0);
       var img = new Image();
       img.src = dataURL
+      var _this = this
       img.onload = function(eventObj) {
         // 原始图像的高度
         var originWidth, originHeight;
         originHeight = img.height;
         originWidth = img.width;
         // 最大尺寸限制
-        var maxWidth = 794;
-        var maxHeight = 1020;
+        var maxWidth = 1476;
+        var maxHeight = 2078;
         // 目标尺寸
         var targetWidth = img.width;
         var targetHeight = img.height;
@@ -144,10 +75,14 @@ export default {
             targetWidth = Math.round(maxHeight * (originWidth / originHeight));
           }
         }
-        canvas.width = originWidth * 2;
-        canvas.height = originHeight * 2;
         var ctx = canvas.getContext("2d");
-        // // 清除画布上在该矩形区域内的内容
+        const ratio = _this.getPixelRatio(ctx);
+        console.log(ratio);
+        // canvas.width = originWidth * 1.85;
+        // canvas.height = originHeight * 2;
+        canvas.width = originWidth * ratio;
+        canvas.height = originHeight * ratio;
+        // 清除画布上在该矩形区域内的内容
         ctx.clearRect(0, 0, originWidth, originHeight);
         // var resultTicket = document.getElementById("resultTicket");
         // var ctx = resultTicket.getContext("2d");
@@ -155,85 +90,27 @@ export default {
           img,  // 目标图片
           0, // 原始图片的x起始位置
           0, // 原始图片的y起始位置
-          originWidth*2, // 取图片的宽度
-          originHeight*2, // 取图片的高度
+          originWidth, // 取图片的宽度
+          originHeight, // 取图片的高度
           0, // 距离 canvas x轴的距离
           0, // 距离 canvas y轴的距离
-          originWidth * 2, // 在canvas 中的宽度
-          originHeight * 2 // 在canvas 中的高度
+          originWidth * ratio, // 在canvas 中的宽度
+          originHeight * ratio // 在canvas 中的高度
         );
-      };
-    },
-    dataURLtoFile (dataurl, filename = 'file') {
-      let arr = dataurl.split(',')
-      let mime = arr[0].match(/:(.*?);/)[1]
-      let suffix = mime.split('/')[1]
-      let bstr = atob(arr[1])
-      let n = bstr.length
-      let u8arr = new Uint8Array(n)
-      while (n--) {
-        u8arr[n] = bstr.charCodeAt(n)
-      }
-      return new File([u8arr], `${filename}.${suffix}`, {type: mime})
-    },
-    getPrinterList() {
-      // printerList().then(res=> {
-        // this.printOptions = res.data
-        this.printOptions = ['0']
-      // })
-    },
-    setFormData(data) {
-      var params = new FormData()
-      if(data) {
-        for (var name in data) {
-          params.append(name, data[name])
-        }
-      }
-      return params
-    },
-    bindSetPrint(item) {
-      this.resetDraw()
-      var dataURL;
-      this.smallTicket4(()=> {
-        var canvas = document.getElementById("mycanvas");
-        dataURL = canvas.toDataURL();
-        console.log(dataURL);
-        let file = this.dataURLtoFile(dataURL)     
-        console.log(file); 
-        var params = this.setFormData({
+        const base64 = canvas.toDataURL("image/png", 2.0);
+        _this.base64 = base64
+        let file = _this.dataURLtoFile(base64)     
+        var params = _this.setFormData({
           file: file,
           printName: 'EPSON M2110 NO.1',
           uid: 1
-          // printName: item
         })
         setPrint(params).then(res=> {
           console.log(res);
         })
-      })
-    },
-    print(){
-      this.sendMessageSelf()
+      };
     },
     connect() {
-      console.log('打印ip')
-      console.log(this.ipAddress)
-      console.log(this.port)
-      console.log(this.deviceID)
-      if(this.ipAddress == ''){
-        this.$message.error('请输入IP地址');
-        return
-      }
-      if(this.port == ''){
-        this.$message.error('请输入port');
-        return
-      }
-      if(this.deviceID == ''){
-        this.$message.error('请输入deviceID');
-        return
-      }
-      window.localStorage.setItem("ipAddress",this.ipAddress)
-      window.localStorage.setItem("port",this.port)
-      window.localStorage.setItem("deviceID",this.deviceID)
       let canvas;
       let canvas2;
       let canvas3;
@@ -784,7 +661,7 @@ export default {
           ctx.stroke();
           this.thisY = this.thisY + 20
           var logo=this.$refs.conf3
-          ctx.drawImage(logo,50,this.thisY,80,80);
+          ctx.drawImage(logo,50,this.thisY,this.logoWidth,this.logoWidth);
           ctx.font="12px Rotunda";
           ctx.fillText("应付",570,this.thisY);
           ctx.fillText("35035.00",632,this.thisY);
@@ -804,7 +681,7 @@ export default {
           this.thisY = this.thisY + 18
           ctx.fillText("解锁50颗話梅积分奖励",50,this.thisY);
           // 底部信息
-          this.thisY = this.thisY + 80
+          this.thisY = this.thisY + this.logoWidth
           ctx.fillText('"颗"IS HARMAY’S CREDIT UNIT, 100颗POINTS = CNY 1.00',48,this.thisY);
           this.thisY = this.thisY + 18
           ctx.fillText("FOR PRODUCTS HYGIENE AND SAFETY CONSIDERATIONS, ",48,this.thisY);
@@ -856,7 +733,7 @@ export default {
           ctx.fillStyle="#F1F1F1";
           ctx.fillRect(50,510,695,104);
           var logo=this.$refs.conf3
-          ctx.drawImage(logo,72,524,80,80);
+          ctx.drawImage(logo,72,524,this.logoWidth,this.logoWidth);
           ctx.fillStyle ="#1A1311";
           ctx.font="12px Rotunda";
           ctx.fillText("扫码联系客",172,560);
@@ -908,11 +785,6 @@ export default {
           ctx.fillStyle="#5F5E5E";
           ctx.fillText("当 发 生 以下情况时，你的退换货申请将被退回：",50,880);
           ctx.fillText(" ●未与客服取得联系，或订单退货申请审核不通过，私自将商品寄回。●使用平邮、闪送、到付等非HARMAY支",50,900);
-
-
-
-
-
         }
       },1)
     },
@@ -971,32 +843,48 @@ export default {
           // 订单列表
           this.thisY = 320
           ctx.fillStyle ="#1A1311";
-          ctx.fillText("MAISON FRANCIS KURKDJIAN",48,this.thisY);
-          ctx.fillText("景润旅行套装MOODY美瞳420度",240,this.thisY);
-          ctx.fillText("CNY 345.00",568,this.thisY);
-          ctx.fillText("优惠",652,this.thisY);
-          ctx.lineWidth="1";
-          ctx.rect(646,this.thisY-12,36,16);
-          ctx.stroke();
-          ctx.fillText("CNY 345.00",568,this.thisY+20);
-          ctx.fillText("1",738,this.thisY);
-          this.drawtext(ctx,'柠檬生姜香型古龙水8ML+红橙罗勒香型古龙水8ML+青柠肉豆蔻香型古龙水8ML+白桃芫荽香型古龙水8ML+藏红花鸢尾花香型古龙水8ML',240,this.thisY,296)
-          this.thisY = this.thisY + 30
-          ctx.fillText("LANCOME",48,this.thisY);
-          ctx.fillText("箐纯清滢柔肤水",240,this.thisY);
-          ctx.fillText("CNY 45.00",568,this.thisY);
-          ctx.fillText("5",738,this.thisY);
-          this.thisY = this.thisY + 20
-          ctx.fillText("400ML",240,this.thisY);
-          ctx.fillText("CNY 45.00",568,this.thisY);
-          this.thisY = this.thisY + 30
-          ctx.fillText("LANCOME",48,this.thisY);
-          ctx.fillText("箐纯清滢柔肤水",240,this.thisY);
-          ctx.fillText("CNY 45.00",568,this.thisY);
-          ctx.fillText("5",738,this.thisY);
-          this.thisY = this.thisY + 20
-          ctx.fillText("400ML",240,this.thisY);
-          ctx.fillText("CNY 45.00",568,this.thisY);
+          console.log(this.goodsTableData);
+          for(let i=0; i < this.goodsTableData.length; i++) {
+            let item = this.goodsTableData[i]
+            ctx.fillText("MAISON FRANCIS KURKDJIAN", 48, this.thisY);
+            ctx.fillText(item.name, 240, this.thisY);
+            ctx.fillText("CNY "+item.price,568,this.thisY);
+            ctx.fillText("优惠",652,this.thisY);
+            ctx.lineWidth="1";
+            ctx.rect(646,this.thisY-13,36,17);
+            ctx.fillText(item.quantity,738,this.thisY);
+            this.thisY = this.thisY + 20
+            ctx.fillText(item.spec,240,this.thisY);
+            ctx.fillText("CNY "+item.price,568,this.thisY);
+            ctx.stroke();
+          }
+          
+          // ctx.fillText("MAISON FRANCIS KURKDJIAN",48,this.thisY);
+          // ctx.fillText("景润旅行套装MOODY美瞳420度",240,this.thisY);
+          // ctx.fillText("CNY 345.00",568,this.thisY);
+          // ctx.fillText("优惠",652,this.thisY);
+          // ctx.lineWidth="1";
+          // ctx.rect(646,this.thisY-12,36,16);
+          // ctx.stroke();
+          // ctx.fillText("CNY 345.00",568,this.thisY+20);
+          // ctx.fillText("1",738,this.thisY);
+          // this.drawtext(ctx,'柠檬生姜香型古龙水8ML+红橙罗勒香型古龙水8ML+青柠肉豆蔻香型古龙水8ML+白桃芫荽香型古龙水8ML+藏红花鸢尾花香型古龙水8ML',240,this.thisY,296)
+          // this.thisY = this.thisY + 30
+          // ctx.fillText("LANCOME",48,this.thisY);
+          // ctx.fillText("箐纯清滢柔肤水",240,this.thisY);
+          // ctx.fillText("CNY 45.00",568,this.thisY);
+          // ctx.fillText("5",738,this.thisY);
+          // this.thisY = this.thisY + 20
+          // ctx.fillText("400ML",240,this.thisY);
+          // ctx.fillText("CNY 45.00",568,this.thisY);
+          // this.thisY = this.thisY + 30
+          // ctx.fillText("LANCOME",48,this.thisY);
+          // ctx.fillText("箐纯清滢柔肤水",240,this.thisY);
+          // ctx.fillText("CNY 45.00",568,this.thisY);
+          // ctx.fillText("5",738,this.thisY);
+          // this.thisY = this.thisY + 20
+          // ctx.fillText("400ML",240,this.thisY);
+          // ctx.fillText("CNY 45.00",568,this.thisY);
 
           this.thisY = this.thisY + 60
           ctx.font="18px Rotunda";
@@ -1012,7 +900,7 @@ export default {
           ctx.stroke();
           this.thisY = this.thisY + 20
           var logo=this.$refs.conf3
-          ctx.drawImage(logo,50,this.thisY,80,80);
+          ctx.drawImage(logo,50,this.thisY,this.logoWidth,this.logoWidth);
           ctx.font="12px Rotunda";
           ctx.fillText("应付",570,this.thisY);
           ctx.fillText("35035.00",632,this.thisY);
@@ -1025,14 +913,14 @@ export default {
           this.thisY = this.thisY + 18
           ctx.fillText("在线付",570,this.thisY);
           ctx.fillText("CNY 25000.00",632,this.thisY);
-          this.thisY = this.thisY + 44
+          this.thisY = this.thisY + 64
           ctx.fillText("微信扫码开票",50,this.thisY);
           this.thisY = this.thisY + 18
           ctx.fillText("参与调查问卷",50,this.thisY);
           this.thisY = this.thisY + 18
           ctx.fillText("解锁50颗話梅积分奖励",50,this.thisY);
           // 底部信息
-          this.thisY = this.thisY + 80
+          this.thisY = this.thisY + this.logoWidth
           ctx.fillText('"颗"IS HARMAY’S CREDIT UNIT, 100颗POINTS = CNY 1.00',48,this.thisY);
           this.thisY = this.thisY + 18
           ctx.fillText("FOR PRODUCTS HYGIENE AND SAFETY CONSIDERATIONS, ",48,this.thisY);
@@ -1050,145 +938,50 @@ export default {
         }
       },1)
     },
-  },
-  created() {
-    // console.log('打印缓存数据')
-    // window.localStorage.removeItem("ipAddress")
-    // window.localStorage.removeItem("port")
-    // window.localStorage.removeItem("deviceID")
-    if(window.localStorage.getItem("ipAddress") != null){
-      this.ipAddress = window.localStorage.getItem("ipAddress")
-    }
-    if(window.localStorage.getItem("port") != null){
-      this.port = window.localStorage.getItem("port")
-    }
-    if(window.localStorage.getItem("deviceID") != null){
-      this.deviceID = window.localStorage.getItem("deviceID")
-    }
-    shopDetail(this.orderId).then(res=>{
-      // console.log(res)
-      this.shopList = res.data
-    })
-    orderDetail(this.orderId).then(res=>{
-      // console.log(res)
-      this.orderdetail = res.data.data
-      // console.log('打印订单详情')
-      // console.log(this.orderdetail)
-      // for(var i = 0;i<this.shopList.length;i++){
-      //   if(this.orderdetail.shop_no == this.shopList[i].shop_no){
-      //     this.thisShop = this.shopList[i]
-      //   }
-      // }
-      this.thisShop = this.shopList[0]
-      this.payable_amount = this.orderdetail.payable_amount.substring(0,this.orderdetail.payable_amount.length-2)
-      this.paid = this.orderdetail.paid.substring(0,this.orderdetail.paid.length-2)
-      if(this.orderdetail.pay_type=='wechat'){
-        this.payMent='微信'
-      }else if(this.orderdetail.pay_type=='alipay'){
-        this.payMent='支付宝'
-      }else if(this.orderdetail.pay_type=='card'){
-        this.payMent='银行卡'
-      }else if(this.orderdetail.pay_type=='cash'){
-        this.payMent='现金'
-      }else if(this.orderdetail.pay_type=='combined'){
-        this.payMent='组合支付'
+    dataURLtoFile (dataurl, filename = 'file') {
+      let arr = dataurl.split(',')
+      let mime = arr[0].match(/:(.*?);/)[1]
+      let suffix = mime.split('/')[1]
+      let bstr = atob(arr[1])
+      let n = bstr.length
+      let u8arr = new Uint8Array(n)
+      while (n--) {
+        u8arr[n] = bstr.charCodeAt(n)
       }
-      JsBarcode("#barcode", this.orderdetail.tid, {
-        displayValue:false,//是否在条形码下方显示文字
-      });
-      // console.log(document.getElementById("barcode").src)
-      this.barcode = document.getElementById("barcode").src
-      orderSync(this.id).then(res=>{
-        // console.log('打印二维码')
-        // console.log(res.data.data)
-        // document.getElementById('qrcode').innerHTML = ''
-        var codeUrl = res.data.data
-        // this.qrCode(codeUrl)
-        this.qrcode(codeUrl)
-        // this.connect()
+      return new File([u8arr], `${filename}.${suffix}`, {type: mime})
+    },
+    setFormData(data) {
+      var params = new FormData()
+      if(data) {
+        for (var name in data) {
+          params.append(name, data[name])
+        }
+      }
+      return params
+    },
+    print() {
+      if(!this.setRadio) {
+        this.resetDraw()
+        return
+      }
+      var dataURL = this.base64
+      console.log(this.base64);
+      let file = this.dataURLtoFile(dataURL)     
+      var params = this.setFormData({
+        file: file,
+        printName: ['EPSON M2110 NO.1','EPSON M2110 NO.1','EPSON M2110 NO.1'],
+        uid: 1
       })
-    })
-    // this.smallTicket1()
-    // this.smallTicket2()
-    // this.smallTicket3()
-  },
-
+      setPrint(params).then(res=> {
+        console.log(res);
+      })
+    }
+  }
 }
 </script>
 
 <style lang="scss" scoped>
-.device-container {
-  padding: 12px 20px!important;
-  background: #F8F8F8;
-  .device-content-group {
-    padding: 20px 24px;
-    background: #fff;
-    border-radius: 2px;
-  }
-  .title-group {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    img {
-      width: 30px;
-      height: 30px;
-    }
-    p {
-      display: flex;
-      align-items: center;
-      span {
-        display: inline-block;
-        margin-left: 12px;
-        font-size: 18px;
-      }
-    }
-  }
-  .connect-btn {
-    background: #000;
-    color: #fff;
-  }
-  .noconnect-btn {
-    background: #fff;
-    border: 1px solid #000;
-    &.el-button:focus, &.el-button:hover {
-      color: #000;
-    }
-  }
-}
-.device-group {
-  // margin-top: 30px;
-  .device-list {
-    display: flex;
-    .device-item {
-      & + .device-item {
-        margin-left: 60px;
-      }
-      width: 262px;
-      border: 1px solid #D9D9D9;
-      border-radius: 2px;
-      .item-info {
-        padding: 24px 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        span {
-          display: inline-block;
-          margin-left: 12px;
-        }
-      }
-      p {
-        height: 42px;
-        line-height: 42px;
-        background: #F7F9FA;
-        font-size: 14px;
-        font-weight: bold;
-        margin: 0;
-        text-align: center;
-      }
-    }
-  }
-}
-#mycanvas {
-  border: 1px solid rgb(199, 198, 198);
+.small-ticket-container {
+
 }
 </style>

@@ -19,7 +19,8 @@ export interface H5State {
     age: string
   },
   Image: string,
-  type: number
+  type: number,
+  isShowMeau: true
 }
 
 const state: H5State = {
@@ -36,10 +37,11 @@ const state: H5State = {
     lastConsumeDate: "2020-12-07",
     lastConsumeContent: "北京市三里屯店铺",
     notMeetDays: "24",
-    age: "26"
+    age: "26",
   },
   Image: "",
-  type: 0
+  type: 0,
+  isShowMeau: true
 };
 
 const mutations: MutationTree<H5State> = {
@@ -48,18 +50,37 @@ const mutations: MutationTree<H5State> = {
     state.type = 1
   },
   SET_IMAGE: (state, data) => {
-    console.log('state', data);
     state.Image = data
+  },
+  SET_TYPE: (state, data) => {
+    state.type = data
+  },
+  SET_MEAU: (state, data) => {
+    state.isShowMeau = data
+  },
+  CLEAR: (state, data) => {
+    state.type = data
   }
 };
 
-const actions: ActionTree<H5State,RootState> = {
+const actions: ActionTree<H5State, RootState> = {
   getImages({ commit }) {
     getHeaderImage().then(res => {
-      console.log('msg', res.data.msg);
-        commit("SET_IMAGE", res.data.msg)
+      commit("SET_IMAGE", res.data.msg)
     })
-}
+  },
+  setType({ commit }) {
+    commit("SET_TYPE", 1)
+  },
+  setMeauFalse({commit}) {
+    commit("SET_MEAU", false)
+  },
+  setMeauTrue({commit}) {
+    commit("SET_MEAU", true)
+  },
+  clearInfo({commit}) {
+    commit("CLEAR", 0)
+  }
 };
 
 export const H5Store: Module<H5State, RootState> = {

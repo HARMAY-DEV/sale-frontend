@@ -4,10 +4,11 @@
       <el-input placeholder="请输入收款金额" v-model="value" class="input" readonly></el-input>
       <img src="../assets/images/keyword-del.png" class="img" @click.prevent.stop="backspace($event)" @touchend.prevent.stop="backspace($event)">
     </div>
+    <slot name="money-btn"></slot>
     <div class="number-keyboard">
       <span v-for="(item, index) in keywordOptions" :key="index" @click.prevent.stop="clickHandler($event)" @touchstart.prevent.stop="highlight($event)" @touchend.prevent.stop="handler($event)">{{item}}</span>
-      <span @click="bindQrcodePay">
-        <img src="../assets/images/keyword-qrcode.png" alt="">
+      <span>
+        <slot></slot>
       </span>
     </div>
   </div>
@@ -72,16 +73,16 @@ export default {
       if (this.value.length  === 0) return;
       this.$emit('typing', this.value.slice(0, -1));
     },
-    bindQrcodePay() {
-      this.$emit('bindQrcodePay')
-    }
+    // bindQrcodePay() {
+    //   this.$emit('bindQrcodePay')
+    // }
   }
 }
 </script>
 
 <style lang="scss">
 .number-keyboard-container {
-  min-width: 470px;
+  min-width: 475px;
   .el-input__inner:focus {
     border-color: #DCDFE6;
   }

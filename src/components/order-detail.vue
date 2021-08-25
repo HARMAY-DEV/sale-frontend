@@ -82,7 +82,7 @@
 <!--      :disabled="orderStatus == '未付款' || orderStatus == '退款成功'"-->
       <el-button style="width: 140px;height: 66px;background: #000;color: #fff;border-radius: 10px;font-size: 20px;margin-right: 24px;" @click="refundOrder('part')">退货</el-button>
     </div>
-    <ticket ref="mychild" :id="id"></ticket>
+    <ticket ref="mychild" :id="id" :goodsTableData="goodsTableData"></ticket>
 <!--    整单退弹框-->
     <div v-if="refundState == 1">
       <div @click="refundCancle()" style="background: rgba(0, 0, 0, 0.5);width: 100%;height: 100%;position: fixed;z-index: 1;top: 0;left: 0;"></div>
@@ -103,7 +103,8 @@
 <script>
 import { FlowService, OrderService } from '@/services';
 import { mapActions } from 'vuex';
-import ticket from './smallTicket'
+// import ticket from './smallTicket'
+import ticket from '@/components/SmallTicketDetail.vue'
 
 const statusMap = {
   unpaid: '未付款',

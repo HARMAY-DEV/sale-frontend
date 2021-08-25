@@ -3,9 +3,8 @@ import VueRouter, { RouteConfig } from 'vue-router';
 
 import Home from '@/views/Home.vue';
 import { StorageKey } from '@/utils/consts';
-
+import memberLogin from '@/views/member/MemberLogin.vue'
 Vue.use(VueRouter);
-
 const routes: RouteConfig[] = [
   {
     path: '/',
@@ -26,7 +25,8 @@ const routes: RouteConfig[] = [
       {
         path: 'member-login',
         name: '/member-login',
-        component: () => import(/* webpackPrefetch: true */ '@/views/member/MemberLogin.vue'),
+        // component: () => import(/* webpackPrefetch: true */ '@/views/member/MemberLogin.vue'),
+        component: memberLogin
       },
       {
         path: 'device',

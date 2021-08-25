@@ -45,7 +45,7 @@ export default {
 <style lang="scss" scoped>
 .scancode-pay-container {
   .pay-content-group {
-    min-width: 470px;
+    min-width: 475px;
     text-align: center;
     .alipay-tips {
       width: 174px;

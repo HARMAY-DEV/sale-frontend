@@ -118,7 +118,10 @@
       <p v-else>找不到该商品，请核实</p>
     </el-drawer>
     <!-- 支付弹窗 -->
-    <order-process :payDialogVisible="payDialogVisible" @closePayDialog="closePayDialog"></order-process>
+    <order-process
+      :payDialogVisible="payDialogVisible"
+      @closePayDialog="closePayDialog"
+    ></order-process>
     <!--    移除一物一码-->
     <div v-if="snState == 1">
       <div
@@ -234,7 +237,7 @@ import TemporaryDiscount from "@/components/TemporaryDiscount";
 import ChooseDiscount from "@/components/ChooseDiscount";
 // import { websocketLink } from "../utils/websocket";
 // import { getHeaderImage } from "@/api/user"
-import IphoneKeyword from '@/components/IphoneKeyword.vue'
+import IphoneKeyword from "@/components/IphoneKeyword.vue";
 export default {
   name: "Cart",
   components: {
@@ -243,7 +246,7 @@ export default {
     GoodDiscount,
     TemporaryDiscount,
     ChooseDiscount,
-    IphoneKeyword
+    IphoneKeyword,
   },
 
   data() {
@@ -274,15 +277,17 @@ export default {
     ]),
     // ...mapState(["userObj", "type","Image"]),
   },
-
-  created() {
-  },
-
+  created() {},
   mounted() {
     // websocketLink();
     this.$refs.searchInput.focus();
-
     document.body.addEventListener("keydown", this.gunHandler);
+    window.addEventListener("resize", ()=> {
+      console.log('resize-cart');
+      this.setMeauFalse();
+      this.clearInfo();
+      this.$router.push('/member-login')
+    })
   },
 
   beforeDestroy() {
@@ -297,8 +302,9 @@ export default {
       "removeFromCart",
     ]),
     ...mapActions("order", ["createOrder", "refundWholeOrder"]),
+    ...mapActions("h5", ["setMeauFalse", "clearInfo"]),
     closePayDialog(isShow) {
-      this.payDialogVisible = isShow
+      this.payDialogVisible = isShow;
     },
     bindGoodItem(obj) {
       this.temporaryState = 2;
@@ -325,16 +331,17 @@ export default {
       }
     },
     memberLogin() {
+      this.setMeauFalse();
+      this.clearInfo();
       this.$router.push("/member-login");
     },
     async search() {
-      // console.log('打印购物车')
-      // console.log(this.goodsList)
+      console.log('商品goodsList', this.goodsList)
       if (!this.searchGoodsNo) {
         this.$refs.searchInput.focus();
         return;
       }
-      // console.log(this.searchGoodsNo)
+      console.log('searchGoodsNo', this.searchGoodsNo)
       if (this.searchGoodsNo.indexOf("https") != -1) {
         console.log("有");
         var query = this.searchGoodsNo.split("?")[1];

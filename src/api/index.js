@@ -112,3 +112,28 @@ export function dingLogin(data) {
         },
     })
 }
+
+// 获取打印机列表
+export function printerList(data) {
+    return axios({
+        url: '/api/ftl/stamp',
+        method: 'post',
+        data: data,
+        headers: {
+            'content-type': 'application/json', // 默认值
+            'authorization':token
+        },
+    })
+}
+// 打印机打印
+export function setPrint(data) {
+    return axios({
+        url: '/api/ftl/print',
+        method: 'post',
+        data: data,
+        headers: {
+            'content-type': 'multipart/form-data', // 默认值
+            'authorization':token
+        },
+    })
+}

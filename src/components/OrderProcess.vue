@@ -10,8 +10,8 @@
   >
     <div class="pay-dialog-group">
       <div class="pay-left">
-        <div class="nav-title" @click="backCart">
-          <div class="back-title">
+        <div class="nav-title">
+          <div class="back-title" @click="backCart">
             <img
               src="../assets/images/return01.png"
               style="width: 17px; height: 17px"
@@ -21,14 +21,19 @@
               返回点单
             </p>
           </div>
-          <div class="center-title">
-            <h2>还需支付 <span>¥ 3435</span></h2>
-            <p><span>应收：123元</span><span>已收：0元</span></p>
+          <div class="center-title" v-if="!isShowLogin">
+            <h2>
+              还需支付 <span>¥ {{ waitingPaidAmount }}</span>
+            </h2>
+            <p>
+              <span>应收：{{ payableAmount | money }}元</span
+              ><span>已收：{{ paidAmount | money }}元</span>
+            </p>
           </div>
-          <!-- <div class="center-title">
-              <h2>还需支付</h2>
-              <p class="money">¥ 3435</p>
-            </div> -->
+          <div class="center-title" v-else>
+            <h2>还需支付</h2>
+            <p class="money">¥ {{ waitingPaidAmount }}</p>
+          </div>
           <div class="dian">
             <span></span>
             <span></span>
@@ -38,16 +43,33 @@
         <div class="order-process">
           <div class="order-left">
             <div class="payment-list">
-              <div class="payment-item" v-for="(item, index) in payOptions" :key="item.id">
+              <div class="payment-item">
                 <p class="content">
-                  <span>¥{{item.price}}</span>
-                  <b :class="{active:index!=payOptions.length-1}">
+                  <span>¥{{ waitingPaidAmount }}</span>
+                  <b>
                     <i>></i>
                   </b>
                 </p>
-                <p class="tips">{{item.label}}</p>
-                <span class="line" v-show="index!=payOptions.length-1"></span>
+                <p class="tips">{{ payTypeItem.label }}</p>
+                <!-- <span class="line"></span> -->
               </div>
+              <!-- <div
+                class="payment-item"
+                v-for="(item, index) in flowList"
+                :key="item.id"
+              >
+                <p class="content">
+                  <span>¥{{ item.price }}</span>
+                  <b :class="{ active: index != flowList.length - 1 }">
+                    <i>></i>
+                  </b>
+                </p>
+                <p class="tips">{{ item.label }}</p>
+                <span
+                  class="line"
+                  v-show="index != flowList.length - 1"
+                ></span>
+              </div> -->
             </div>
           </div>
           <div class="order-right">
@@ -62,113 +84,99 @@
                   <img :src="item.icon" />
                   <span>{{ item.label }}</span>
                 </div>
-                <i v-show="index==btnIndex"></i>
+                <i v-show="index == btnIndex"></i>
               </el-button>
             </div>
-            <confirm-dialog :isShow="isShowConfirmDialog" @cancle="bindCancleCutPay" @change="changePayType" :title="'是否切换支付方式'" :tips="'如顾客已在支付中，切换前请提示顾客先取消'
-"></confirm-dialog>
-            <!-- 支付宝 微信支付 -->
-            <div v-if="payTypeItem.nameSign=='alipay'||payTypeItem.nameSign=='wechatpay'">
-              <number-keyboard v-model="amountString" @bindQrcodePay="bindQrcodePay" v-if="!qrcodeAlipay"></number-keyboard>
-              <scancode-pay :name="payTypeItem.nameSign=='alipay'?'支付宝':(payTypeItem.nameSign=='wechatpay'?'微信': '其他')" v-else></scancode-pay>
-            </div>
-            <div class="keyboard-box" v-else>
-              <number-keyboard v-model="amountString">
-                <el-button
-                  type="primary"
-                  @click="pay"
-                  class="pay-btn"
-                  :disabled="amount <= 0"
-                  :loading="payLoading"
-                  >确认</el-button
-                >
-              </number-keyboard>
-            </div>
-          </div>
-
-          <ticket ref="mychild" :id="orderInfo.id"></ticket>
-          <!-- 第二级弹框 -->
-          <el-dialog
-            :visible="btnIndex !==-1 && payTypeItem.nameSign!='alipay' && payTypeItem.nameSign!='wechatpay' && (!showSuccessMask || !showFailMask)"
-            :show-close="false"
-            :close-on-click-modal="false"
-            width="860px"
-            append-to-body
-            class="my-dialog"
-          >
-            <div
-              class="nav-title"
-              style="margin-top: -50px; margin-left: 0"
-              @click="back"
-            >
-              <img
-                src="../assets/images/return01.png"
-                style="width: 17px; height: 17px"
-                alt=""
-              />
-              <p style="font-size: 14px; color: #000; margin-left: 13px">
-                切换其他支付方式
-              </p>
-            </div>
-            <div class="content-box">
-              <h2>{{ stateTitle }}</h2>
-              <div class="price">
-                <span>已收：0元</span>
-                <span>未收：{{ amountString }}元</span>
-              </div>
-              <div class="state-list">
-                <div
-                  class="state-item"
-                  v-for="(item, index) in stateList1"
-                  :key="item.id"
-                >
-                  <img
-                    :src="
-                      item.orderState <= orderStatus
-                        ? item.iconActive
-                        : item.icon
-                    "
-                    class="stateImg"
-                  />
-                  <p
-                    :class="[
-                      'stateName',
-                      { active: item.orderState <= orderStatus },
-                    ]"
-                  >
-                    {{ item.label }}
-                    <span
-                      :class="[
-                        'stateLine',
-                        { active: item.orderState <= orderStatus },
-                      ]"
-                      v-if="index != stateList1.length - 1"
-                      >----------</span
-                    >
-                  </p>
+            <confirm-dialog
+              :isShow="isShowConfirmDialog"
+              @cancle="bindCancleCutPay"
+              @change="changePayType"
+              :title="'是否切换支付方式'"
+              :tips="'如顾客已在支付中，切换前请提示顾客先取消'"
+            ></confirm-dialog>
+            <div style="width: 100%; position: relative" v-if="!isShowLogin">
+              <div
+                class="right-panel"
+                v-loading="payLoading"
+                element-loading-text="等待确认中..."
+                :style="payLoading ? 'z-index:1' : 'z-index:-2'"
+              >
+                <div v-if="showSuccessMask" class="pay-result-box">
+                  <ip-check-one theme="filled" size="48" fill="#67C23A" />
+                  <p>支付成功</p>
+                </div>
+                <div v-if="showFailMask" class="pay-result-box">
+                  <ip-caution theme="filled" size="48" fill="#F56C6C" />
+                  <p>支付失败</p>
+                  <div>{{ payFailedMessage }}</div>
                 </div>
               </div>
-              <div v-loading="orderStatus == 1 && payLoading">
-                <number-keyboard
-                  placeholder="请输入收款金额"
-                  v-model="amountString"
-                >
-                  <el-button
-                    type="primary"
+              <!-- 现金支付 -->
+              <div v-if="payTypeItem.nameSign == 'moneypay'">
+                <number-keyboard v-model="amountString" v-if="!qrcodeAlipay">
+                  <div slot="money-btn" class="moneypay-btn">
+                    <span>¥{{Math.ceil(amountString)}}</span>
+                    <span>¥{{Math.ceil(amountString)}}</span>
+                    <span>¥{{Math.ceil(amountString)}}</span>
+                  </div>
+                  <img
+                    src="../assets/images/keyword-qrcode.png"
+                    alt=""
                     @click="pay"
-                    class="pay-btn"
-                    :disabled="amount <= 0"
-                    :loading="payLoading"
-                    >确认</el-button
-                  >
+                  />
+                </number-keyboard>
+                <scancode-pay
+                  :name="
+                    payTypeItem.nameSign == 'alipay'
+                      ? '支付宝'
+                      : payTypeItem.nameSign == 'wechatpay'
+                      ? '微信'
+                      : '其他'
+                  "
+                  v-else
+                ></scancode-pay>
+              </div>
+              <!-- 支付宝 微信支付 -->
+              <div
+                v-if="
+                  payTypeItem.nameSign == 'alipay' ||
+                  payTypeItem.nameSign == 'wechatpay'
+                "
+              >
+                <number-keyboard v-model="amountString" v-if="!qrcodeAlipay">
+                  <img
+                    src="../assets/images/keyword-qrcode.png"
+                    alt=""
+                    @click="bindQrcodePay"
+                  />
+                </number-keyboard>
+                <scancode-pay
+                  :name="
+                    payTypeItem.nameSign == 'alipay'
+                      ? '支付宝'
+                      : payTypeItem.nameSign == 'wechatpay'
+                      ? '微信'
+                      : '其他'
+                  "
+                  v-else
+                ></scancode-pay>
+              </div>
+              <!-- 扫码支付 -->
+              <div
+                class="keyboard-box"
+                v-else-if="payTypeItem.nameSign == 'qrcodpay'"
+              >
+                <number-keyboard v-model="amountString">
+                  <img src="../assets/images/keyword-scan.png" @click="pay" />
                 </number-keyboard>
               </div>
             </div>
-          </el-dialog>
+          </div>
+          <ticket ref="mychild" :id="orderInfo.id"></ticket>
         </div>
       </div>
       <div class="pay-right">
-        <div class="bind-content-group" style="display: none">
+        <div class="bind-content-group" v-if="isShowLogin">
           <div class="bind-type-list">
             <p
               :class="['bind-type-item', { active: memberTypeIdx == index }]"
@@ -181,7 +189,7 @@
           </div>
           <div v-if="memberTypeIdx == 0">00</div>
           <div v-else-if="memberTypeIdx == 1">
-            <iphone-keyword></iphone-keyword>
+            <iphone-keyword v-model="iphoneVal"></iphone-keyword>
           </div>
           <div v-else class="bind-type-content">
             <p class="tips">请顾客用微信扫码</p>
@@ -189,12 +197,32 @@
           </div>
         </div>
         <div class="bind-member-group">
-          <img src="../assets/images/no-member.png" class="img">
-          <!-- <img src="../assets/images/headImg-del.png" class="img" /> -->
-          <h3 class="bind-account">绑定账户</h3>
-          <p class="tips">查看账户信息</p>
-          <div class="usable-price">- <span>可用余额</span> -</div>
-          <p class="money">¥ 0</p>
+          <template v-if="type == 1">
+            <img :src="userObj.head" class="img" />
+            <h3 class="bind-account">{{ userObj.name }}</h3>
+            <p class="tips">{{ userObj.phone }}</p>
+            <img class="grade-img" src="../assets/images/vip_puka.png" alt="" />
+          </template>
+          <template v-else>
+            <img
+              src="../assets/images/no-member.png"
+              class="img"
+              v-if="!isShowLogin"
+              @click="bindAccount"
+            />
+            <img
+              src="../assets/images/headImg-del.png"
+              class="img"
+              v-else
+              @click="bindCloseAccount"
+            />
+            <h3 class="bind-account">绑定账户</h3>
+            <p class="tips">查看账户信息</p>
+          </template>
+          <div class="usable-price active">- <span>可用余额</span> -</div>
+          <p class="money active">¥ 0</p>
+          <div class="usable-price">- <span>可用积分</span> -</div>
+          <p class="money">{{ userObj.integral }}</p>
         </div>
       </div>
     </div>
@@ -209,11 +237,18 @@ import NumberKeyboard from "./NumberKeyboard";
 import { stringToNumber } from "@/utils/money";
 import { delay } from "@/utils/delay";
 import ticket from "./smallTicket";
-import ScancodePay from './ScancodePay.vue'
-import ConfirmDialog from './ConfirmDialog.vue'
+import ScancodePay from "./ScancodePay.vue";
+import ConfirmDialog from "./ConfirmDialog.vue";
+import IphoneKeyword from "./IphoneKeyword.vue";
 export default {
   name: "OrderProcess",
-  components: { ticket, NumberKeyboard, ScancodePay, ConfirmDialog },
+  components: {
+    ticket,
+    NumberKeyboard,
+    ScancodePay,
+    ConfirmDialog,
+    IphoneKeyword,
+  },
   props: {
     isVisible: {
       type: Boolean,
@@ -221,8 +256,8 @@ export default {
     },
     payDialogVisible: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   data() {
     return {
@@ -233,7 +268,6 @@ export default {
       showSuccessMask: false,
       showFailMask: false,
       payLoading: false,
-      flowList: [],
       stateList: [
         {
           id: 1,
@@ -268,31 +302,19 @@ export default {
         {
           id: 1,
           icon: require("../assets/images/paybtn01.png"),
-          label: "我扫顾客",
-          nameSign: "",
-        },
-        {
-          id: 2,
-          icon: require("../assets/images/paybtn02.png"),
-          label: "顾客扫我",
-          nameSign: "",
-        },
-        {
-          id: 3,
-          icon: require("../assets/images/paybtn03.png"),
-          label: "刷卡支付",
-          nameSign: "",
+          label: "扫码支付",
+          nameSign: "qrcodpay",
         },
         {
           id: 4,
           icon: require("../assets/images/paybtn04.png"),
           label: "现金支付",
-          nameSign: "",
+          nameSign: "moneypay",
         },
         {
           id: 5,
           icon: require("../assets/images/paybtn04.png"),
-          label: "支付宝",
+          label: "支付宝支付",
           nameSign: "alipay",
         },
         {
@@ -302,7 +324,7 @@ export default {
           nameSign: "wechatpay",
         },
       ],
-      btnIndex: -1,
+      btnIndex: 0,
       stateTitle: "",
       stateList1: [
         {
@@ -328,33 +350,38 @@ export default {
         },
       ],
       isShow: false,
-      payLoading: false,
       flowList: [],
       showSuccessMask: false,
       showFailMask: false,
       payOptions: [
-        {id: 1, label: '支付宝', price: '32'},
-        {id: 2, label: '微信', price: '32'}
+        { id: 1, label: "支付宝", price: "32" },
+        { id: 2, label: "微信", price: "32" },
       ],
       payTypeItem: {},
       memberTypeIdx: 0,
       bindTypeList: [
-        {id: 1, label: '扫描会员码' },
-        {id: 2, label: '输入手机号' },
-        {id: 3, label: '展示签到码' }
+        { id: 1, label: "扫描会员码" },
+        { id: 2, label: "输入手机号" },
+        { id: 3, label: "展示签到码" },
       ],
       isShowPay: false,
       qrcodeAlipay: false,
       isShowConfirmDialog: false,
       payTypeIdx: -1,
-      payBtnItem: {}
+      payBtnItem: {},
+      isShowLogin: false,
+      iphoneVal: "",
     };
   },
   mounted() {
+    this.payTypeItem = this.btnList[0];
+    console.log(this.userObj);
+    console.log(this.type);
   },
   computed: {
     ...mapState("order", ["orderStatus", "orderInfo"]),
     ...mapGetters("flow", ["currentFlowStatus"]),
+    ...mapState("h5", ["userObj", "type", "Image"]),
     amount() {
       return stringToNumber(this.amountString);
     },
@@ -379,7 +406,7 @@ export default {
   },
   watch: {
     payDialogVisible() {
-      this.isShowPay = this.payDialogVisible 
+      this.isShowPay = this.payDialogVisible;
       console.log(this.isShowPay);
     },
     currentFlowStatus(status) {
@@ -436,34 +463,43 @@ export default {
       "cancelLoopFlowDetail",
     ]),
     ...mapMutations("order", ["updateOrderStatus"]),
-    ...mapActions("order", ["getOrderDetail"]),
+    ...mapActions("order", ["getOrderDetail", "refundWholeOrder"]),
     ...mapMutations("cart", ["clearCart"]),
+    bindCloseAccount() {
+      this.isShowLogin = false;
+    },
+    bindAccount() {
+      this.isShowLogin = true;
+      this.btnIndex == -1;
+    },
     bindQrcodePay() {
-      this.qrcodeAlipay = true
+      this.qrcodeAlipay = true;
     },
     initPayType() {
-      this.qrcodeAlipay = false
-      this.isShowConfirmDialog = false
+      this.qrcodeAlipay = false;
+      this.isShowConfirmDialog = false;
+      this.isShowLogin = false;
     },
     bindPayTypeBtn(item, index) {
-      this.isShowConfirmDialog = true
+      if (this.isShowLogin) return;
+      this.isShowConfirmDialog = true;
       this.stateTitle = this.btnList[index].label;
-      this.payTypeIdx = index
-      this.payBtnItem = item
+      this.payTypeIdx = index;
+      this.payBtnItem = item;
     },
     bindCancleCutPay() {
-      this.isShowConfirmDialog = false
+      this.isShowConfirmDialog = false;
     },
     changePayType() {
       this.btnIndex = this.payTypeIdx;
-      this.payTypeItem = this.payBtnItem
-      this.initPayType()
+      this.payTypeItem = this.payBtnItem;
+      this.initPayType();
     },
     selectPaymentMethod(method) {
       this.paymentMethod = method;
     },
     bindMemberType(index) {
-      this.memberTypeIdx = index
+      this.memberTypeIdx = index;
     },
     backCart() {
       if (this.orderStatus === OrderStatus.PAYING) {
@@ -478,7 +514,7 @@ export default {
           .then(() => {
             return this.refundWholeOrder(this.orderId).then(() => {
               this.isShowPay = false;
-              this.$emit('closePayDialog', false)
+              this.$emit("closePayDialog", false);
             });
           })
           .catch((action) => {
@@ -488,12 +524,12 @@ export default {
             return this.refundWholeOrder(this.orderId).then(() => {
               this.clearCart();
               this.isShowPay = false;
-              this.$emit('closePayDialog', false)
+              this.$emit("closePayDialog", false);
             });
           });
       } else {
         this.isShowPay = false;
-        this.$emit('closePayDialog', false)
+        this.$emit("closePayDialog", false);
       }
     },
     async waitAndQueryOrderStatus() {
@@ -507,6 +543,7 @@ export default {
     },
 
     async pay() {
+      console.log(this.payloading);
       if (this.payLoading) {
         return;
       }
@@ -564,7 +601,7 @@ export default {
     .nav-title {
       height: 81px;
       line-height: 81px;
-      border-bottom: 1px solid #EEEEEE;
+      border-bottom: 1px solid #eeeeee;
       display: flex;
       align-items: center;
       padding: 0 30px;
@@ -581,7 +618,7 @@ export default {
           color: #000;
           span {
             display: inline-block;
-            color: #B51F29;
+            color: #b51f29;
             margin-left: 3px;
           }
         }
@@ -594,7 +631,7 @@ export default {
           }
         }
         .money {
-          color: #B51F29;
+          color: #b51f29;
           font-size: 18px;
           font-weight: bold;
         }
@@ -617,7 +654,7 @@ export default {
   }
   .pay-right {
     flex: 1;
-    background: #F8F8F8;
+    background: #f8f8f8;
     text-align: center;
     border-radius: 10px;
     display: flex;
@@ -649,7 +686,7 @@ export default {
           line-height: 51px;
           font-size: 16px;
           color: #000;
-          background: #FFFFFF;
+          background: #ffffff;
           border-radius: 26px;
           margin: 35px auto 64px;
           font-weight: bold;
@@ -664,6 +701,12 @@ export default {
       padding: 20px 0;
       width: 106px;
       border-left: 1px solid #eee;
+      .grade-img {
+        width: 66px;
+        margin-top: 7px;
+      }
+      .usable-integral {
+      }
     }
     .img {
       width: 49px;
@@ -675,18 +718,24 @@ export default {
       margin-top: 5px;
     }
     .tips {
-      color: rgba(0,0,0,.7);
+      color: rgba(0, 0, 0, 0.7);
       margin-top: 3px;
     }
     .usable-price {
       color: #282828;
       font-size: 14px;
       margin-top: 64px;
+      &.active {
+        color: rgba(40, 40, 40, 0.38);
+      }
     }
     .money {
       color: #282828;
       font-size: 22px;
       margin-top: 11px;
+      &.active {
+        color: rgba(40, 40, 40, 0.38);
+      }
     }
   }
 }
@@ -744,6 +793,54 @@ export default {
   .order-right {
     padding: 23px 0 20px 23px;
     display: flex;
+    .right-panel {
+      position: absolute;
+      top: 0;
+      left: 10px;
+      right: 0;
+      bottom: 0;
+      box-shadow: 0 2px 12px 0 rgb(0 0 0 / 10%);
+      border: 1px solid #ebeef5;
+      border-radius: 2px;
+
+      .pay-result-box {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 99;
+        display: flex;
+        background-color: #fff;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+
+        p {
+          font-size: 20px;
+          font-weight: 500;
+        }
+      }
+    }
+    .moneypay-btn {
+      margin-top: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      span {
+        display: inline-block;
+        padding: 0 11px;
+        height: 29px;
+        line-height: 29px;
+        background: #000;
+        color: #fff;
+        font-size: 18px;
+        border-radius: 15px;
+        & + span {
+          margin-left: 9px;
+        }
+      }
+    }
     .btn-group {
       display: flex;
       flex-direction: column;
