@@ -46,6 +46,13 @@ export default {
       context.backingStorePixelRatio || 1;
       return (window.devicePixelRatio || 1) / backingStore;
     },
+    convertImageToCanvas(image) {
+      var canvas = document.createElement("canvas");
+      canvas.width = image.width;
+      canvas.height = image.height;
+      canvas.getContext("2d").drawImage(image, 0, 0);
+      return canvas;
+    },
     resetDraw() {
       this.setRadio = true
       var canvas = document.getElementById("mycanvas");
@@ -83,7 +90,7 @@ export default {
         canvas.width = originWidth * ratio;
         canvas.height = originHeight * ratio;
         // 清除画布上在该矩形区域内的内容
-        ctx.clearRect(0, 0, originWidth, originHeight);
+        ctx.clearRect(0, 0, originWidth * ratio, originHeight * ratio);
         // var resultTicket = document.getElementById("resultTicket");
         // var ctx = resultTicket.getContext("2d");
         ctx.drawImage(
@@ -960,12 +967,16 @@ export default {
       return params
     },
     print() {
-      if(!this.setRadio) {
-        this.resetDraw()
-        return
-      }
-      var dataURL = this.base64
-      console.log(this.base64);
+      // if(!this.setRadio) {
+      //   this.resetDraw()
+      //   return
+      // }
+      var canvas = document.getElementById("mycanvas");
+      var dataURL = canvas.toDataURL("image/png", 2.0);
+      console.log(dataURL);
+      return
+      // var dataURL = this.base64
+      // console.log(this.base64);
       let file = this.dataURLtoFile(dataURL)     
       var params = this.setFormData({
         file: file,

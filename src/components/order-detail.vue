@@ -32,7 +32,7 @@
 
         <p style="font-size: 18px;color: #000;font-weight: 600;margin-top: 24px;margin-left: 24px;">商品信息</p>
         <div style="margin: 12px 15px 0 24px;">
-          <div v-for="(item,idx) in goodsTableData" class="list">
+          <div v-for="(item,idx) in goodsTableData" class="list" :key="idx">
             <p class="listName">{{ item.name }}</p>
             <div style="margin-left: 30px;font-size: 16px;color: #313131;line-height: 22px;">
               <p>{{ item.spec }}</p>
@@ -82,7 +82,8 @@
 <!--      :disabled="orderStatus == '未付款' || orderStatus == '退款成功'"-->
       <el-button style="width: 140px;height: 66px;background: #000;color: #fff;border-radius: 10px;font-size: 20px;margin-right: 24px;" @click="refundOrder('part')">退货</el-button>
     </div>
-    <ticket ref="mychild" :id="id" :goodsTableData="goodsTableData"></ticket>
+    <small-tickets ref="mychild" :goodsTableData="goodsTableData" :orderTableData="orderTableData"></small-tickets>
+
 <!--    整单退弹框-->
     <div v-if="refundState == 1">
       <div @click="refundCancle()" style="background: rgba(0, 0, 0, 0.5);width: 100%;height: 100%;position: fixed;z-index: 1;top: 0;left: 0;"></div>
@@ -103,8 +104,7 @@
 <script>
 import { FlowService, OrderService } from '@/services';
 import { mapActions } from 'vuex';
-// import ticket from './smallTicket'
-import ticket from '@/components/SmallTicketDetail.vue'
+import SmallTickets from '@/components/SmallTickets.vue'
 
 const statusMap = {
   unpaid: '未付款',
@@ -127,7 +127,7 @@ const payTypeMap = {
 export default {
   name: 'OrderDetail',
   components:{
-    ticket
+    SmallTickets
   },
   data() {
     return {
@@ -136,7 +136,7 @@ export default {
       flowTableData: [],
       orderStatus: '',
       canRefund: false,
-      refundState:0
+      refundState:0,
     };
   },
   props: {
@@ -193,9 +193,8 @@ export default {
       this.orderTableData = [orderInfo];
       this.goodsTableData = goodsList;
       console.log('orderinfo', orderInfo);
-    console.log('goodsTableData',this.goodsTableData);
-    console.log('orderTableData',this.orderTableData);
-
+      console.log('goodsTableData',this.goodsTableData);
+      console.log('orderTableData',this.orderTableData);
       this.flowTableData = flowList.map(flow => ({...flow, status: statusMap[flow.status] || '未知状态'}));
     },
     print(){

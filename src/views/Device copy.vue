@@ -73,7 +73,7 @@
 
 <script>
   import QRCode from 'qrcodejs2'  // 引入qrcode
-  import SmallTickets from '@/components/SmallTickets.vue'
+  import SmallTickets from '@/components/SmallTickets111.vue'
   import SmallTicketDetail from '@/components/SmallTicketDetail.vue'
   import jsbarcode from 'jsbarcode'
   import {shopDetail,orderDetail,orderSync,addOrder, printerList, setPrint} from "@/api/index"
@@ -1049,7 +1049,6 @@ export default {
           ctx.fillText('出于商品卫生安全考虑，商品离店后非质量问题不支持退换，请你谅解。',48,this.thisY);
           var conf2=this.$refs.conf2
           ctx.drawImage(conf2,332,940,126,15);
-
         }
       },1)
     },
