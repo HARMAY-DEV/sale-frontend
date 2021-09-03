@@ -13,7 +13,8 @@ module.exports = {
     hotOnly: false, // See https://github.com/vuejs/vue-cli/blob/dev/docs/cli-service.md#configuring-proxy
     proxy: {     // string | Object 解决跨域问题
       '/api': {
-        target: 'http://172.100.49.208:8703', // 对应自己的 跨域地址 即请求的后端地址
+        target: 'http://172.100.21.44:8703', // 对应自己的 跨域地址 即请求的后端地址
+        // target: 'http://172.100.49.208:8703', // 对应自己的 跨域地址 即请求的后端地址
         changeOrigin: true,
         ws: true,
         pathRewrite: {

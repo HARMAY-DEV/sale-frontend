@@ -1,141 +1,147 @@
 <template>
-  <div class="small-ticket-container" ref="smallticket">
-    <div class="font-Rotunda-regular color-1 flex-center-center font12 group-1">
-      <span>2012.06.20 SUN.</span>
-      <span>SHOPPING LIST</span>
-      <span>ALEX</span>
-    </div>
-    <div class="flex-start-between font12 font-Rotunda-light group-2">
-      <div class="color-1 font12">
-        <p>PLEASE CHECK THE ORDER DETAILS</p>
-        <p>AND KEEP THIS RETURN SLIP FOR REFUND OR EXCHANGES</p>
-        <p>请仔细核对您购买的商品明细，并保留此清单作为退换货的凭证。</p>
-      </div>
-      <div class="flex-start-center font12">
-        <span class="color-2 font32" style="line-height:1;">{{currentPage}}</span>
-        <span>/{{page}}</span>
-      </div>
-    </div>
-    <div class="color-1 font12" style="margin-top:8px;">
-      <p>BEIJING SANLITUN</p>
-      <p>2 WORKERS' SPORTS COMPLEX N RD, CHAOYANG DISTRICT, BEIJING</p>
-      <p>BUSINESS HOUR: 10:00-22:00</p>
-      <p>CONTACT: 15210678315</p>
-    </div>
-    <div class="flex-end-between font12">
-      <div class="color-2" style="padding-top:3px;">
-        <p>北京三里屯店：朝阳区工体北路首北兆龙饭店一层</p>
-        <p>营业时间：10:00-22:00</p>
-        <p>电话：15210678315</p>
-      </div>
-      <div>
-        <p class="color-1 right">{{orderTableData[0].id}}</p>
-        <img
-          src="@/assets/images/code01.png"
-          style="width:181px;height:34px;margin-top:3px;"
-        />
-      </div>
-    </div>
-    <div style="margin-top:20px;" class="font12 color-1 font-Rotunda-light" ref="goodlist">
-      <ul>
-        <li class="flex-start-between" style="margin-top:15px;" v-for="(item,index) in goodsTableData" :key="item.id" :ref="'index'+index">
-          <div class="flex-start-between">
-            <div style="width: 200px;">{{item.name}}</div>
-            <div class="flex-1">
-              <p>{{item.name}}</p>
-              <p>{{item.spec}}</p>
-            </div>
+  <div>
+    <div v-for="i in page" :key="i" :ref="'smallticket'+i" class="small-ticket-container">
+      <div class="ticket-top">
+        <div class="font-Rotunda-regular color-1 flex-center-center font12 group-1">
+          <span>{{date}} SUN.</span>
+          <span>SHOPPING LIST</span>
+          <span>ALEX</span>
+        </div>
+        <div class="flex-start-between font12 font-Rotunda-light group-2">
+          <div class="color-1 font12">
+            <p>PLEASE CHECK THE ORDER DETAILS</p>
+            <p>AND KEEP THIS RETURN SLIP FOR REFUND OR EXCHANGES</p>
+            <p>请仔细核对您购买的商品明细，并保留此清单作为退换货的凭证。</p>
           </div>
-          <div class="width200 flex-start-between" style="margin-left:30px;">
-            <div>
-              <p>
-                CNY  {{item.price | formatPrice}}
-                <span
-                  style="display:inline-block;padding:0 3px;border:1px solid #1A1311;margin-left:3px;height:14px;line-height:16px;"
-                  >优惠</span
-                >
-              </p>
-              <p class="color-2">CNY  {{item.price | formatPrice}}</p>
-            </div>
-            <div>{{item.quantity}}</div>
+          <div class="flex-start-center font12">
+            <span class="color-2 font32" style="line-height:1;">{{i}}</span>
+            <span>/{{page}}</span>
           </div>
-        </li>
-      </ul>
+        </div>
+        <div class="color-1 font12" style="margin-top:8px;">
+          <p>BEIJING SANLITUN</p>
+          <p>2 WORKERS' SPORTS COMPLEX N RD, CHAOYANG DISTRICT, BEIJING</p>
+          <p>BUSINESS HOUR: 10:00-22:00</p>
+          <p>CONTACT: 15210678315</p>
+        </div>
+        <div class="flex-end-between font12">
+          <div class="color-2" style="padding-top:3px;">
+            <p>北京三里屯店：朝阳区工体北路首北兆龙饭店一层</p>
+            <p>营业时间：10:00-22:00</p>
+            <p>电话：15210678315</p>
+          </div>
+          <div>
+            <p class="color-1 right" style="margin-right:5px;">{{orderTableData[0].id}}</p>
+            <img
+               id="barcode"
+              style="width:181px;height:34px;margin-top:3px;"
+            />
+          </div>
+        </div>
+      </div>
+      <div class="font12 color-1 font-Rotunda-light content" ref="content">
+        <ul class="good-list" ref="goodlist">
+          <li class="flex-start-between" :class="i==1?(index>=pageIndexArr[i]?'hidden_none':'hidden_block'):(index>=pageIndexArr[i-1] && index<=pageIndexArr[i]?'hidden_block':'hidden_none')" style="margin-top:15px;" v-for="(item,index) in goodsTableData" :key="item.id" :ref="'index'+index">
+            <div class="flex-start-between">
+              <div style="width: 200px;">{{item.name}}</div>
+              <div class="flex-1">
+                <p>{{item.name}}</p>
+                <p>{{item.spec}}</p>
+              </div>
+            </div>
+            <div class="width200 flex-start-between" style="margin-left:30px;">
+              <div>
+                <p>
+                  CNY  {{item.price | formatPrice}}
+                  <span
+                    style="display:inline-block;padding:0 3px;border:1px solid #1A1311;margin-left:3px;height:14px;line-height:16px;"
+                    >优惠</span
+                  >
+                </p>
+                <p class="color-2">CNY  {{item.price | formatPrice}}</p>
+              </div>
+              <div>{{item.quantity}}</div>
+            </div>
+          </li> 
+        </ul>
+        <div
+          style="margin-top:20px;padding-bottom:5px;border-bottom:1px solid #1A1311;"
+          :style="i==page?'opacity:1':'opacity:0'"
+          ref="totalline"
+          class="flex-center-between font18 font-Rotunda-regular"
+        >
+          <p>TOTAL</p>
+          <div class="width200 flex-center-between">
+            <p>CNY {{orderTableData[0].payableAmount | formatPrice}}</p>
+            <!-- <p>CNY 1241.00</p> -->
+          </div>
+        </div>
+        <div
+          class="flex-start-between font-Rotunda-light font12"
+          style="margin-top:10px;"
+          :style="i==page?'opacity:1':'opacity:0'"
+          ref="result"
+        >
+          <div>
+            <img src="@/assets/images/code3.png" style="width:80px;height:80px;" />
+            <p class="font12" style="margin-top:5px;">扫码开具发票</p>
+          </div>
+          <ul class="total-result-box width200">
+            <li>
+              <span class="letter12">应付</span>
+              <span>{{orderTableData[0].payableAmount | formatPrice}}</span>
+              <!-- <span>1241.00</span> -->
+            </li>
+            <li>
+              <span class="letter12">优惠</span>
+              <span>CNY {{orderTableData[0].refundAmount | formatPrice}}</span>
+            </li>
+            <li>
+              <span class="letter12">話梅</span>
+              <span>17000颗</span>
+            </li>
+            <li>
+              <span class="letter12">{{orderTableData[0].payType}}</span>
+              <span>CNY {{orderTableData[0].payableAmount | formatPrice}}</span>
+            </li>
+            <li>
+              <span>天目里</span>
+              <span>7000积分</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <footer>
+        <div class="center" style="padding: 15px 0 10px 0;" :class="[{'mt55': page>1&&i<page}]">
+          <img src="@/assets/images/code02.png"/>
+        </div>
+      </footer>
+      <footer v-if="i==page&&isShowFooter">
+        <div style="margin-top:25px;" class="font12">
+          <p class="color-1">
+            "颗"IS HARMAY’S CREDIT UNIT, 100颗POINTS = CNY 1.00
+          </p>
+          <p class="color-1">FOR PRODUCTS HYGIENE AND SAFETY CONSIDERATIONS,</p>
+          <p class="color-1">
+            NO REFUNDS OR RETURNS AFTER PRODUCTS LEAVE THE STORE,
+          </p>
+          <p class="color-1">THANK YOU FOR YOUR UNDERSTANDING.</p>
+          <p class="color-2" style="margin-top:5px;">
+            "颗"为話梅积分单位，100颗話梅 = CNY 1.00
+          </p>
+          <p class="color-2">
+            出于商品卫生安全考虑，商品离店后非质量问题不支持退换，请你谅解。
+          </p>
+        </div>
+        <div class="center" style="padding-bottom:10px;margin-top:15px;">
+          <img src="@/assets/images/code02.png"/>
+        </div>
+      </footer>
     </div>
-    <div
-      style="margin-top:20px;padding-bottom:5px;border-bottom:1px solid #1A1311;"
-      class="flex-center-between font18 font-Rotunda-regular"
-    >
-      <p>TOTAL</p>
-      <div class="width200 flex-center-between">
-        <p>CNY {{orderTableData[0].payableAmount | formatPrice}}</p>
-        <p></p>
-      </div>
-    </div>
-    <div
-      class="flex-start-between font-Rotunda-light font12"
-      style="margin-top:10px;"
-    >
-      <div>
-        <img src="@/assets/images/code3.png" style="width:80px;height:80px;" />
-        <p class="font12" style="margin-top:5px;">扫码开具发票</p>
-      </div>
-      <ul class="total-result-box width200">
-        <li>
-          <span class="letter12">应付</span>
-          <span>{{orderTableData[0].payableAmount | formatPrice}}</span>
-        </li>
-        <li>
-          <span class="letter12">优惠</span>
-          <span>CNY {{orderTableData[0].refundAmount | formatPrice}}</span>
-        </li>
-        <li>
-          <span class="letter12">話梅</span>
-          <span>17000颗</span>
-        </li>
-        <li>
-          <span class="letter12">微信</span>
-          <span>CNY 5000.00</span>
-        </li>
-        <li>
-          <span>支付宝</span>
-          <span>CNY 3999.00</span>
-        </li>
-        <li>
-          <span>天目里</span>
-          <span>7000积分</span>
-        </li>
-      </ul>
-    </div>
-    <footer v-if="currentPage==1">
-      <div class="center" style="padding-bottom:10px;margin-top:15px;">
-        <img src="@/assets/images/code02.png"/>
-      </div>
-    </footer>
-    <footer v-else>
-      <div style="margin-top:25px;" class="font12">
-        <p class="color-1">
-          "颗"IS HARMAY’S CREDIT UNIT, 100颗POINTS = CNY 1.00
-        </p>
-        <p class="color-1">FOR PRODUCTS HYGIENE AND SAFETY CONSIDERATIONS,</p>
-        <p class="color-1">
-          NO REFUNDS OR RETURNS AFTER PRODUCTS LEAVE THE STORE,
-        </p>
-        <p class="color-1">THANK YOU FOR YOUR UNDERSTANDING.</p>
-        <p class="color-2" style="margin-top:5px;">
-          "颗"为話梅积分单位，100颗話梅 = CNY 1.00
-        </p>
-        <p class="color-2">
-          出于商品卫生安全考虑，商品离店后非质量问题不支持退换，请你谅解。
-        </p>
-      </div>
-      <div class="center" style="padding-bottom:10px;margin-top:15px;">
-        <img src="@/assets/images/code02.png" />
-      </div>
-    </footer>
   </div>
 </template>
 <script>
+import JsBarcode from 'jsbarcode'
 import html2canvas from "html2canvas";
 import { setPrint } from "@/api/index";
 
@@ -148,7 +154,10 @@ export default {
     return {
       goodlistHeight: 470,
       currentPage: 1,
-      page: 1
+      page: 2,
+      pageIndexArr: [1],
+      date: '',
+      isShowFooter: false
     };
   },
   // watch: {
@@ -164,292 +173,190 @@ export default {
     }
   },
   mounted() {
-    this.goodsTableData = [
-      {
-        amount: 4100,
-        id: "11006957",
-        name: "牙膏",
-        price: 41,
-        quantity: "1"
-      },
-      {
-        amount: 4100,
-        id: "11006957",
-        name: "牙膏",
-        price: 41,
-        quantity: "1"
-      },
-      {
-        amount: 4100,
-        id: "11006957",
-        name: "牙膏",
-        price: 41,
-        quantity: "1"
-      },
-      {
-        amount: 4100,
-        id: "11006957",
-        name: "牙膏",
-        price: 41,
-        quantity: "1"
-      },
-      {
-        amount: 4100,
-        id: "11006957",
-        name: "牙膏",
-        price: 41,
-        quantity: "1"
-      },
-
-      {
-        amount: 4100,
-        id: "11006957",
-        name: "牙膏",
-        price: 41,
-        quantity: "1"
-      },
-      {
-        amount: 4100,
-        id: "11006957",
-        name: "牙膏",
-        price: 41,
-        quantity: "1"
-      },
-      {
-        amount: 4100,
-        id: "11006957",
-        name: "牙膏",
-        price: 41,
-        quantity: "1"
-      },
-      {
-        amount: 4100,
-        id: "11006957",
-        name: "牙膏",
-        price: 41,
-        quantity: "1"
-      },
-      {
-        amount: 4100,
-        id: "11006957",
-        name: "牙膏",
-        price: 41,
-        quantity: "1"
-      },
-      {
-        amount: 4100,
-        id: "11006957",
-        name: "牙膏",
-        price: 41,
-        quantity: "1"
-      },
-      {
-        amount: 4100,
-        id: "11006957",
-        name: "牙膏",
-        price: 41,
-        quantity: "1"
-      },
-      {
-        amount: 4100,
-        id: "11006957",
-        name: "牙膏",
-        price: 41,
-        quantity: "1"
-      },{
-        amount: 4100,
-        id: "11006957",
-        name: "牙膏",
-        price: 41,
-        quantity: "1"
-      },{
-        amount: 4100,
-        id: "11006957",
-        name: "牙膏",
-        price: 41,
-        quantity: "1"
-      },{
-        amount: 4100,
-        id: "11006957",
-        name: "牙膏",
-        price: 41,
-        quantity: "1"
-      },{
-        amount: 4100,
-        id: "11006957",
-        name: "牙膏",
-        price: 41,
-        quantity: "1"
-      },{
-        amount: 4100,
-        id: "11006957",
-        name: "牙膏",
-        price: 41,
-        quantity: "1"
-      },{
-        amount: 4100,
-        id: "11006957",
-        name: "牙膏",
-        price: 41,
-        quantity: "1"
-      },{
-        amount: 4100,
-        id: "11006957",
-        name: "牙膏",
-        price: 41,
-        quantity: "1"
-      },{
-        amount: 4100,
-        id: "11006957",
-        name: "牙膏",
-        price: 41,
-        quantity: "1"
-      },{
-        amount: 4100,
-        id: "11006957",
-        name: "牙膏",
-        price: 41,
-        quantity: "1"
-      },{
-        amount: 4100,
-        id: "11006957",
-        name: "牙膏",
-        price: 41,
-        quantity: "1"
-      },{
-        amount: 4100,
-        id: "11006957",
-        name: "牙膏",
-        price: 41,
-        quantity: "1"
-      },{
-        amount: 4100,
-        id: "11006957",
-        name: "牙膏",
-        price: 41,
-        quantity: "1"
-      },{
-        amount: 4100,
-        id: "11006957",
-        name: "牙膏",
-        price: 41,
-        quantity: "1"
-      },{
-        amount: 4100,
-        id: "11006957",
-        name: "牙膏",
-        price: 41,
-        quantity: "1"
-      },{
-        amount: 4100,
-        id: "11006957",
-        name: "牙膏",
-        price: 41,
-        quantity: "1"
-      },{
-        amount: 4100,
-        id: "11006957",
-        name: "牙膏",
-        price: 41,
-        quantity: "1"
-      },{
-        amount: 4100,
-        id: "11006957",
-        name: "牙膏",
-        price: 41,
-        quantity: "1"
-      },{
-        amount: 4100,
-        id: "11006957",
-        name: "牙膏",
-        price: 41,
-        quantity: "1"
-      },{
-        amount: 4100,
-        id: "11006957",
-        name: "牙膏",
-        price: 41,
-        quantity: "1"
-      },{
-        amount: 4100,
-        id: "11006957",
-        name: "牙膏",
-        price: 41,
-        quantity: "1"
-      },{
-        amount: 4100,
-        id: "11006957",
-        name: "牙膏",
-        price: 41,
-        quantity: "1"
-      },{
-        amount: 4100,
-        id: "11006957",
-        name: "牙膏",
-        price: 41,
-        quantity: "1"
-      },{
-        amount: 4100,
-        id: "11006957",
-        name: "牙膏",
-        price: 41,
-        quantity: "1"
-      },{
-        amount: 4100,
-        id: "11006957",
-        name: "牙膏",
-        price: 41,
-        quantity: "1"
-      },{
-        amount: 4100,
-        id: "11006957",
-        name: "牙膏",
-        price: 41,
-        quantity: "1"
-      },{
-        amount: 4100,
-        id: "11006957",
-        name: "牙膏",
-        price: 41,
-        quantity: "1"
-      },{
-        amount: 4100,
-        id: "11006957",
-        name: "牙膏",
-        price: 41,
-        quantity: "1"
-      },{
-        amount: 4100,
-        id: "11006957",
-        name: "牙膏",
-        price: 41,
-        quantity: "1"
-      },{
-        amount: 4100,
-        id: "11006957",
-        name: "牙膏",
-        price: 41,
-        quantity: "1"
-      },{
-        amount: 4100,
-        id: "11006957",
-        name: "牙膏",
-        price: 41,
-        quantity: "1"
-      },{
-        amount: 4100,
-        id: "11006957",
-        name: "牙膏",
-        price: 41,
-        quantity: "1"
-      },
-    ]
-    this.getGoodsListOffset()
+    this.date = this.getDay()
+    JsBarcode("#barcode", this.orderTableData[0].id, {
+      displayValue: false //是否显示文字信息
+    })
+//     this.goodsTableData = [
+//       {
+//         amount: 2900,
+//         id: "11005967",
+//         name: "新速洁眼部卸妆水",
+//         price: 29,
+//         quantity: "1",
+//         spec: "30ml"
+//       },
+//       {
+//         amount: 41900,
+//         id: "11002345",
+//         name: "凝时保湿精华液",
+//         price: 419,
+//         quantity: "1",
+//         spec: "30ml"
+//       },
+//       {
+//         amount: 4700,
+//         id: "11002324",
+//         name: "卡乐泡泡哑光唇膏笔",
+//         price: 47,
+//         quantity: "1",
+//         spec: "Fly-Fi"
+//       },
+//       {
+//         amount: 4100,
+//         id: "11006957",
+//         name: "牙膏",
+//         price: 41,
+//         quantity: "1",
+//         spec: "风情肉桂薄荷牙膏 85ml"
+//       },
+//       {
+//         amount: 23100,
+//         id: "11020370",
+//         name: "C-三号浓香水",
+//         price: 21,
+//         quantity: "11",
+//         spec: "NO.3 5ml"
+//       },
+//       {
+//         amount: 65000,
+//         id: "11008405",
+//         name: "赋能焕采眼霜",
+//         price: 50,
+//         quantity: "13",
+//         spec: "2.5g"
+//       },
+//       {
+//         amount: 87500,
+//         id: "11011200",
+//         name: "维生素B5修复喷雾",
+//         price: 125,
+//         quantity: "7",
+//         spec: "75ml"
+//       },
+//       {
+//         amount: 1200,
+//         id: "11020360",
+//         name: "fs23",
+//         price: 12,
+//         quantity: "1",
+//         spec: "fsdfsdbsx"
+//       },
+//       {
+//         amount: 2500,
+// id: "11005929",
+// name: "新水份缘保湿舒缓啫喱",
+// price: 25,
+// quantity: "1",
+// spec: "50ml"
+//       },
+//       {
+//        amount: 47200,
+// id: "11007433",
+// name: "韦博士灵芝焕能好底子饱水凝霜",
+// price: 472,
+// quantity: "1",
+// spec: "50ml"
+//       },
+//       // {
+//       //   amount: 4100,
+//       //   id: "11",
+//       //   name: "牙膏",
+//       //   price: 41,
+//       //   quantity: "1"
+//       // },
+//       // {
+//       //   amount: 4100,
+//       //   id: "12",
+//       //   name: "牙膏",
+//       //   price: 41,
+//       //   quantity: "1"
+//       // },
+//       // {
+//       //   amount: 4100,
+//       //   id: "13",
+//       //   name: "牙膏",
+//       //   price: 41,
+//       //   quantity: "1"
+//       // },{
+//       //   amount: 4100,
+//       //   id: "14",
+//       //   name: "牙膏",
+//       //   price: 41,
+//       //   quantity: "1"
+//       // },{
+//       //   amount: 4100,
+//       //   id: "15",
+//       //   name: "牙膏",
+//       //   price: 41,
+//       //   quantity: "1"
+//       // },{
+//       //   amount: 4100,
+//       //   id: "16",
+//       //   name: "牙膏",
+//       //   price: 41,
+//       //   quantity: "1"
+//       // },{
+//       //   amount: 4100,
+//       //   id: "17",
+//       //   name: "牙膏",
+//       //   price: 41,
+//       //   quantity: "1"
+//       // },{
+//       //   amount: 4100,
+//       //   id: "18",
+//       //   name: "牙膏",
+//       //   price: 41,
+//       //   quantity: "1"
+//       // },{
+//       //   amount: 4100,
+//       //   id: "19",
+//       //   name: "牙膏",
+//       //   price: 41,
+//       //   quantity: "1"
+//       // },{
+//       //   amount: 4100,
+//       //   id: "20",
+//       //   name: "牙膏",
+//       //   price: 41,
+//       //   quantity: "1"
+//       // },{
+//       //   amount: 4100,
+//       //   id: "21",
+//       //   name: "牙膏",
+//       //   price: 41,
+//       //   quantity: "1"
+//       // }
+//     ]
+    this.refresh()
   },
   activated() {
-    this.getGoodsListOffset()
+    this.refresh()
   },
   methods: {
+    getDay() {
+      let myDate = new Date();
+      let year = myDate.getFullYear();
+      let month = myDate.getMonth()+1;
+      let day = myDate.getDate();
+      if(month < 10) {
+        month = '0' + month
+      }
+      if(day < 10) {
+        day = '0' + day
+      }
+      return `${year}-${month}-${day}`
+    },
+    refresh() {
+      this.$nextTick(()=> {
+        let height =(this.$refs.content[0].offsetHeight-226)
+        // let height = this.$refs.goodlist[0].offsetHeight + this.$refs.totalline[0].offsetHeight + this.$refs.result[0].offsetHeight
+        this.page =  Math.ceil(height/this.goodlistHeight) - 1
+        this.isShowFooter = 1020-(this.$refs.result[0].offsetHeight+this.$refs.result[0].offsetTop) > 150
+      console.log(this.$refs.result[0].offsetHeight+this.$refs.result[0].offsetTop);
+        this.getGoodsListOffset()
+      })
+    },
     dataURLtoFile(dataurl, filename = "file") {
       let arr = dataurl.split(",");
       let mime = arr[0].match(/:(.*?);/)[1];
@@ -472,38 +379,65 @@ export default {
       return params;
     },
     print() {
-      html2canvas(this.$refs.smallticket).then((canvas) => {
-        console.log(canvas);
-        let dataURL = canvas.toDataURL("image/png");
-        this.imgUrl = dataURL;
-        console.log(this.imgUrl);
-        let file = this.dataURLtoFile(dataURL);
-        var params = this.setFormData({
-          file: file,
-          printName: [
-            "EPSON M2110 NO.1",
-            "EPSON M2110 NO.1",
-            "EPSON M2110 NO.1",
-          ],
-          uid: 1,
+      for(let i = 1; i < this.page+1; i++) {
+        console.log('page',i);
+        html2canvas(this.$refs['smallticket'+[i]][0]).then((canvas) => {
+          console.log(canvas);
+          let dataURL = canvas.toDataURL("image/png");
+          this.imgUrl = dataURL;
+          console.log(this.imgUrl);
+          let file = this.dataURLtoFile(dataURL);
+          var params = this.setFormData({
+            file: file,
+            printName: [
+              "EPSON_M2110_Series",
+            ],
+            uid: 2,
+          });
+          setPrint(params).then((res) => {
+            console.log(res);
+          });
         });
-        setPrint(params).then((res) => {
-          console.log(res);
-        });
-      });
+      }
     },
-    getGoodsListOffset() {
-      // 元素距离顶部的距离
-      console.log(this.$refs.goodlist.getBoundingClientRect().top);
+    getGoodsListOffset(fn) {
       // 元素的高度
-      this.$nextTick(()=> {
-        if(this.$refs.goodlist.offsetHeight > this.goodlistHeight) {
-          for(let i = 0; i < this.goodsTableData; i++) {
-            console.log(this.$refs.index[i]);
+      var totalHeight = 0
+      var contentHeight = this.$refs.content[0].offsetHeight-226
+      
+      if(contentHeight > this.goodlistHeight) {
+        for(let i = 0; i < this.goodsTableData.length; i++) {
+          let itemHeight = this.$refs['index'+[i]][0].offsetHeight
+          totalHeight += Number(itemHeight)
+          if(totalHeight > this.goodlistHeight) {
+            if(totalHeight - this.goodlistHeight < itemHeight ) {
+              this.pageIndexArr[1] = i-1
+              break
+            }
           }
         }
-        console.log(this.$refs.goodlist.offsetHeight/this.goodlistHeight);
-      })
+      }
+      this.forPage()
+    },
+    forPage() {
+      console.log(this.page);
+      for(let pageIdx = 1; pageIdx < this.page; pageIdx++) {
+        var totalHeight = 0
+        // if(pageIdx < this.page) {
+          for(let i = this.pageIndexArr[pageIdx]; i < this.goodsTableData.length; i++) {
+            let itemHeight = this.$refs['index'+[i]][0].offsetHeight
+            console.log(i);
+            totalHeight += Number(itemHeight)
+            console.log('totalHeight',totalHeight);
+            console.log(i == this.goodsTableData.length-1);
+            if(totalHeight > this.goodlistHeight || i == this.goodsTableData.length-1) {
+              this.pageIndexArr[pageIdx+1] = i
+            }
+      console.log('this.pageIndexArr',this.pageIndexArr);
+
+          }
+        // }
+      }
     }
   },
 };
@@ -520,6 +454,9 @@ li {
 }
 .width200 {
   width: 200px;
+}
+.mt55 {
+  margin-top: 55px;
 }
 .color-1 {
   color: #1a1311;
@@ -558,6 +495,12 @@ li {
 .letter12 {
   letter-spacing: 12px;
 }
+.hidden_block {
+  display: flex!important;
+}
+.hidden_none {
+  display: none!important;
+}
 .flex-center {
   display: flex;
   align-items: center;
@@ -586,16 +529,23 @@ li {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  position: relative;
 }
 .small-ticket-container {
-  padding: 19.8px;
+  padding: 20px;
   width: 790px;
-  height: 1020px;
+  height: 980px;
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 9999999;
+  z-index: -11;
+  // z-index: 9999999;
   background: #fff;
+}
+.ticket-top {
+  position: absolute;
+  left: 20px;
+  right: 20px;
 }
 .group-1 {
   padding-bottom: 8px;
@@ -603,6 +553,12 @@ li {
 }
 .group-2 {
   margin-top: 8px;
+}
+.content {
+  padding-top: 226px;
+  // position: absolute;
+  // width: calc(100% - 40px);
+  // top: 246px;
 }
 .total-result-box li {
   display: flex;
@@ -614,10 +570,11 @@ li {
   margin-right: 30px;
 }
 footer {
-  padding: 0 19.5px;
+  padding: 0 20px 20px;
   position: absolute;
   left: 0;
   right: 0;
-  bottom: 19.5px;
+  bottom: 0;
+  background: #fff;
 }
 </style>

@@ -127,7 +127,7 @@ export default {
   },
   activated() {
     setTimeout(()=> {
-      this.setType()
+      // this.setType()
       this.isShowMemberInfo = false
     }, 500)
   },

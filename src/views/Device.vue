@@ -39,9 +39,9 @@
         <div class="device-item" v-for="(item, index) in printOptions" :key="index" @click="bindSetPrint(item)">
           <div class="item-info">
             <img src="../assets/images/dayinji.png" alt="">
-            <span>{{item}}</span>
+            <span>{{item.printName}}</span>
           </div>
-          <p>选择打印机</p>
+          <p>{{item.printState==0?'连接':'已连接'}}打印机</p>
         </div>
       </div>
     </div>
@@ -76,7 +76,8 @@
   import SmallTickets from '@/components/SmallTickets.vue'
   import SmallTicketDetail from '@/components/SmallTicketDetail.vue'
   import jsbarcode from 'jsbarcode'
-  import {shopDetail,orderDetail,orderSync,addOrder, printerList, setPrint} from "@/api/index"
+  import { mapState, mapActions } from "vuex";
+  import {shopDetail,orderDetail,orderSync,addOrder, printerList, setPrint, choosePrint} from "@/api/index"
 export default {
   name: 'Device',
   components: {
@@ -105,6 +106,9 @@ export default {
       thisY:270,
       printOptions: [],
     }
+  },
+  computed: {
+    ...mapState('user', ['userId']),
   },
   mounted() {
     this.getPrinterList()
@@ -180,10 +184,9 @@ export default {
       return new File([u8arr], `${filename}.${suffix}`, {type: mime})
     },
     getPrinterList() {
-      // printerList().then(res=> {
-        // this.printOptions = res.data
-        this.printOptions = ['0']
-      // })
+      printerList(this.userId).then(res=> {
+        this.printOptions = res.data
+      })
     },
     setFormData(data) {
       var params = new FormData()
@@ -195,24 +198,31 @@ export default {
       return params
     },
     bindSetPrint(item) {
-      this.resetDraw()
-      var dataURL;
-      this.smallTicket4(()=> {
-        var canvas = document.getElementById("mycanvas");
-        dataURL = canvas.toDataURL();
-        console.log(dataURL);
-        let file = this.dataURLtoFile(dataURL)     
-        console.log(file); 
-        var params = this.setFormData({
-          file: file,
-          printName: 'EPSON M2110 NO.1',
-          uid: 1
-          // printName: item
-        })
-        setPrint(params).then(res=> {
-          console.log(res);
-        })
+      console.log(item);
+      choosePrint({
+        printName: item.printName,
+        uid: this.userId
+      }).then(res=> {
+        console.log(res);
       })
+      // this.resetDraw()
+      // var dataURL;
+      // this.smallTicket4(()=> {
+      //   var canvas = document.getElementById("mycanvas");
+      //   dataURL = canvas.toDataURL();
+      //   console.log(dataURL);
+      //   let file = this.dataURLtoFile(dataURL)     
+      //   console.log(file); 
+      //   var params = this.setFormData({
+      //     file: file,
+      //     printName: 'EPSON M2110 NO.1',
+      //     uid: 1
+      //     // printName: item
+      //   })
+      //   setPrint(params).then(res=> {
+      //     console.log(res);
+      //   })
+      // })
     },
     print(){
       this.sendMessageSelf()

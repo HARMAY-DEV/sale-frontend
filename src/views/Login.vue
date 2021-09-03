@@ -155,7 +155,8 @@ export default {
           return false;
         }
         this.loading = true;
-        this.login(this.loginForm).then(() => {
+        this.login(this.loginForm).then((res) => {
+          this.
           this.$router.replace({ path: '/' });
         }).catch((error) => {
           this.$notify.error({ title: '登录失败', message: error.message });

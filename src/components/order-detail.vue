@@ -160,17 +160,17 @@ export default {
     async refundOrder(type) {
       if (!this.id) return;
       if (type === 'whole') {
-        // try {
-        //   await this.$confirm('如确认整单退货,会在一个工作日内返回支付欠款。', '确认要整单退货吗？', {
-        //     showClose: false,
-        //     type: 'error',
-        //     closeOnClickModal: false,
-        //   });
-        //
-        //   await this.refundWholeOrder(this.id);
-        //   this.$message.success('退货成功！');
-        //   this.getOrderList();
-        // } catch { }
+        try {
+          await this.$confirm('如确认整单退货,会在一个工作日内返回支付欠款。', '确认要整单退货吗？', {
+            showClose: false,
+            type: 'error',
+            closeOnClickModal: false,
+          });
+        
+          await this.refundWholeOrder(this.id);
+          this.$message.success('退货成功！');
+          this.getOrderList();
+        } catch { }
         this.refundState = 1
       }
 

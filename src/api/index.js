@@ -114,11 +114,11 @@ export function dingLogin(data) {
 }
 
 // 获取打印机列表
-export function printerList(data) {
+export function printerList(uid) {
     return axios({
-        url: '/api/ftl/stamp',
-        method: 'post',
-        data: data,
+        url: '/api/ftl/stamp?uid='+uid,
+        method: 'get',
+        params: {},
         headers: {
             'content-type': 'application/json', // 默认值
             'authorization':token
@@ -136,4 +136,16 @@ export function setPrint(data) {
             'authorization':token
         },
     })
+}
+// 选择打印机
+export function choosePrint(data) {
+  return axios({
+      url: '/api/ftl/test',
+      method: 'post',
+      data: data,
+      headers: {
+          'content-type': 'multipart/form-data', // 默认值
+          'authorization':token
+      },
+  })
 }
