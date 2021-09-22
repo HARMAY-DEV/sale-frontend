@@ -15,7 +15,7 @@
           <!-- <el-button slot="append" icon="el-icon-search" @click="search()"></el-button> -->
         </el-input>
       </div>
-      <div class="member-group" @click="memberLogin">
+      <div class="member-group" @click.stop="memberLogin">
         <div class="img-box">
           <img src="../assets/images/head_photo.png" alt="" />
         </div>
@@ -37,10 +37,12 @@
     <div class="footer">
       <el-button
         @click="discountBtn()"
+        style="background-color:#000;color:#fff;"
         :class="['btn add-btn', { active: goodsList && goodsList.length > 0 }]"
         >添加临时优惠</el-button
       >
       <el-button
+       style="background-color:#000;color:#fff;"
         @click="discountBtn2()"
         :class="[
           'btn choose-btn',
@@ -56,12 +58,33 @@
         清空购物车
       </p>
       <div class="goods-summary">
-        <p class="list-len-box">
-          已选商品 <span>{{ totalCount }} </span>件
-        </p>
-        <p class="total-box">
-          合计： <span>{{ totalAmount }}</span>
-        </p>
+        <div style="display: flex">
+          <p>
+            <span style="color: #7f7f7f; margin-right: 3px"
+              >店铺优惠：已选择</span
+            ><span style="color: #b51f29; margin-right: 10px">3张优惠卷</span>
+          </p>
+          <p>
+            <span style="color: #7f7f7f; margin-right: 3px">共计优惠</span
+            ><span style="color: #b51f29; margin-right: 15px">80元</span>
+          </p>
+          <p @click="viewDetails">
+            <span style="font-weight: 550; margin-right: 3px">查看详情</span>
+            <img
+              class="label4"
+              referrerpolicy="no-referrer"
+              src="https://lanhu.oss-cn-beijing.aliyuncs.com/SketchPngff26f446b15bdc051ae67b3dc53f36fddbe21a0c6e0caeb2d3f541a425bb8abb"
+            />
+          </p>
+        </div>
+        <div style="display: flex">
+          <p class="list-len-box">
+            已选商品 <span>{{ totalCount }} </span>件
+          </p>
+          <p class="total-box">
+            合计： <span>{{ totalAmount }}</span>
+          </p>
+        </div>
       </div>
       <!-- 这里的付款实际上为创建订单，付款弹窗的付款才为实际的付款 -->
       <el-button
@@ -79,7 +102,6 @@
         >结算</el-button
       >
     </div>
-
     <el-drawer
       ref="addCartDrawer"
       :visible.sync="searchPanelVisible"
@@ -224,6 +246,63 @@
         ref="goodDiscount"
       ></good-discount>
     </template>
+    <!-- 登录弹窗 -->
+    <LoginMode
+      style=""
+      :loginDialogVisible.sync="loginDialogVisible"
+      @changDialogVisible="changDialogVisible"
+    >
+    </LoginMode>
+    <!-- 查看详情 -->
+    <el-drawer :visible.sync="detailsDrawer" :direction="direction" :showClose='false'>
+      <div class="productDetails" v-for="(item,index) in goodsList" :key="index">
+        <div style="display: flex">
+          <img
+            class="pic3"
+            style="border-radius: 8px"
+            referrerpolicy="no-referrer"
+            :src="item.picture"
+          />
+          <p
+            style="
+              display: flex;
+              flex-direction: column;
+              justify-content: space-between;
+              margin-left: 15px;
+            "
+          >
+            <span style="font-size: 20px">
+              {{item.name}}
+            </span>
+            <span
+              style="
+                background-color: #f8f8f8;
+                width: max-content;
+                padding: 0 13px 0 7px;
+                height: 36px;
+                font-size: 18px;
+                color: #a1a5a7;
+                line-height: 36px;
+              "
+            >
+              {{item.spec.name}}
+            </span>
+          </p>
+        </div>
+        <div class="detailTail">
+          <p style=" font-size: 20px;">￥{{item.price}}.00</p>
+          <img
+            class="pic2"
+            referrerpolicy="no-referrer"
+            src="https://lanhu.oss-cn-beijing.aliyuncs.com/SketchPnga1b76610e0af759785ea6f6c7bda83535a563b4e8805ad8795a621313a438d14"
+          />
+        </div>
+      </div>
+      <div style="height:102px;">
+           <div class="cancel" @click="detailsDrawer=false">取消</div>
+      </div>
+   
+    </el-drawer>
   </div>
 </template>
 
@@ -238,6 +317,7 @@ import ChooseDiscount from "@/components/ChooseDiscount";
 // import { websocketLink } from "../utils/websocket";
 // import { getHeaderImage } from "@/api/user"
 import IphoneKeyword from "@/components/IphoneKeyword.vue";
+import LoginMode from "@/components/LoginMode.vue";
 export default {
   name: "Cart",
   components: {
@@ -247,6 +327,7 @@ export default {
     TemporaryDiscount,
     ChooseDiscount,
     IphoneKeyword,
+    LoginMode,
   },
 
   data() {
@@ -255,6 +336,7 @@ export default {
     return {
       searchPanelVisible: false,
       payDialogVisible: false,
+      loginDialogVisible: false,
       searchGoodsNo: "",
       searchGoodsNo2: "",
       keyboardNo: "",
@@ -264,6 +346,8 @@ export default {
       temporaryState: 0,
       temporaryType: 0,
       num: 1,
+      detailsDrawer: false,
+      direction: "btt",
     };
   },
 
@@ -281,17 +365,39 @@ export default {
   mounted() {
     // websocketLink();
     this.$refs.searchInput.focus();
-    document.body.addEventListener("keydown", this.gunHandler);
-    window.addEventListener("resize", ()=> {
-      console.log('resize-cart');
-      this.setMeauFalse();
-      this.clearInfo();
-      this.$router.push('/member-login')
-    })
+    window.addEventListener("keydown", this.gunHandler);
+    window.addEventListener("orientationchange", () => {
+      console.log(window.orientation);
+      switch (window.orientation) {
+        case 0:
+        case 90:
+          this.$router.go(-1);
+          break;
+        case -90:
+          this.$router.push("/member-login");
+          break;
+        case 180:
+      }
+    });
   },
-
+  deactivated() {
+    window.removeEventListener(
+      "orientationchange",
+      () => {
+        console.log("移除旋转事件成功");
+      },
+      false
+    );
+  },
   beforeDestroy() {
-    document.body.removeEventListener("keydown", this.gunHandler);
+    window.removeEventListener("keydown", this.gunHandler);
+    window.removeEventListener(
+      "orientationchange",
+      () => {
+        console.log("移除旋转事件成功");
+      },
+      false
+    );
   },
 
   methods: {
@@ -302,9 +408,15 @@ export default {
       "removeFromCart",
     ]),
     ...mapActions("order", ["createOrder", "refundWholeOrder"]),
-    ...mapActions("h5", ["setMeauFalse", "clearInfo"]),
+    ...mapActions("h5", ["setMeauTrue", "clearInfo"]),
     closePayDialog(isShow) {
       this.payDialogVisible = isShow;
+    },
+    memberLogin() {
+      this.loginDialogVisible = !this.loginDialogVisible;
+    },
+    changDialogVisible(state) {
+      this.loginDialogVisible = state;
     },
     bindGoodItem(obj) {
       this.temporaryState = 2;
@@ -330,18 +442,15 @@ export default {
         this.keyboardNo += event.key;
       }
     },
-    memberLogin() {
-      this.setMeauFalse();
-      this.clearInfo();
-      this.$router.push("/member-login");
-    },
+
+    changDialogVisible() {},
     async search() {
-      console.log('商品goodsList', this.goodsList)
+      console.log("商品goodsList", this.goodsList);
       if (!this.searchGoodsNo) {
         this.$refs.searchInput.focus();
         return;
       }
-      console.log('searchGoodsNo', this.searchGoodsNo)
+      console.log("searchGoodsNo", this.searchGoodsNo);
       if (this.searchGoodsNo.indexOf("https") != -1) {
         console.log("有");
         var query = this.searchGoodsNo.split("?")[1];
@@ -439,6 +548,7 @@ export default {
     },
     discountClose() {
       this.discountState = 0;
+      console.log( this.discountState = 0);
       this.temporaryState = 0;
     },
     // 选择临时优惠类型
@@ -448,10 +558,55 @@ export default {
     discountBtn2() {
       this.temporaryState = 1;
     },
+    // 查看详情
+    viewDetails() {
+      this.detailsDrawer = true;
+    },
   },
 };
 </script>
+<style lang="scss">
+  .el-drawer__open .el-drawer.btt {
+    animation: btt-drawer-in .8s 1ms;
+}
+.el-drawer.btt::-webkit-scrollbar { width: 0 !important }
+.el-drawer.btt {
+  border-top-left-radius: 49px;
+  border-top-right-radius: 49px;
+  height: 500px !important;
+  overflow: auto;
 
+  .cancel {
+    width: 100%;
+    height: 96px;
+    background-color: #f8f8f8;
+    position: fixed;
+    bottom: 0;
+    font-size: 30px;
+    font-weight: 800;
+    text-align: center;
+    line-height: 96px;
+  }
+  .productDetails {
+    display: flex;
+    justify-content: space-between;
+    width: 1249px;
+    height: 102px;
+    margin-left: 48px;
+    margin-bottom: 50px;
+  }
+  .detailTail{
+    display: flex;
+    flex-direction: column;
+    height: 101px;
+    align-items: center;
+    justify-content: space-between;
+    img{
+    width: 50px;
+    }
+  }
+}
+</style>
 <style lang="scss">
 .search-panel {
   padding: 12px;
@@ -558,8 +713,9 @@ p {
     .goods-summary {
       margin-right: 12px;
       display: flex;
-      flex: 1;
+      flex-direction: column;
       text-align: right;
+      align-items: end;
       .list-len-box {
         text-align: right;
         color: #282828;
@@ -605,4 +761,9 @@ p {
     }
   }
 }
+// ::v-deep.el-drawer__open .el-drawer.btt {
+//     animation: btt-drawer-in .3s 1ms;
+//     border-top-right-radius: 25px;
+//     border-top-left-radius: 25px;
+// }
 </style>

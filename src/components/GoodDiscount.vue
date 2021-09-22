@@ -1,4 +1,4 @@
-<template>
+    <template>
   <!-- 商品优惠 -->
   <div class="good-discount-container">
     <div

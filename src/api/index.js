@@ -138,11 +138,22 @@ export function setPrint(data) {
     })
 }
 // 选择打印机
-export function choosePrint(data) {
+export function choosePrint(printerName,uid) {
   return axios({
-      url: '/api/ftl/test',
-      method: 'post',
-      data: data,
+      url: `/api/ftl/jointl?printerName=${printerName}&uid=${uid}`,
+      method: 'get',
+    
+      headers: {
+       // 默认值
+          'authorization':token
+      },
+  })
+}
+// 打印机页面展示
+export function pageDisplay(uid) {
+  return axios({
+      url: `/api/ftl/oldList?uid=`+uid,
+      method: 'get',
       headers: {
           'content-type': 'multipart/form-data', // 默认值
           'authorization':token

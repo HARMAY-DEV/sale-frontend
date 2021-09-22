@@ -189,7 +189,7 @@
           </div>
           <div v-if="memberTypeIdx == 0">00</div>
           <div v-else-if="memberTypeIdx == 1">
-            <iphone-keyword v-model="iphoneVal"></iphone-keyword>
+            <iphone-keyword @typing="changeIphone"></iphone-keyword>
           </div>
           <div v-else class="bind-type-content">
             <p class="tips">请顾客用微信扫码</p>
@@ -221,7 +221,7 @@
           </template>
           <div class="usable-price active">- <span>可用余额</span> -</div>
           <p class="money active">¥ 0</p>
-          <div class="usable-price">- <span>可用积分</span> -</div>
+          <div class="usable-price">- <span>可用积分</span> -</div>s
           <p class="money">{{ userObj.integral }}</p>
         </div>
       </div>
@@ -323,6 +323,12 @@ export default {
           label: "微信支付",
           nameSign: "wechatpay",
         },
+        {
+          id: 6,
+          icon: require("../assets/images/paybtn04.png"),
+          label: "刷卡支付",
+          nameSign: "swipinpay",
+        },
       ],
       btnIndex: 0,
       stateTitle: "",
@@ -370,7 +376,7 @@ export default {
       payTypeIdx: -1,
       payBtnItem: {},
       isShowLogin: false,
-      iphoneVal: "",
+      // iphoneVal: "",
     };
   },
   mounted() {
@@ -467,6 +473,10 @@ export default {
     ...mapMutations("cart", ["clearCart"]),
     bindCloseAccount() {
       this.isShowLogin = false;
+    },
+    changeIphone(val) {
+      this.iphoneVal = val
+      console.log(val);
     },
     bindAccount() {
       this.isShowLogin = true;

@@ -1,7 +1,7 @@
 <template>
   <div class="iphone-keyword-container">
     <div class="input-group">
-      <el-input placeholder="请输入手机号" v-model="value" class="input"></el-input>
+      <el-input placeholder="请输入手机号" v-model="inputVal" class="input"></el-input>
       <img src="../assets/images/keyword-del.png" class="img" @click.prevent.stop="backspace($event)" @touchend.prevent.stop="backspace($event)">
     </div>
     <div class="number-keyboard">
@@ -14,16 +14,15 @@
 <script>
 export default {
   props: {
-    prop: 'value',
     event: 'typing',
   },
   data() {
     return {
-      keywordOptions: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '清空', '0']
+      keywordOptions: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '清空', '0'],
+      inputVal: ''
     }
   },
   model: {
-    prop: 'value',
     event: 'typing',
   },
   methods: {
@@ -34,7 +33,6 @@ export default {
       target.style.backgroundColor = '#ebeef5';
     },
     clickHandler(event) {
-      console.log(event);
       if (document.hasOwnProperty('ontouchstart')) {
         console.log('support touch event');
         return;
@@ -44,10 +42,15 @@ export default {
     handler({ target }) {
       target.style.backgroundColor = '';
       const numStr = target.innerText;
-      console.log(numStr);
+      console.log('numStr',numStr);
       if(numStr == '清空') {
-        
+        this.inputVal = ''
+      } else {
+        console.log(this.inputVal);
+        console.log(numStr);
+        this.inputVal = this.inputVal + numStr
       }
+      
       // if (this.value.includes('.') && numStr === '.') {
       //   return;
       // }
@@ -56,7 +59,7 @@ export default {
       //   this.$emit('typing', '0');
       //   return;
       // }
-      this.$emit('typing', this.value + numStr);
+      this.$emit('typing', this.numStr);
     },
     backspace({target}) {
       target.style.backgroundColor = '';

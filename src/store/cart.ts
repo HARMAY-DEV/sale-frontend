@@ -34,7 +34,6 @@ export interface CartState {
   totalAmount: number;
   totalCount: number;
 }
-
 const state: CartState = {
   cartId: Storage.getItem(StorageKey.CART_ID) || '',
   goodsList: [],
@@ -42,7 +41,6 @@ const state: CartState = {
   totalAmount: 0,
   totalCount: 0,
 };
-
 // 使用接口返回数据
 // const getters: GetterTree<CartState, RootState> = {
 //   goodsCount(state) {
@@ -52,7 +50,6 @@ const state: CartState = {
 //     return state.goodsList.reduce((acc, cur) => acc += cur.quantity * cur.price, 0);
 //   }
 // }
-
 const mutations: MutationTree<CartState> = {
   updateCartId(state, cartId: string) {
     state.cartId = cartId;
@@ -85,7 +82,6 @@ const mutations: MutationTree<CartState> = {
     Storage.removeItem(StorageKey.CART_ID);
   },
 };
-
 const actions: ActionTree<CartState, RootState> = {
   async getGoodsInfo({ commit }, id: string) {
     const result = await CartService.getGoodsInfo(id);

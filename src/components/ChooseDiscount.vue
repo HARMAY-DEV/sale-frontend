@@ -1,25 +1,265 @@
 <template>
-  <div class="choose-discount">
-    <div @click="discountClose" style="background: rgba(0, 0, 0, 0.5);width: 100%;height: 100%;position: fixed;z-index: 1;top: 0;left: 0;"></div>
-    <div class="temporary">
-      <p class="temporaryTitle">临时优惠</p>
-        <div class="temporaryNav">
-          <p v-for="item in titleList" :key="item.id"  @click="changeDiscount(item.id)" :class="{active:item.id==temporaryType}">{{item.label}}</p>
+  <!-- 添加临时优惠 -->
+  <div class="temporary-discount">
+    <div
+      @click="discountClose"
+      style="
+        background: rgba(0, 0, 0, 0.5);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+      "
+    ></div>
+    <div class="discount">
+      <div style="position: relative; width: 100%; height: 100%">
+        <div style="display: flex">
+          <div class="discount-left">
+            <div class="discountTop">
+              <div class="discountTop-line"></div>
+              <p class="discountTop-name">会员优惠</p>
+            </div>
+            <div style="overflow: auto; height: 210px">
+              <div
+                class="discountList"
+                v-for="(item, index) in membershipBenefits"
+                :key="index"
+              >
+                <div class="discountList-left">
+                  <p
+                    style="font-size: 32px; color: #b51f29; font-weight: bold"
+                    v-show="item.type == 'FIXED_AMOUNT'"
+                  >
+                    ￥{{ item.value }}
+                  </p>
+                  <p
+                    style="font-size: 32px; color: #b51f29; font-weight: bold"
+                    v-show="item.type == 'PERCENTAGE'"
+                  >
+                    {{ item.value }}%
+                  </p>
+                  <p
+                    style="font-size: 32px; color: #b51f29; font-weight: bold"
+                    v-show="item.type == ' PRICE_OVERRIDE'"
+                  >
+                    ¥20
+                  </p>
+                  <p style="font-size: 10px; color: #969696; margin-top: 3px">
+                    满{{item.useLimit}}元使用
+                  </p>
+                </div>
+                <div class="discountList-right">
+                  <p style="font-size: 14px; color: #000; line-height: 20px">
+                    {{ item.title }}
+                  </p>
+                  <p
+                    style="
+                      font-size: 11px;
+                      color: #969696;
+                      line-height: 16px;
+                      margin-top: 8px;
+                    "
+                    v-show="item.scope == 'SINGLE'"
+                  >
+                    范围：单品优惠
+                  </p>
+                  <p
+                    style="
+                      font-size: 11px;
+                      color: #969696;
+                      line-height: 16px;
+                      margin-top: 8px;
+                    "
+                    v-show="item.scope == 'WHOLE'"
+                  >
+                    范围：整单优惠
+                  </p>
+                  <p
+                    style="
+                      font-size: 11px;
+                      color: #969696;
+                      line-height: 16px;
+                      margin-top: 3px;
+                    "
+                  >
+                    期限：{{ item.start_at }}-{{ item.end_at }}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="discountTop" style="margin-top: 32px">
+              <div class="discountTop-line"></div>
+              <p class="discountTop-name">不可用</p>
+            </div>
+            <div style="height:105px; overflow:auto;" >
+                   <div class="discountList2" v-for="(item,index) in  notAvailable" :key=index>
+              <div class="discountList-left">
+                <p style="font-size: 32px; color: #c0c0c0; font-weight: bold" v-show="item.type=='PERCENTAGE'">
+                  {{item.value}}%
+                </p>
+                <p style="font-size: 32px; color: #c0c0c0; font-weight: bold" v-show="item.type=='FIXED_AMOUNT'">
+                  ￥{{item.value}}
+                </p>
+                <p style="font-size: 10px; color: #c0c0c0; margin-top: 3px">
+                  满{{item.useLimit}}元使用
+                </p>
+              </div>
+              <div class="discountList-right">
+                <p style="font-size: 14px; color: #c0c0c0; line-height: 20px">
+                 {{item.title}}
+                </p>
+                <p
+                  style="
+                    font-size: 11px;
+                    color: #c0c0c0;
+                    line-height: 16px;
+                    margin-top: 8px;
+                  "
+                  v-show="item.scope=='SINGLE'"
+                >
+                  范围：单品优惠
+                </p>
+                <p
+                  style="
+                    font-size: 11px;
+                    color: #c0c0c0;
+                    line-height: 16px;
+                    margin-top: 8px;
+                  "
+                  v-show="item.scope=='WHOLE'"
+                >
+                  范围：整单优惠
+                </p>
+                <p
+                  style="
+                    font-size: 11px;
+                    color: #c0c0c0;
+                    line-height: 16px;
+                    margin-top: 3px;
+                  "
+                >
+                  期限{{ item.start_at }}-{{ item.end_at }}
+                </p>
+              </div>
+            </div>
+            </div>
+       
+          </div>
+          <div class="discount-left" style="margin-left: 82px">
+            <div class="discountTop">
+              <div class="discountTop-line"></div>
+              <p class="discountTop-name">门店优惠</p>
+            </div>
+            <div style="height: 420px; overflow: auto">
+              <div
+                class="discountList"
+                v-for="(item, index) in StoreDiscount"
+                :key="index"
+              >
+                <div class="discountList-left">
+                  <p
+                    style="font-size: 32px; color: #b51f29; font-weight: bold"
+                    v-show="item.type == 'PERCENTAGE'"
+                  >
+                    {{ item.value }}%
+                  </p>
+                  <p
+                    style="font-size: 32px; color: #b51f29; font-weight: bold"
+                    v-show="item.type == 'FIXED_AMOUNT'"
+                  >
+                    ￥{{ item.value }}
+                  </p>
+                  <p
+                    style="font-size: 32px; color: #b51f29; font-weight: bold"
+                    v-show="item.type == 'PRICE_OVERRIDE'"
+                  >
+                    {{ item.value }}%
+                  </p>
+                  <p style="font-size: 10px; color: #969696; margin-top: 3px">
+                    满{{ item.useLimit }}元使用
+                  </p>
+                </div>
+                <div class="discountList-right">
+                  <p style="font-size: 14px; color: #000; line-height: 20px">
+                    {{ item.title }}
+                  </p>
+                  <p
+                    style="
+                      font-size: 11px;
+                      color: #969696;
+                      line-height: 16px;
+                      margin-top: 8px;
+                    "
+                    v-show="item.scope == 'SINGLE'"
+                  >
+                    范围：单品优惠
+                  </p>
+                  <p
+                    style="
+                      font-size: 11px;
+                      color: #969696;
+                      line-height: 16px;
+                      margin-top: 8px;
+                    "
+                    v-show="item.scope == 'WHOLE'"
+                  >
+                    范围：整单优惠
+                  </p>
+                  <p
+                    style="
+                      font-size: 11px;
+                      color: #969696;
+                      line-height: 16px;
+                      margin-top: 3px;
+                    "
+                  >
+                    期限：{{ item.start_at }}-{{ item.end_at }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-      <div v-if="temporaryType == 0" class="temporaryDetail">
-        <input style="margin-left: 135px;width: 140px;background: none;font-size: 16px;padding: 0;border: none;outline: none" v-model="discountNum" placeholder="请输入折扣数字"/>
-        <p style="font-size: 20px;color: #282828;margin-left: 20px">%</p>
-      </div>
-      <div v-if="temporaryType == 1" class="temporaryDetail2">
-        <input style="margin-left: 135px;width: 140px;background: none;font-size: 16px;padding: 0;border: none;outline: none" v-model="discountNum" placeholder="请输入优惠价格"/>
-        <p style="font-size: 20px;color: #282828;margin-left: 20px">元</p>
-      </div>
-      <p class="temporaryTitle">优惠备注</p>
-      <el-input style="width: 345px;margin-left: 30px;" v-model="input" placeholder="请输入订单备注"></el-input>
-      <div class="discountFooter">
-        <p style="font-size: 24px;color: #000;margin-left: 30px;font-weight: bold;">¥279</p>
-        <p style="font-size: 16px;color: #969696;margin-left: 16px;flex: 1;text-decoration: line-through;">¥350</p>
-        <el-button style="width: 114px;height: 54px;border-radius: 10px;background:#000;font-size: 18px;color: #fff;margin-right: 30px;">确定</el-button>
+        <div class="discountFooter">
+          <p
+            style="
+              font-size: 24px;
+              color: #000;
+              margin-left: 30px;
+              font-weight: bold;
+            "
+          >
+            ¥279
+          </p>
+          <p
+            style="
+              font-size: 16px;
+              color: #969696;
+              margin-left: 16px;
+              flex: 1;
+              margin-top: 4px;
+              text-decoration: line-through;
+            "
+          >
+            ¥350
+          </p>
+          <el-button
+            @click="close"
+            style="
+              width: 114px;
+              height: 54px;
+              border-radius: 10px;
+              background: #000;
+              font-size: 18px;
+              color: #fff;
+              margin-right: 30px;
+            "
+            >确定</el-button
+          >
+        </div>
       </div>
     </div>
   </div>
@@ -29,85 +269,178 @@
 export default {
   data() {
     return {
-      titleList: [
-        {id: 0, label: '折扣'},
-        {id: 1, label: '减价'}
+      allData: [
+        {
+          type: "FIXED_AMOUNT",
+          status: "ACTIVE",
+          value: 20,
+          start_at: "2021.01.08",
+          end_at: "2021.10.08",
+          title: "纯露化妆水无门槛20元券",
+          scope: "WHOLE",
+          useLimit: 200,
+        },
+        {
+          type: "PERCENTAGE",
+          status: "ACTIVE",
+          value: 20,
+          start_at: "2021.01.08",
+          end_at: "2021.10.08",
+          title: "纯露化妆水无门槛20元券",
+          scope: "SINGLE",
+          useLimit: 100,
+        },
+        {
+          type: "PERCENTAGE",
+          status: "NOT_AVAILABLE",
+          value: 20,
+          start_at: "2021.01.08",
+          end_at: "2021.10.07",
+          title: "纯露化妆水无门槛20元券",
+          scope: "WHOLE",
+          useLimit: 1000,
+        },
+        {
+          type: "FIXED_AMOUNT",
+          status: "NOT_AVAILABLE",
+          value: 20,
+          start_at: "2021.01.08",
+          end_at: "2021.10.10",
+          title: "纯露化妆水无门槛20元券",
+          scope: "SINGLE",
+          useLimit: 10,
+        },
       ],
-      temporaryType: 0,
-      discountNum: ''
-    }
+      StoreDiscount: [
+        {
+          type: "FIXED_AMOUNT",
+          status: "ACTIVE",
+          value: 20,
+          start_at: "2021.01.08",
+          end_at: "2021.10.08",
+          title: "纯露化妆水无门槛20元券",
+          scope: "SINGLE",
+          useLimit: 100,
+        },
+        {
+          type: "PERCENTAGE",
+          status: "NOT_AVAiLABLE",
+          value: 20,
+          start_at: "2021.01.08",
+          end_at: "2021.10.08",
+          title: "纯露化妆水无门槛20元券",
+          scope: "WHOLE",
+          useLimit: 100,
+        },
+        {
+          type: "PERCENTAGE",
+          status: "NOT_AVAILABLE",
+          value: 20,
+          start_at: "2021.01.08",
+          end_at: "2021.10.08",
+          title: "纯露化妆水无门槛20元券",
+          scope: "SINGLE",
+          useLimit: 100,
+        },
+      ],
+      notAvailable:[],
+      membershipBenefits:[]
+    };
   },
   methods: {
     discountClose() {
-      this.$emit('discountClose')
+      this.$emit("discountClose");
     },
-    changeDiscount(id) {
-      this.temporaryType = id
+    close() {
+      this.$emit("discountClose");
     },
+    distinguish(){
+      this.notAvailable = this.allData.filter(item=>{
+      return  item.status=='NOT_AVAILABLE'
+      })
+      console.log(this.notAvailable);
+      this.membershipBenefits = this.allData.filter(item=>item.status=='ACTIVE')
+      console.log(this.membershipBenefits);
+    }
+  },
+  created(){
+    this.distinguish()
   }
-}
+};
 </script>
 
 <style lang="scss" scoped>
-.choose-discount {
-  //临时优惠
-  .temporary{
-    width: 583px;
-    height: 512px;
+.temporary-discount {
+  //会员优惠券
+  .discount {
+    width: 713px;
+    height: 572px;
     background: #fff;
     border-radius: 8px;
     position: fixed;
+    z-index: 10;
     top: 50%;
     left: 50%;
-    margin-top: -256px;
-    margin-left: -292px;
-    z-index: 10;
-    .temporaryTitle{
-      font-size: 18px;
-      color: #000000;
-      padding-top: 20px;
+    margin-top: -286px;
+    margin-left: -356px;
+    .discount-left {
       margin-left: 30px;
-    }
-    .temporaryNav{
-      display: flex;
-      align-items: center;
-      margin: 20px 0 0 30px;
-      p {
-        font-size: 16px;
-        color: #282828;
-        & + p {
+      margin-top: 40px;
+      .discountTop {
+        display: flex;
+        align-items: center;
+        padding-bottom: 8px;
+        .discountTop-line {
+          width: 2px;
+          height: 12px;
+          background: #b51f29;
+        }
+        .discountTop-name {
+          font-size: 16px;
+          color: #000;
+          line-height: 22px;
+          margin-left: 8px;
+        }
+      }
+      .discountList {
+        width: 287px;
+        height: 94px;
+        background-image: url("../assets/images/discountBck.png");
+        background-size: 100% auto;
+        margin-top: 11px;
+        display: flex;
+        align-items: center;
+        .discountList-left {
+          margin-left: 10px;
+          text-align: center;
+        }
+        .discountList-right {
           margin-left: 30px;
         }
-        &.active {
-          font-weight: bold;
-          color: #160000;
+      }
+      .discountList2 {
+        width: 287px;
+        height: 94px;
+        background-image: url("../assets/images/discountBck2.png");
+        background-size: 100% auto;
+        margin-top: 11px;
+        display: flex;
+        align-items: center;
+        .discountList-left {
+          margin-left: 10px;
+          text-align: center;
+        }
+        .discountList-right {
+          margin-left: 30px;
         }
       }
     }
-    .temporaryDetail{
-      width: 345px;
-      height: 98px;
-      background-image: url("../assets/images/discountBck3.png");
-      background-size: 100% auto;
-      display: flex;
-      align-items: center;
-      margin: 20px 0 0 30px;
-    }
-    .temporaryDetail2{
-      width: 345px;
-      height: 98px;
-      background-image: url("../assets/images/discountBck4.png");
-      background-size: 100% auto;
-      display: flex;
-      align-items: center;
-      margin: 20px 0 0 30px;
-    }
-    .discountFooter{
+    .discountFooter {
       height: 99px;
       width: 100%;
       position: absolute;
       bottom: 0;
-      border-top: 1px solid #EEEEEE;
+      border-top: 1px solid #eeeeee;
       display: flex;
       align-items: center;
     }

@@ -1,7 +1,7 @@
 <template>
   <div class="member-login-container">
     <div class="close-group" @click="bindClose">
-      <img src="../../assets/images/close-member.png" alt="">
+      <img src="../../assets/images/close-member.png" alt="" />
     </div>
     <div v-if="type == 0">
       <img
@@ -32,7 +32,8 @@
           <div class="detailLeft">
             <!-- <img :src="require(`${userObj.url}`)" class="detailPhoto" alt="" /> -->
             <img :src="userObj.head" class="detailPhoto" alt="" />
-            <div style="
+            <div
+              style="
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -48,7 +49,11 @@
             </div>
             <div class="grade">
               <span class="gradeTitle">{{ userObj.name }}</span>
-              <img class="gradeImg" src="../../assets/images/grade.png" alt="" />
+              <img
+                class="gradeImg"
+                src="../../assets/images/grade.png"
+                alt=""
+              />
             </div>
             <p class="check-order-btn">查看历史订单</p>
           </div>
@@ -113,35 +118,44 @@ import { Log } from "@icon-park/vue/es/map";
 export default {
   data() {
     return {
-      isShowMemberInfo: false
+      isShowMemberInfo: false,
     };
   },
   mounted() {
     websocketLink();
     this.getImages();
-    this.setMeauFalse()
-    window.addEventListener("resize", ()=> {
-      console.log('member-resize');
-      this.isShowMemberInfo = true
+    this.setMeauFalse();
+    window.addEventListener("orientationchange", ()=> {
+      console.log(this);
+      if(window.orientation == -90) {
+        this.isShowMemberInfo = true
+      } else {
+        this.isShowMemberInfo = false
+      }
     })
   },
   activated() {
-    setTimeout(()=> {
+    setTimeout(() => {
       // this.setType()
-      this.isShowMemberInfo = false
-    }, 500)
+      this.isShowMemberInfo = false;
+    }, 500);
   },
   methods: {
-    ...mapActions('h5', ["getImages", "setType", "setMeauFalse", "setMeauTrue"]),
+    ...mapActions("h5", [
+      "getImages",
+      "setType",
+      "setMeauFalse",
+      "setMeauTrue",
+    ]),
     bindClose() {
-      this.setMeauTrue()
-      this.isShowMemberInfo = false
-      this.$router.back()
-    }
+      this.setMeauTrue();
+      this.isShowMemberInfo = false;
+      this.$router.back();
+    },
   },
   computed: {
-    ...mapState('h5', ["userObj", "type", "Image"]),
-  }
+    ...mapState("h5", ["userObj", "type", "Image"]),
+  },
 };
 </script>
 

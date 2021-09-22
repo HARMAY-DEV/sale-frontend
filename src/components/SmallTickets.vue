@@ -31,7 +31,7 @@
             <p>电话：15210678315</p>
           </div>
           <div>
-            <p class="color-1 right" style="margin-right:5px;">{{orderTableData[0].id}}</p>
+            <p class="color-1 right" style="margin-right:5px;" v-if="orderTableData.length>0">{{orderTableData[0].id}}</p>
             <img
                id="barcode"
               style="width:181px;height:34px;margin-top:3px;"
@@ -72,7 +72,7 @@
         >
           <p>TOTAL</p>
           <div class="width200 flex-center-between">
-            <p>CNY {{orderTableData[0].payableAmount | formatPrice}}</p>
+            <p v-if="orderTableData.length>0">CNY {{orderTableData[0].payableAmount | formatPrice}}</p>
             <!-- <p>CNY 1241.00</p> -->
           </div>
         </div>
@@ -86,7 +86,7 @@
             <img src="@/assets/images/code3.png" style="width:80px;height:80px;" />
             <p class="font12" style="margin-top:5px;">扫码开具发票</p>
           </div>
-          <ul class="total-result-box width200">
+          <ul class="total-result-box width200" v-if="orderTableData.length>0">
             <li>
               <span class="letter12">应付</span>
               <span>{{orderTableData[0].payableAmount | formatPrice}}</span>
@@ -143,12 +143,22 @@
 <script>
 import JsBarcode from 'jsbarcode'
 import html2canvas from "html2canvas";
-import { setPrint } from "@/api/index";
+import { setPrint,pageDisplay } from "@/api/index";
 
 export default {
   props: {
-    goodsTableData: Array,
-    orderTableData: Array
+    goodsTableData:{
+      type:Array,
+      default:function(){
+            return []
+      }
+    },
+    orderTableData:{
+      type:Array,
+      default:function(){
+            return []
+      }
+    },
   },
   data() {
     return {
@@ -157,16 +167,19 @@ export default {
       page: 2,
       pageIndexArr: [1],
       date: '',
-      isShowFooter: false
+      isShowFooter: false,
+      ConnectionStatus:[],
+      // goodsTableData:this.goodsTableData,
+      alg:2
     };
   },
-  // watch: {
-  //   goodsTableData: {
-  //     deep: true,
-  //     handler(val, oldVal) {
-  //     }
-  //   }
-  // },
+  watch: {
+    goodsTableData: {
+      deep: true,
+      handler(val, oldVal) {
+      }
+    }
+  },
   filters: {
     formatPrice(val) {
       return Number(val).toFixed(2)
@@ -174,66 +187,69 @@ export default {
   },
   mounted() {
     this.date = this.getDay()
-    JsBarcode("#barcode", this.orderTableData[0].id, {
+    if(this.orderTableData.length>0){
+       JsBarcode("#barcode", this.orderTableData[0].id, {
       displayValue: false //是否显示文字信息
     })
-//     this.goodsTableData = [
-//       {
-//         amount: 2900,
-//         id: "11005967",
-//         name: "新速洁眼部卸妆水",
-//         price: 29,
-//         quantity: "1",
-//         spec: "30ml"
-//       },
-//       {
-//         amount: 41900,
-//         id: "11002345",
-//         name: "凝时保湿精华液",
-//         price: 419,
-//         quantity: "1",
-//         spec: "30ml"
-//       },
-//       {
-//         amount: 4700,
-//         id: "11002324",
-//         name: "卡乐泡泡哑光唇膏笔",
-//         price: 47,
-//         quantity: "1",
-//         spec: "Fly-Fi"
-//       },
-//       {
-//         amount: 4100,
-//         id: "11006957",
-//         name: "牙膏",
-//         price: 41,
-//         quantity: "1",
-//         spec: "风情肉桂薄荷牙膏 85ml"
-//       },
-//       {
-//         amount: 23100,
-//         id: "11020370",
-//         name: "C-三号浓香水",
-//         price: 21,
-//         quantity: "11",
-//         spec: "NO.3 5ml"
-//       },
-//       {
-//         amount: 65000,
-//         id: "11008405",
-//         name: "赋能焕采眼霜",
-//         price: 50,
-//         quantity: "13",
-//         spec: "2.5g"
-//       },
-//       {
-//         amount: 87500,
-//         id: "11011200",
-//         name: "维生素B5修复喷雾",
-//         price: 125,
-//         quantity: "7",
-//         spec: "75ml"
-//       },
+    }
+   
+    this.goodsTableData = [
+      {
+        amount: 0,
+        id: "8000647676",
+        name: "N°2 斯德哥尔摩的剪影：邂逅冲突 15ml ",
+        price: 189,
+        quantity: "1",
+        spec: "15ml"
+      },
+      {
+        amount: 0,
+        id: "11002345",
+        name: "臻白晶透精华水",
+        price: 45,
+        quantity: "1",
+        spec: "50ml"
+      },
+      {
+        amount: 0,
+        id: "11002324",
+        name: "护肤精华露",
+        price:142,
+        quantity: "1",
+        spec: "30ml"
+      },
+      {
+        amount: 0,
+        id: "11006957",
+        name: "新塑颜紧致换白霜",
+        price: 65,
+        quantity: "1",
+        spec: "15ml"
+      },
+      {
+        amount: 0,
+        id: "11020370",
+        name: "塑颜修护凝霜水",
+        price: 45,
+        quantity: "1",
+        spec: "50ml"
+      },
+      {
+        amount: 0,
+        id: "11008405",
+        name: "特润修护精华眼霜",
+        price: 434,
+        quantity: "1",
+        spec: "15ml"
+      },
+      {
+        amount: 1,
+        id: "232936619425",
+        name: "恋旅流浪者小猪包女士香水EDT",
+        price: 546,
+        quantity: "1",
+        spec: "50ml"
+      },
 //       {
 //         amount: 1200,
 //         id: "11020360",
@@ -242,7 +258,7 @@ export default {
 //         quantity: "1",
 //         spec: "fsdfsdbsx"
 //       },
-//       {
+// //       {
 //         amount: 2500,
 // id: "11005929",
 // name: "新水份缘保湿舒缓啫喱",
@@ -258,76 +274,76 @@ export default {
 // quantity: "1",
 // spec: "50ml"
 //       },
-//       // {
-//       //   amount: 4100,
-//       //   id: "11",
-//       //   name: "牙膏",
-//       //   price: 41,
-//       //   quantity: "1"
-//       // },
-//       // {
-//       //   amount: 4100,
-//       //   id: "12",
-//       //   name: "牙膏",
-//       //   price: 41,
-//       //   quantity: "1"
-//       // },
-//       // {
-//       //   amount: 4100,
-//       //   id: "13",
-//       //   name: "牙膏",
-//       //   price: 41,
-//       //   quantity: "1"
-//       // },{
-//       //   amount: 4100,
-//       //   id: "14",
-//       //   name: "牙膏",
-//       //   price: 41,
-//       //   quantity: "1"
-//       // },{
-//       //   amount: 4100,
-//       //   id: "15",
-//       //   name: "牙膏",
-//       //   price: 41,
-//       //   quantity: "1"
-//       // },{
-//       //   amount: 4100,
-//       //   id: "16",
-//       //   name: "牙膏",
-//       //   price: 41,
-//       //   quantity: "1"
-//       // },{
-//       //   amount: 4100,
-//       //   id: "17",
-//       //   name: "牙膏",
-//       //   price: 41,
-//       //   quantity: "1"
-//       // },{
-//       //   amount: 4100,
-//       //   id: "18",
-//       //   name: "牙膏",
-//       //   price: 41,
-//       //   quantity: "1"
-//       // },{
-//       //   amount: 4100,
-//       //   id: "19",
-//       //   name: "牙膏",
-//       //   price: 41,
-//       //   quantity: "1"
-//       // },{
-//       //   amount: 4100,
-//       //   id: "20",
-//       //   name: "牙膏",
-//       //   price: 41,
-//       //   quantity: "1"
-//       // },{
-//       //   amount: 4100,
-//       //   id: "21",
-//       //   name: "牙膏",
-//       //   price: 41,
-//       //   quantity: "1"
-//       // }
-//     ]
+      // {
+      //   amount: 4100,
+      //   id: "11",
+      //   name: "牙膏",
+      //   price: 41,
+      //   quantity: "1"
+      // },
+      // {
+      //   amount: 4100,
+      //   id: "12",
+      //   name: "牙膏",
+      //   price: 41,
+      //   quantity: "1"
+      // },
+      // {
+      //   amount: 4100,
+      //   id: "13",
+      //   name: "牙膏",
+      //   price: 41,
+      //   quantity: "1"
+      // },{
+      //   amount: 4100,
+      //   id: "14",
+      //   name: "牙膏",
+      //   price: 41,
+      //   quantity: "1"
+      // },{
+      //   amount: 4100,
+      //   id: "15",
+      //   name: "牙膏",
+      //   price: 41,
+      //   quantity: "1"
+      // },{
+      //   amount: 4100,
+      //   id: "16",
+      //   name: "牙膏",
+      //   price: 41,
+      //   quantity: "1"
+      // },{
+      //   amount: 4100,
+      //   id: "17",
+      //   name: "牙膏",
+      //   price: 41,
+      //   quantity: "1"
+      // },{
+      //   amount: 4100,
+      //   id: "18",
+      //   name: "牙膏",
+      //   price: 41,
+      //   quantity: "1"
+      // },{
+      //   amount: 4100,
+      //   id: "19",
+      //   name: "牙膏",
+      //   price: 41,
+      //   quantity: "1"
+      // },{
+      //   amount: 4100,
+      //   id: "20",
+      //   name: "牙膏",
+      //   price: 41,
+      //   quantity: "1"
+      // },{
+      //   amount: 4100,
+      //   id: "21",
+      //   name: "牙膏",
+      //   price: 41,
+      //   quantity: "1"
+      // }
+    ]
     this.refresh()
   },
   activated() {
@@ -353,7 +369,7 @@ export default {
         // let height = this.$refs.goodlist[0].offsetHeight + this.$refs.totalline[0].offsetHeight + this.$refs.result[0].offsetHeight
         this.page =  Math.ceil(height/this.goodlistHeight) - 1
         this.isShowFooter = 1020-(this.$refs.result[0].offsetHeight+this.$refs.result[0].offsetTop) > 150
-      console.log(this.$refs.result[0].offsetHeight+this.$refs.result[0].offsetTop);
+      console.log(this.$refs.result[0].offsetHeight+this.$refs.result[0].offsetTop,'[]');
         this.getGoodsListOffset()
       })
     },
@@ -379,6 +395,12 @@ export default {
       return params;
     },
     print() {
+      let printList = this.ConnectionStatus.map((item,index)=>{
+        if(item.printState==1){
+          return item.printName
+        }
+        
+      })
       for(let i = 1; i < this.page+1; i++) {
         console.log('page',i);
         html2canvas(this.$refs['smallticket'+[i]][0]).then((canvas) => {
@@ -389,9 +411,7 @@ export default {
           let file = this.dataURLtoFile(dataURL);
           var params = this.setFormData({
             file: file,
-            printName: [
-              "EPSON_M2110_Series",
-            ],
+            printName: printList,
             uid: 2,
           });
           setPrint(params).then((res) => {
@@ -423,7 +443,7 @@ export default {
       console.log(this.page);
       for(let pageIdx = 1; pageIdx < this.page; pageIdx++) {
         var totalHeight = 0
-        // if(pageIdx < this.page) {
+        if(pageIdx < this.page) {
           for(let i = this.pageIndexArr[pageIdx]; i < this.goodsTableData.length; i++) {
             let itemHeight = this.$refs['index'+[i]][0].offsetHeight
             console.log(i);
@@ -436,10 +456,16 @@ export default {
       console.log('this.pageIndexArr',this.pageIndexArr);
 
           }
-        // }
+        }
       }
     }
   },
+  created(){
+    pageDisplay(this.alg).then(res=>{
+      console.log(res,'10');
+      this.ConnectionStatus = res.data
+    })
+  }
 };
 </script>
 <style lang="scss" scoped>

@@ -61,7 +61,7 @@
           <div style="display: flex;align-items: center;width:100%;margin-top: 23px;">
             <span class="listBox-txt">{{ spec.name }}</span>
             <div style="flex: 1"></div>
-            <img src="../assets/images/addCart.png" @click="addGoodsToCart()" style="width: 50px;height: 50px;" alt="">
+            <img src="../assets/images/addCart.png" @click="addGoodsToCart" style="width: 50px;height: 50px;" alt="">
           </div>
         </div>
       </div>
@@ -98,7 +98,6 @@ export default {
     },
   },
   mounted() {
-    console.log(this.goodObj);
   },
   computed: {
     // 实时库存
@@ -131,7 +130,6 @@ export default {
     ...mapActions('cart', ['addToCart', 'removeFromCart']),
 
     async addGoodsToCart() {
-      console.log(this)
       await this.addToCart({ goodsId: this.id, price: this.price, sn: this.sn});
       this.$emit('close-panel');
     },
@@ -171,6 +169,7 @@ export default {
     },
     bindItem(){
       this.$emit('bindGoodItem', this.goodObj)
+      console.log(this.goodObj,'-0');
     }
   }
 };

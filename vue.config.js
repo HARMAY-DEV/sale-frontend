@@ -7,8 +7,8 @@ module.exports = {
   devServer: {
     open: true, // auto open brower 项目启动后自动打开浏览器...
     disableHostCheck: false,
-    host: "127.0.0.1",
-    port: 8080, // 修改端口号
+    // host: "127.0.0.1",
+    // port: 8080, // 修改端口号
     https: false,
     hotOnly: false, // See https://github.com/vuejs/vue-cli/blob/dev/docs/cli-service.md#configuring-proxy
     proxy: {     // string | Object 解决跨域问题
