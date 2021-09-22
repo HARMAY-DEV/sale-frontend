@@ -1,5 +1,6 @@
 <template>
   <div class="home-container">
+      <!-- v-if="isShowMeau" -->
     <el-menu
       :default-active="$route.name"
       mode="horizontal"
@@ -8,7 +9,6 @@
       active-text-color="#fff"
       router
       style="width:100vw;"
-      v-show="isShowMeau"
     >
       <el-menu-item index="shopping-cart">收银</el-menu-item>
       <el-menu-item index="order">订单管理</el-menu-item>

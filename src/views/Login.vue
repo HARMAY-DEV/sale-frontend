@@ -147,16 +147,13 @@ export default {
     checkCapslock({ key }) {
       this.capsTooltip = key && key.length === 1 && (key >= 'A' && key <= 'Z');
     },
-
     handleLogin() {
-
       this.$refs.loginForm.validate(valid => {
         if (!valid) {
           return false;
         }
         this.loading = true;
         this.login(this.loginForm).then((res) => {
-          this.
           this.$router.replace({ path: '/' });
         }).catch((error) => {
           this.$notify.error({ title: '登录失败', message: error.message });

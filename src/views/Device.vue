@@ -1,16 +1,16 @@
 <template>
   <div class="device-container">
     <div class="device-content-group">
- <!-- <div class="title-group">
+      <!-- <div class="title-group">
       <h2>打印机</h2>
       <p>
         <img src="../assets/images/scanning.png" alt="">
         <span>扫描设备二维码</span>
       </p>
     </div> -->
-    <!-- <h2>其他设备</h2> -->
-<!--    <button @click="sendMessageSelf()">自己方法打印</button>-->
-    <!-- <div style="display: flex;align-items: center;margin-bottom: 20px;flex-wrap: wrap;">
+      <!-- <h2>其他设备</h2> -->
+      <!--    <button @click="sendMessageSelf()">自己方法打印</button>-->
+      <!-- <div style="display: flex;align-items: center;margin-bottom: 20px;flex-wrap: wrap;">
       <div style="display: flex;align-items: center;">
         <p style="margin-right: 10px;">IP address</p>
         <el-input style="width: 200px;margin-right: 20px;" v-model="ipAddress" placeholder="192.168.31.181"></el-input>
@@ -27,92 +27,180 @@
       <el-button class="noconnect-btn">断开连接</el-button>
     </div>
     <el-button @click="print()">打印</el-button> -->
-    <div class="device-group">
-      <div class="title-group">
-        <h2>设备列表</h2>
-        <p>
-          <img src="../assets/images/refresh.png" alt="">
-          <span>重新搜索</span>
-        </p>
-      </div>
-      <div class="device-list">
-        <div class="device-item" v-for="(item, index) in printOptions" :key="index" @click="bindSetPrint(item)">
-          <div class="item-info">
-            <img src="../assets/images/dayinji.png" alt="">
-            <span>{{item.printName}}</span>
+      <div class="device-group">
+        <div class="title-group">
+          <div class="Select-device">
+            <h2>设备列表</h2>
+            <el-select v-model="printer" placeholder="请选择" @change="choice">
+              <el-option
+                v-for="item in options"
+                :key="item.delegate"
+                :label="item.name"
+                :value="item.delegate"
+              >
+              </el-option>
+            </el-select>
           </div>
-          <p>{{item.printState==0?'连接':'已连接'}}打印机</p>
+          <p @click="reSearch">
+            <img src="../assets/images/refresh.png" alt="" />
+            <span>重新搜索</span>
+          </p>
+        </div>
+        <div class="device-list" v-show="this.printer === 0">
+          <div
+            class="device-item"
+            v-for="(item, index) in printOptions"
+            :key="index"
+            @click="bindSetPrint(item)"
+          >
+            <div class="item-info">
+              <img src="../assets/images/dayinji.png" alt="" />
+              <span>{{ item.printName }}</span>
+            </div>
+            <p>{{ item.printState == 0 ? "连接" : "已连接" }}打印机</p>
+          </div>
+        </div>
+        <div class="device-list" v-show="this.printer !== 0">
+          <el-form :inline="true" :model="formInline" class="demo-form-inline">
+            <el-form-item label="IP">
+              <el-input v-model="formInline.ip" placeholder="IP"></el-input>
+            </el-form-item>
+            <el-form-item label="端口">
+              <el-input
+                v-model="formInline.port"
+                placeholder="端口号"
+              ></el-input>
+            </el-form-item>
+            <el-form-item label="打印机">
+              <el-input
+                v-model="formInline.name"
+                placeholder="打印机"
+              ></el-input>
+            </el-form-item>
+            <el-form-item>
+              <el-button type="primary" @click="connectThermal"
+                >连接设备</el-button
+              >
+            </el-form-item>
+          </el-form>
         </div>
       </div>
-    </div>
-    <small-tickets></small-tickets>
-    <div style="display: none;">
-      <canvas id="canvas" width="0" height="0"></canvas>
-      <canvas id="canvas2" width="0" height="0"></canvas>
-      <canvas id="canvas3" width="0" height="0"></canvas>
-      <canvas id="canvas4" width="0" height="0"></canvas>
-      <!-- <div id="qrcode" ref="qrcode"></div> -->
-    </div>
-   <!-- <img style="width: 300px;height: 300px;" src="https://api.qrserver.com/v1/create-qr-code?data=https://6441ace61742439ba654b9f399be07e8-cn-hangzhou-vpc.alicloudapi.com/uinvoice/apply?BC=30006&CA=2500&CN=858011511841358848&NC=3351&SN=ums001&TN=0&TS=1625219365820&AS=6B4A3FEE23DC89235005C7802D7984DF" > -->
-    <div style="display: none;" class="qrcode" id="qrcode" ref="qrcodeContainer"></div>
-    <img style="display: none;" id="barcode"/>
-   <!-- 小票样式 -->
-    <div style="width: 794px;margin: 0 auto;display:none;">
-      <img ref="conf0" style="display: none" src="../assets/images/code01.png">
-      <img ref="conf2" style="display: none" src="../assets/images/code02.png">
-      <img ref="conf3" style="display: none" src="../assets/images/code3.png">
-      <img ref="conf4" style="display: none" src="../assets/images/code04.png">
-      <canvas id="mycanvas" width="794" height="1020"></canvas>
-      <canvas id="mycanvas2" width="794" height="1020"></canvas>
-      <canvas id="ticket03" width="794" height="1020"></canvas>
-      <canvas id="resultTicket" width="320" height="455"></canvas>
-    </div>
+      <small-tickets></small-tickets>
+      <div style="display: none">
+        <canvas id="canvas" width="0" height="0"></canvas>
+        <canvas id="canvas2" width="0" height="0"></canvas>
+        <canvas id="canvas3" width="0" height="0"></canvas>
+        <canvas id="canvas4" width="0" height="0"></canvas>
+        <!-- <div id="qrcode" ref="qrcode"></div> -->
+      </div>
+      <!-- <img style="width: 300px;height: 300px;" src="https://api.qrserver.com/v1/create-qr-code?data=https://6441ace61742439ba654b9f399be07e8-cn-hangzhou-vpc.alicloudapi.com/uinvoice/apply?BC=30006&CA=2500&CN=858011511841358848&NC=3351&SN=ums001&TN=0&TS=1625219365820&AS=6B4A3FEE23DC89235005C7802D7984DF" > -->
+      <div
+        style="display: none"
+        class="qrcode"
+        id="qrcode"
+        ref="qrcodeContainer"
+      ></div>
+      <img style="display: none" id="barcode" />
+      <!-- 小票样式 -->
+      <div style="width: 794px; margin: 0 auto; display: none">
+        <img
+          ref="conf0"
+          style="display: none"
+          src="../assets/images/code01.png"
+        />
+        <img
+          ref="conf2"
+          style="display: none"
+          src="../assets/images/code02.png"
+        />
+        <img
+          ref="conf3"
+          style="display: none"
+          src="../assets/images/code3.png"
+        />
+        <img
+          ref="conf4"
+          style="display: none"
+          src="../assets/images/code04.png"
+        />
+        <canvas id="mycanvas" width="794" height="1020"></canvas>
+        <canvas id="mycanvas2" width="794" height="1020"></canvas>
+        <canvas id="ticket03" width="794" height="1020"></canvas>
+        <canvas id="resultTicket" width="320" height="455"></canvas>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-  import QRCode from 'qrcodejs2'  // 引入qrcode
-  import SmallTickets from '@/components/SmallTickets.vue'
-  import SmallTicketDetail from '@/components/SmallTicketDetail.vue'
-  import jsbarcode from 'jsbarcode'
-  import { mapState, mapActions } from "vuex";
-  import {shopDetail,orderDetail,orderSync,addOrder, printerList, setPrint, choosePrint} from "@/api/index"
+import QRCode from "qrcodejs2"; // 引入qrcode
+import SmallTickets from "@/components/SmallTickets.vue";
+import SmallTicketDetail from "@/components/SmallTicketDetail.vue";
+import jsbarcode from "jsbarcode";
+import { mapState, mapActions } from "vuex";
+import {
+  shopDetail,
+  orderDetail,
+  orderSync,
+  addOrder,
+  printerList,
+  setPrint,
+  choosePrint,
+  pageDisplay,
+} from "@/api/index";
 export default {
-  name: 'Device',
+  name: "Device",
   components: {
     SmallTickets,
-    SmallTicketDetail
+    SmallTicketDetail,
   },
-  data(){
-    return{
-      crypto:false,
-      buffer:false,
-      printer:null,
-      ipAddress:'',
-      port:'',
-      deviceID:'',
-      ePosDev:new epson.ePOSDevice(),
-      shopList:[],
-      orderdetail:{},
-      thisShop:{},
-      payable_amount:'',
-      paid:'',
-      payMent:'',
-      qrCode:'',
-      baseUrl:'',
-      barcode:'',
-      orderId:'858011511841358848',
-      thisY:270,
+  data() {
+    return {
+      crypto: false,
+      buffer: false,
+      printer: null,
+      ipAddress: "",
+      port: "",
+      deviceID: "",
+      ePosDev: new epson.ePOSDevice(),
+      shopList: [],
+      orderdetail: {},
+      thisShop: {},
+      payable_amount: "",
+      paid: "",
+      payMent: "",
+      qrCode: "",
+      baseUrl: "",
+      barcode: "",
+      orderId: "858011511841358848",
+      thisY: 270,
       printOptions: [],
-    }
+      options: [
+        {
+          delegate: 0,
+          name: "卡纸打印机",
+        },
+        {
+          delegate: 1,
+          name: "热敏打印机",
+        },
+      ],
+      printer: 0,
+      formInline: {
+        ip: "",
+        port: "",
+        name: "",
+      },
+      alg: 2,
+    };
   },
   computed: {
-    ...mapState('user', ['userId']),
+    ...mapState("user", ["userId"]),
   },
+
   mounted() {
-    this.getPrinterList()
-    this.smallTicket4()
+    this.getPrinterList();
+    this.smallTicket4();
     // var promise = new Promise(function(resolve, reject) {
     //   _this.smallTicket4()
     //   console.log(1);
@@ -128,8 +216,8 @@ export default {
       var dataURL = canvas.toDataURL();
       console.log(dataURL);
       var img = new Image();
-      img.src = dataURL
-      img.onload = function(eventObj) {
+      img.src = dataURL;
+      img.onload = function (eventObj) {
         // 原始图像的高度
         var originWidth, originHeight;
         originHeight = img.height;
@@ -159,11 +247,11 @@ export default {
         // var resultTicket = document.getElementById("resultTicket");
         // var ctx = resultTicket.getContext("2d");
         ctx.drawImage(
-          img,  // 目标图片
+          img, // 目标图片
           0, // 原始图片的x起始位置
           0, // 原始图片的y起始位置
-          originWidth*2, // 取图片的宽度
-          originHeight*2, // 取图片的高度
+          originWidth * 2, // 取图片的宽度
+          originHeight * 2, // 取图片的高度
           0, // 距离 canvas x轴的距离
           0, // 距离 canvas y轴的距离
           originWidth * 2, // 在canvas 中的宽度
@@ -171,101 +259,114 @@ export default {
         );
       };
     },
-    dataURLtoFile (dataurl, filename = 'file') {
-      let arr = dataurl.split(',')
-      let mime = arr[0].match(/:(.*?);/)[1]
-      let suffix = mime.split('/')[1]
-      let bstr = atob(arr[1])
-      let n = bstr.length
-      let u8arr = new Uint8Array(n)
+    dataURLtoFile(dataurl, filename = "file") {
+      let arr = dataurl.split(",");
+      let mime = arr[0].match(/:(.*?);/)[1];
+      let suffix = mime.split("/")[1];
+      let bstr = atob(arr[1]);
+      let n = bstr.length;
+      let u8arr = new Uint8Array(n);
       while (n--) {
-        u8arr[n] = bstr.charCodeAt(n)
+        u8arr[n] = bstr.charCodeAt(n);
       }
-      return new File([u8arr], `${filename}.${suffix}`, {type: mime})
+      return new File([u8arr], `${filename}.${suffix}`, { type: mime });
     },
     getPrinterList() {
-      printerList(this.userId).then(res=> {
-        this.printOptions = res.data
-      })
+      // printerList(this.userId).then((res) => {
+      //   this.printOptions = res.data;
+      //   console.log(res);
+      // });
+      pageDisplay(this.alg).then((res) => {
+        console.log(res);
+        this.printOptions = res.data;
+      });
     },
     setFormData(data) {
-      var params = new FormData()
-      if(data) {
+      var params = new FormData();
+      if (data) {
         for (var name in data) {
-          params.append(name, data[name])
+          params.append(name, data[name]);
         }
       }
-      return params
+      return params;
     },
     bindSetPrint(item) {
-      console.log(item);
-      choosePrint({
-        printName: item.printName,
-        uid: this.userId
-      }).then(res=> {
+      console.log(item, this.userId);
+      let printerName = item.printName;
+      let uid = this.alg;
+      choosePrint(printerName, uid).then((res) => {
         console.log(res);
-      })
-      // this.resetDraw()
+        if (res.data === "连接成功") {
+          this.$message({
+            message: "连接成功",
+            type: "success",
+          });
+            this.getPrinterList();
+        }
+   
+      });
+      //    this.resetDraw();
       // var dataURL;
-      // this.smallTicket4(()=> {
+    
+      // this.smallTicket4(() => {
+      //   console.log("===");
       //   var canvas = document.getElementById("mycanvas");
       //   dataURL = canvas.toDataURL();
-      //   console.log(dataURL);
-      //   let file = this.dataURLtoFile(dataURL)     
-      //   console.log(file); 
+      //   console.log(dataURL,'--');
+      //   let file = this.dataURLtoFile(dataURL);
+      //   console.log(file);
       //   var params = this.setFormData({
       //     file: file,
-      //     printName: 'EPSON M2110 NO.1',
-      //     uid: 1
+      //     printName: "EPSON M2110 NO.1",
+      //     uid: 1,
       //     // printName: item
-      //   })
-      //   setPrint(params).then(res=> {
-      //     console.log(res);
-      //   })
-      // })
+      //   });
+      //   setPrint(params).then((res) => {
+      //     console.log(res, "---");
+      //   });
+      // });
     },
-    print(){
-      this.sendMessageSelf()
+    print() {
+      this.sendMessageSelf();
     },
     connect() {
-      console.log('打印ip')
-      console.log(this.ipAddress)
-      console.log(this.port)
-      console.log(this.deviceID)
-      if(this.ipAddress == ''){
-        this.$message.error('请输入IP地址');
-        return
+      console.log("打印ip");
+      console.log(this.ipAddress);
+      console.log(this.port);
+      console.log(this.deviceID);
+      if (this.ipAddress == "") {
+        this.$message.error("请输入IP地址");
+        return;
       }
-      if(this.port == ''){
-        this.$message.error('请输入port');
-        return
+      if (this.port == "") {
+        this.$message.error("请输入port");
+        return;
       }
-      if(this.deviceID == ''){
-        this.$message.error('请输入deviceID');
-        return
+      if (this.deviceID == "") {
+        this.$message.error("请输入deviceID");
+        return;
       }
-      window.localStorage.setItem("ipAddress",this.ipAddress)
-      window.localStorage.setItem("port",this.port)
-      window.localStorage.setItem("deviceID",this.deviceID)
+      window.localStorage.setItem("ipAddress", this.ipAddress);
+      window.localStorage.setItem("port", this.port);
+      window.localStorage.setItem("deviceID", this.deviceID);
       let canvas;
       let canvas2;
       let canvas3;
       let canvas4;
 
-      var ePosDev = this.ePosDev
-      console.log(ePosDev)
-      var ipAddress = this.ipAddress
-      var port = this.port
+      var ePosDev = this.ePosDev;
+      console.log(ePosDev);
+      var ipAddress = this.ipAddress;
+      var port = this.port;
 
       ePosDev.connect(ipAddress, port, this.Callback_connect);
       ePosDev.onreconnecting = this.OnReconnecting;
       ePosDev.onreconnect = this.OnReconnect;
       ePosDev.ondisconnect = this.OnDisconnect;
-      canvas = document.getElementById('canvas');
-      canvas2 = document.getElementById('canvas2');
-      canvas3 = document.getElementById('canvas3');
-      canvas4 = document.getElementById('canvas4');
-
+      canvas = document.getElementById("canvas");
+      canvas2 = document.getElementById("canvas2");
+      canvas3 = document.getElementById("canvas3");
+      canvas4 = document.getElementById("canvas4");
 
       let image = new Image();
       // image.src = 'https://testoss.functionradian4.com/harmay/harmayCS/1.png';
@@ -274,23 +375,23 @@ export default {
         if (canvas.getContext) {
           canvas.width = image.width;
           canvas.height = image.height;
-          let context = canvas.getContext('2d');
+          let context = canvas.getContext("2d");
           context.drawImage(image, 0, 0);
         }
-      }
+      };
 
       let image2 = new Image();
       // image2.src = 'https://testoss.functionradian4.com/harmay/harmayCS/2-300.png';
       // image2.src = require("../images/2.png");
-      image2.src = this.baseUrl
+      image2.src = this.baseUrl;
       image2.onload = function () {
         if (canvas2.getContext) {
           canvas2.width = image2.width;
           canvas2.height = image2.height;
-          let context = canvas2.getContext('2d');
+          let context = canvas2.getContext("2d");
           context.drawImage(image2, 0, 0);
         }
-      }
+      };
 
       let image3 = new Image();
       // image3.src = 'https://testoss.functionradian4.com/harmay/harmayCS/3.png';
@@ -299,50 +400,57 @@ export default {
         if (canvas3.getContext) {
           canvas3.width = image3.width;
           canvas3.height = image3.height;
-          let context = canvas3.getContext('2d');
+          let context = canvas3.getContext("2d");
           context.drawImage(image3, 0, 0);
         }
-      }
+      };
 
       let image4 = new Image();
       // image4.src = 'https://testoss.functionradian4.com/harmay/harmayCS/4.png';
       // image4.src = require("../images/4.png");
-      image4.src = this.barcode
+      image4.src = this.barcode;
       image4.onload = function () {
         if (canvas4.getContext) {
           canvas4.width = image4.width;
           canvas4.height = image4.height;
-          let context = canvas4.getContext('2d');
+          let context = canvas4.getContext("2d");
           context.drawImage(image4, 0, 0);
         }
-      }
-
+      };
     },
     Callback_connect(data) {
-      console.log('打印data')
-      console.log(data)
-      var ePosDev = this.ePosDev
-      var deviceID = this.deviceID
+      console.log("打印data");
+      console.log(data);
+      var ePosDev = this.ePosDev;
+      var deviceID = this.deviceID;
       // crypto       = document.getElementById("crypto").checked;
       // buffer       = document.getElementById("buffer").checked;
-      var options  = {'crypto' : this.crypto, 'buffer' : this.buffer};
+      var options = { crypto: this.crypto, buffer: this.buffer };
 
-      if (data == 'OK') {
+      if (data == "OK") {
         // consolelog("connected to ePOS Device Service Interface.", true);
-        ePosDev.createDevice(deviceID, ePosDev.DEVICE_TYPE_PRINTER, options, this.callbackCreateDevice_printer);
-      }
-      else if (data == 'SSL_CONNECT_OK') {
+        ePosDev.createDevice(
+          deviceID,
+          ePosDev.DEVICE_TYPE_PRINTER,
+          options,
+          this.callbackCreateDevice_printer
+        );
+      } else if (data == "SSL_CONNECT_OK") {
         // consolelog("connected to ePOS Device Service Interface with SSL.", true);
-        ePosDev.createDevice(deviceID, ePosDev.DEVICE_TYPE_PRINTER, options, this.callbackCreateDevice_printer);
-      }
-      else {
+        ePosDev.createDevice(
+          deviceID,
+          ePosDev.DEVICE_TYPE_PRINTER,
+          options,
+          this.callbackCreateDevice_printer
+        );
+      } else {
         // consolelog("connected to ePOS Device Service Interface is failed. [" + data + "]", true);
       }
     },
     callbackCreateDevice_printer(data, code) {
-      console.log('打印data222')
-      console.log(data)
-      var printer= this.printer
+      console.log("打印data222");
+      console.log(data);
+      var printer = this.printer;
       if (data == null) {
         // consolelog(code);
         return;
@@ -359,165 +467,187 @@ export default {
       };
       // Set a status change callback funciton
       printer.onstatuschange = function (status) {
-        if (document.getElementById('onstatuschange').checked) {
+        if (document.getElementById("onstatuschange").checked) {
           alert(getStatusText(printer, status));
         }
       };
       printer.ononline = function () {
-        if (document.getElementById('ononline').checked) {
-          alert('online');
+        if (document.getElementById("ononline").checked) {
+          alert("online");
         }
       };
       printer.onoffline = function () {
-        if (document.getElementById('ononline').checked) {
-          alert('offline');
+        if (document.getElementById("ononline").checked) {
+          alert("offline");
         }
       };
       printer.onpoweroff = function () {
-        if (document.getElementById('ononline').checked) {
-          alert('poweroff');
+        if (document.getElementById("ononline").checked) {
+          alert("poweroff");
         }
       };
       printer.oncoverok = function () {
-        if (document.getElementById('oncoverok').checked) {
-          alert('coverok');
+        if (document.getElementById("oncoverok").checked) {
+          alert("coverok");
         }
       };
       printer.oncoveropen = function () {
-        if (document.getElementById('oncoverok').checked) {
-          alert('coveropen');
+        if (document.getElementById("oncoverok").checked) {
+          alert("coveropen");
         }
       };
       printer.onpaperok = function () {
-        if (document.getElementById('onpaperok').checked) {
-          alert('paperok');
+        if (document.getElementById("onpaperok").checked) {
+          alert("paperok");
         }
       };
       printer.onpapernearend = function () {
-        if (document.getElementById('onpaperok').checked) {
-          alert('papernearend');
+        if (document.getElementById("onpaperok").checked) {
+          alert("papernearend");
         }
       };
       printer.onpaperend = function () {
-        if (document.getElementById('onpaperok').checked) {
-          alert('paperend');
+        if (document.getElementById("onpaperok").checked) {
+          alert("paperend");
         }
       };
       printer.ondrawerclosed = function () {
-        if (document.getElementById('ondrawerclosed').checked) {
-          alert('drawerclosed');
+        if (document.getElementById("ondrawerclosed").checked) {
+          alert("drawerclosed");
         }
       };
       printer.ondraweropen = function () {
-        if (document.getElementById('ondrawerclosed').checked) {
-          alert('draweropen');
+        if (document.getElementById("ondrawerclosed").checked) {
+          alert("draweropen");
         }
       };
       printer.onbatterystatuschange = function () {
-        if (document.getElementById('onbatterystatuschange').checked) {
-          alert('onbatterystatuschange');
+        if (document.getElementById("onbatterystatuschange").checked) {
+          alert("onbatterystatuschange");
         }
       };
       printer.onbatteryok = function () {
-        if (document.getElementById('onbatteryok').checked) {
-          alert('onbatteryok');
+        if (document.getElementById("onbatteryok").checked) {
+          alert("onbatteryok");
         }
       };
       printer.onbatterylow = function () {
-        if (document.getElementById('onbatteryok').checked) {
-          alert('onbatterylow');
+        if (document.getElementById("onbatteryok").checked) {
+          alert("onbatterylow");
         }
       };
-      this.printer = printer
-      console.log('打印--')
-      console.log(this.printer)
+      this.printer = printer;
+      console.log("打印--");
+      console.log(this.printer);
       sessionStorage.setItem("printer", this.printer);
     },
     sendMessageSelf() {
       // var qrcode = document.getElementById('qrcode');
       // var canvas5 = qrcode.getElementsByTagName('canvas')
-      console.log(this.printer)
-      var printer = this.printer
-      printer.addTextLang('zh-cn');
+      console.log(this.printer);
+      var printer = this.printer;
+      printer.addTextLang("zh-cn");
       printer.addTextFont(printer.FONT_B);
       printer.addTextSmooth(true);
 
       printer.addTextPosition(0);
       printer.addText(this.orderdetail.pay_time);
       printer.addTextPosition(450);
-      printer.addText('店员\n');
-      printer.addText('--------------------------------------------------------------\n');
+      printer.addText("店员\n");
+      printer.addText(
+        "--------------------------------------------------------------\n"
+      );
       printer.addTextPosition(330);
-      printer.addText(this.orderdetail.operator.padStart(20, ' ')+'\n');
+      printer.addText(this.orderdetail.operator.padStart(20, " ") + "\n");
 
       printer.brightness = 1.0;
       printer.halftone = printer.HALFTONE_DITHER;
-      printer.addImage(canvas.getContext('2d'), 0, 0, canvas.width, canvas.height, printer.COLOR_1, printer.MODE_MONO);
+      printer.addImage(
+        canvas.getContext("2d"),
+        0,
+        0,
+        canvas.width,
+        canvas.height,
+        printer.COLOR_1,
+        printer.MODE_MONO
+      );
 
-
-      for(var i = 0;i<this.orderdetail.goods_list.length;i++){
-        printer.addText('\n\n');
+      for (var i = 0; i < this.orderdetail.goods_list.length; i++) {
+        printer.addText("\n\n");
         printer.addTextPosition(0);
-        printer.addText('AESDP');
+        printer.addText("AESDP");
         printer.addTextPosition(100);
         printer.addText(this.orderdetail.goods_list[i].goods_name);
         printer.addTextPosition(350);
         printer.addText(this.orderdetail.goods_list[i].price);
         printer.addTextPosition(450);
-        printer.addText('CNY\n');
+        printer.addText("CNY\n");
         printer.addTextPosition(0);
         printer.addText(this.orderdetail.goods_list[i].spec_name);
         printer.addTextPosition(350);
-        printer.addText('x'+this.orderdetail.goods_list[i].num+'\n');
-        printer.addText('\n');
+        printer.addText("x" + this.orderdetail.goods_list[i].num + "\n");
+        printer.addText("\n");
       }
 
-
-      printer.addText('\n\n');
+      printer.addText("\n\n");
       printer.addTextSize(2, 2);
-      printer.addText('TOTAL\n');
+      printer.addText("TOTAL\n");
       printer.addTextSize(1, 1);
-      printer.addText('--------------------------------------------------------------\n');
-      printer.addText('\n');
+      printer.addText(
+        "--------------------------------------------------------------\n"
+      );
+      printer.addText("\n");
 
       printer.addTextPosition(0);
-      printer.addText('应付金额');
+      printer.addText("应付金额");
       printer.addTextPosition(395);
-      printer.addText(('￥'+this.payable_amount).padStart(11, ' ')+'\n');
+      printer.addText(("￥" + this.payable_amount).padStart(11, " ") + "\n");
       printer.addTextPosition(0);
-      printer.addText('折扣金额');
+      printer.addText("折扣金额");
       printer.addTextPosition(440);
-      printer.addText('0'.padStart(7, ' ')+'\n');
+      printer.addText("0".padStart(7, " ") + "\n");
       printer.addTextPosition(0);
-      printer.addText('积分抵扣');
+      printer.addText("积分抵扣");
       printer.addTextPosition(386);
-      printer.addText('￥0'.padStart(12, ' ')+'\n');
+      printer.addText("￥0".padStart(12, " ") + "\n");
       printer.addTextPosition(0);
-      printer.addText('积分兑换');
+      printer.addText("积分兑换");
       printer.addTextPosition(417);
-      printer.addText('0'.padStart(7, ' ')+'颗\n');
+      printer.addText("0".padStart(7, " ") + "颗\n");
 
       printer.addTextStyle(false, false, true, printer.COLOR_1);
       printer.addTextPosition(0);
-      printer.addText('实付金额');
+      printer.addText("实付金额");
       printer.addTextSize(2, 2);
       printer.addTextPosition(300);
-      printer.addText(('￥'+this.paid).padStart(11, ' ')+'\n');
+      printer.addText(("￥" + this.paid).padStart(11, " ") + "\n");
 
       printer.addTextSize(1, 1);
       printer.addTextStyle(false, false, false, printer.COLOR_1);
-      printer.addText('--------------------------------------------------------------\n');
-      printer.addText('付款方式：'+this.payMent+'\n');
-      printer.addText('--------------------------------------------------------------\n');
-      printer.addText('\n\n');
+      printer.addText(
+        "--------------------------------------------------------------\n"
+      );
+      printer.addText("付款方式：" + this.payMent + "\n");
+      printer.addText(
+        "--------------------------------------------------------------\n"
+      );
+      printer.addText("\n\n");
 
       printer.addTextAlign(printer.ALIGN_CENTER);
-      printer.addText('请使用微信扫描二维码开具发票\n');
-      printer.addText('\n');
+      printer.addText("请使用微信扫描二维码开具发票\n");
+      printer.addText("\n");
 
       printer.brightness = 1.0;
       printer.halftone = printer.HALFTONE_DITHER;
-      printer.addImage(canvas2.getContext('2d'), 0, 0, canvas2.width, canvas2.height, printer.COLOR_1, printer.MODE_MONO);
+      printer.addImage(
+        canvas2.getContext("2d"),
+        0,
+        0,
+        canvas2.width,
+        canvas2.height,
+        printer.COLOR_1,
+        printer.MODE_MONO
+      );
 
       // printer.addText('\n');
       // printer.addText('请使用微信扫描二维码免费快递到家\n');
@@ -527,31 +657,45 @@ export default {
       // printer.halftone = printer.HALFTONE_DITHER;
       // printer.addImage(canvas3.getContext('2d'), 0, 0, canvas3.width, canvas3.height, printer.COLOR_1, printer.MODE_MONO);
 
-      printer.addText('\n');
-      printer.addText(this.orderdetail.tid+'\n');
+      printer.addText("\n");
+      printer.addText(this.orderdetail.tid + "\n");
 
       // printer.addText('\n');
       printer.brightness = 1.0;
       printer.halftone = printer.HALFTONE_DITHER;
-      printer.addImage(canvas4.getContext('2d'), 0, 0, canvas4.width, canvas4.height, printer.COLOR_1, printer.MODE_MONO);
+      printer.addImage(
+        canvas4.getContext("2d"),
+        0,
+        0,
+        canvas4.width,
+        canvas4.height,
+        printer.COLOR_1,
+        printer.MODE_MONO
+      );
 
-      printer.addText('\n');
+      printer.addText("\n");
       printer.addText('"颗"为话梅积分单位\n');
-      printer.addText('出于商务卫生安全考虑，商品离店后非质量问题不支持退货，请您谅解。\n');
-      printer.addText('--------------------------------------------------------------\n');
+      printer.addText(
+        "出于商务卫生安全考虑，商品离店后非质量问题不支持退货，请您谅解。\n"
+      );
+      printer.addText(
+        "--------------------------------------------------------------\n"
+      );
 
       printer.addTextStyle(false, false, true, printer.COLOR_1);
-      printer.addText(this.thisShop.contact+'\n');
+      printer.addText(this.thisShop.contact + "\n");
       printer.addTextStyle(false, false, false, printer.COLOR_1);
-      printer.addText(this.thisShop.county+this.thisShop.address+'\n');
+      printer.addText(this.thisShop.county + this.thisShop.address + "\n");
 
-      printer.addText('\n');
-      printer.addText('2 WORKERS\' SPORTS COMPLEX N RD,\n');
-      printer.addText('CHAOYANG DISTRICT,BEIJING\n');
-      printer.addText('\n');
+      printer.addText("\n");
+      printer.addText("2 WORKERS' SPORTS COMPLEX N RD,\n");
+      printer.addText("CHAOYANG DISTRICT,BEIJING\n");
+      printer.addText("\n");
 
-      printer.addText('电话：'+this.thisShop.mobile+'    营业时间：10:00-22:00\n');
-      printer.addText('\n\n');
+      printer.addText(
+        "电话：" + this.thisShop.mobile + "    营业时间：10:00-22:00\n"
+      );
+      printer.addText("\n\n");
 
       printer.addCut(printer.CUT_FEED);
       printer.send();
@@ -561,507 +705,656 @@ export default {
         width: 300,
         height: 300,
         text: codeUrl, // 二维码地址
-        colorDark : "#000",
-        colorLight : "#fff",
+        colorDark: "#000",
+        colorLight: "#fff",
         // correctLevel:QRCode.CorrectLevel.H,
-        correctLevel: 3
-      })
-      let qrcodeUrl = document.getElementById('qrcode').getElementsByTagName('canvas')
+        correctLevel: 3,
+      });
+      let qrcodeUrl = document
+        .getElementById("qrcode")
+        .getElementsByTagName("canvas");
       // console.log('打印地址--')
       // console.log(qrcodeUrl[0].toDataURL('image/png'))
-      this.baseUrl = qrcodeUrl[0].toDataURL('image/png')
+      this.baseUrl = qrcodeUrl[0].toDataURL("image/png");
     },
     // canvae文本换行
-    drawtext(ctx,t,x,y,w){
+    drawtext(ctx, t, x, y, w) {
       //参数说明
       //ctx：canvas的 2d 对象，t：绘制的文字，x,y:文字坐标，w：文字最大宽度
-      let chr = t.split("")
-      let temp = ""
-      let row = []
+      let chr = t.split("");
+      let temp = "";
+      let row = [];
 
-      for (let a = 0; a<chr.length;a++){
-        if( ctx.measureText(temp).width < w && ctx.measureText(temp+(chr[a])).width <= w){
+      for (let a = 0; a < chr.length; a++) {
+        if (
+          ctx.measureText(temp).width < w &&
+          ctx.measureText(temp + chr[a]).width <= w
+        ) {
           temp += chr[a];
-        }else{
+        } else {
           row.push(temp);
           temp = chr[a];
         }
       }
-      row.push(temp)
-      for(let b=0;b<row.length;b++){
-        ctx.fillText(row[b],x,y+(b+1)*20);//每行字体y坐标间隔20
-        this.thisY = y+(b+1)*20
+      row.push(temp);
+      for (let b = 0; b < row.length; b++) {
+        ctx.fillText(row[b], x, y + (b + 1) * 20); //每行字体y坐标间隔20
+        this.thisY = y + (b + 1) * 20;
       }
-
     },
     // 线上-订单信息
-    smallTicket1(){
-      var canvas = document.getElementById("mycanvas")
+    smallTicket1() {
+      var canvas = document.getElementById("mycanvas");
       //  由于弹窗，确保已获取到
-      var a = setInterval(() =>{
+      var a = setInterval(() => {
         //  重复获取
-        canvas = document.getElementById("mycanvas")
-        if(!canvas){
-          return false
+        canvas = document.getElementById("mycanvas");
+        if (!canvas) {
+          return false;
         } else {
-          clearInterval(a)
-          var ctx=canvas.getContext("2d");
+          clearInterval(a);
+          var ctx = canvas.getContext("2d");
 
-          ctx.font="12px Rotunda";
-          ctx.fillText("2021.06.20  SUN.",48,50);
-          ctx.font="12px Rotunda";
-          ctx.fillText("SHOPPING LIST",348,50);
-          ctx.font="ALEX";
-          ctx.fillText("ALEX",716,50);
+          ctx.font = "12px Rotunda";
+          ctx.fillText("2021.06.20  SUN.", 48, 50);
+          ctx.font = "12px Rotunda";
+          ctx.fillText("SHOPPING LIST", 348, 50);
+          ctx.font = "ALEX";
+          ctx.fillText("ALEX", 716, 50);
 
           ctx.beginPath();
-          ctx.lineCap="round";
-          ctx.moveTo(48,72);
-          ctx.lineTo(745,72);
+          ctx.lineCap = "round";
+          ctx.moveTo(48, 72);
+          ctx.lineTo(745, 72);
           ctx.stroke();
           // PLEASE CHECK THE ORDER DETAILS
-          ctx.font="12px Rotunda";
-          ctx.fillText("PLEASE CHECK THE ORDER DETAILS",48,100);
-          ctx.font="12px Rotunda";
-          ctx.fillText("AND KEEP THIS RETURN SLIP FOR REFUND OR EXCHANGES.",48,116);
-          ctx.font="32px Rotunda";
-          ctx.fillText("1",710,110);
-          ctx.font="12px Rotunda";
-          ctx.fillText("/2",730,96);
-          ctx.font="12px Rotunda";
-          ctx.fillText("请仔细核对您购买的商品明细，并保留此清单作为退换货的凭证。",48,132);
+          ctx.font = "12px Rotunda";
+          ctx.fillText("PLEASE CHECK THE ORDER DETAILS", 48, 100);
+          ctx.font = "12px Rotunda";
+          ctx.fillText(
+            "AND KEEP THIS RETURN SLIP FOR REFUND OR EXCHANGES.",
+            48,
+            116
+          );
+          ctx.font = "32px Rotunda";
+          ctx.fillText("1", 710, 110);
+          ctx.font = "12px Rotunda";
+          ctx.fillText("/2", 730, 96);
+          ctx.font = "12px Rotunda";
+          ctx.fillText(
+            "请仔细核对您购买的商品明细，并保留此清单作为退换货的凭证。",
+            48,
+            132
+          );
           // HARMAYCONCEPT.TMALL.COM
-          ctx.font="12px Rotunda";
-          ctx.fillText("HARMAYCONCEPT.TMALL.COM",48,160);
-          ctx.font="12px Rotunda";
-          ctx.fillText("ID:飞行的小宇宙",48,176);
-          ctx.font="12px Rotunda";
-          ctx.fillText("袁女士",48,192);
-          ctx.font="12px Rotunda";
-          ctx.fillText("15298340032",48,208);
-          ctx.font="12px Rotunda";
-          ctx.fillText("SF EXPRESS",48,224);
-          ctx.font="12px Rotunda";
-          ctx.fillText("18293847382938493289",598,180);
-          var img=this.$refs.conf0
-          ctx.drawImage(img,566,190,181,34);
+          ctx.font = "12px Rotunda";
+          ctx.fillText("HARMAYCONCEPT.TMALL.COM", 48, 160);
+          ctx.font = "12px Rotunda";
+          ctx.fillText("ID:飞行的小宇宙", 48, 176);
+          ctx.font = "12px Rotunda";
+          ctx.fillText("袁女士", 48, 192);
+          ctx.font = "12px Rotunda";
+          ctx.fillText("15298340032", 48, 208);
+          ctx.font = "12px Rotunda";
+          ctx.fillText("SF EXPRESS", 48, 224);
+          ctx.font = "12px Rotunda";
+          ctx.fillText("18293847382938493289", 598, 180);
+          var img = this.$refs.conf0;
+          ctx.drawImage(img, 566, 190, 181, 34);
           // 订单列表
-          this.thisY = 270
-          ctx.fillText("MAISON FRANCIS KURKDJIAN",48,this.thisY);
-          ctx.fillText("景润旅行套装MOODY美瞳420度",240,this.thisY);
-          ctx.fillText("CNY 345.00",568,this.thisY);
-          ctx.fillText("优惠",652,this.thisY);
-          ctx.lineWidth="1";
-          ctx.rect(646,this.thisY-12,36,16);
+          this.thisY = 270;
+          ctx.fillText("MAISON FRANCIS KURKDJIAN", 48, this.thisY);
+          ctx.fillText("景润旅行套装MOODY美瞳420度", 240, this.thisY);
+          ctx.fillText("CNY 345.00", 568, this.thisY);
+          ctx.fillText("优惠", 652, this.thisY);
+          ctx.lineWidth = "1";
+          ctx.rect(646, this.thisY - 12, 36, 16);
           ctx.stroke();
-          ctx.fillText("CNY 345.00",568,this.thisY+20);
-          ctx.fillText("1",738,this.thisY);
-          this.drawtext(ctx,'柠檬生姜香型古龙水8ML+红橙罗勒香型古龙水8ML+青柠肉豆蔻香型古龙水8ML+白桃芫荽香型古龙水8ML+藏红花鸢尾花香型古龙水8ML',240,this.thisY,296)
-          this.thisY = this.thisY + 30
-          ctx.fillText("LANCOME",48,this.thisY);
-          ctx.fillText("箐纯清滢柔肤水",240,this.thisY);
-          ctx.fillText("CNY 45.00",568,this.thisY);
-          ctx.fillText("5",738,this.thisY);
-          this.thisY = this.thisY + 20
-          ctx.fillText("400ML",240,this.thisY);
-          ctx.fillText("CNY 45.00",568,this.thisY);
-          this.thisY = this.thisY + 30
-          ctx.fillText("LANCOME",48,this.thisY);
-          ctx.fillText("箐纯清滢柔肤水",240,this.thisY);
-          ctx.fillText("CNY 45.00",568,this.thisY);
-          ctx.fillText("5",738,this.thisY);
-          this.thisY = this.thisY + 20
-          ctx.fillText("400ML",240,this.thisY);
-          ctx.fillText("CNY 45.00",568,this.thisY);
-          this.thisY = this.thisY + 30
-          ctx.fillText("MAISON FRANCIS KURKDJIAN",48,this.thisY);
-          ctx.fillText("景润旅行套装MOODY美瞳420度",240,this.thisY);
-          ctx.fillText("CNY 345.00",568,this.thisY);
-          ctx.fillText("CNY 345.00",568,this.thisY+20);
-          ctx.fillText("1",738,270);
-          this.drawtext(ctx,'柠檬生姜香型古龙水8ML+红橙罗勒香型古龙水8ML+青柠肉豆蔻香型古龙水8ML+白桃芫荽香型古龙水8ML+藏红花鸢尾花香型古龙水8ML',240,this.thisY,296)
-          this.thisY = this.thisY + 30
-          ctx.fillText("LANCOME",48,this.thisY);
-          ctx.fillText("箐纯清滢柔肤水",240,this.thisY);
-          ctx.fillText("CNY 45.00",568,this.thisY);
-          ctx.fillText("5",738,this.thisY);
-          this.thisY = this.thisY + 20
-          ctx.fillText("400ML",240,this.thisY);
-          ctx.fillText("CNY 45.00",568,this.thisY);
-          var logo=this.$refs.conf2
-          ctx.drawImage(logo,332,940,126,15);
-
-
+          ctx.fillText("CNY 345.00", 568, this.thisY + 20);
+          ctx.fillText("1", 738, this.thisY);
+          this.drawtext(
+            ctx,
+            "柠檬生姜香型古龙水8ML+红橙罗勒香型古龙水8ML+青柠肉豆蔻香型古龙水8ML+白桃芫荽香型古龙水8ML+藏红花鸢尾花香型古龙水8ML",
+            240,
+            this.thisY,
+            296
+          );
+          this.thisY = this.thisY + 30;
+          ctx.fillText("LANCOME", 48, this.thisY);
+          ctx.fillText("箐纯清滢柔肤水", 240, this.thisY);
+          ctx.fillText("CNY 45.00", 568, this.thisY);
+          ctx.fillText("5", 738, this.thisY);
+          this.thisY = this.thisY + 20;
+          ctx.fillText("400ML", 240, this.thisY);
+          ctx.fillText("CNY 45.00", 568, this.thisY);
+          this.thisY = this.thisY + 30;
+          ctx.fillText("LANCOME", 48, this.thisY);
+          ctx.fillText("箐纯清滢柔肤水", 240, this.thisY);
+          ctx.fillText("CNY 45.00", 568, this.thisY);
+          ctx.fillText("5", 738, this.thisY);
+          this.thisY = this.thisY + 20;
+          ctx.fillText("400ML", 240, this.thisY);
+          ctx.fillText("CNY 45.00", 568, this.thisY);
+          this.thisY = this.thisY + 30;
+          ctx.fillText("MAISON FRANCIS KURKDJIAN", 48, this.thisY);
+          ctx.fillText("景润旅行套装MOODY美瞳420度", 240, this.thisY);
+          ctx.fillText("CNY 345.00", 568, this.thisY);
+          ctx.fillText("CNY 345.00", 568, this.thisY + 20);
+          ctx.fillText("1", 738, 270);
+          this.drawtext(
+            ctx,
+            "柠檬生姜香型古龙水8ML+红橙罗勒香型古龙水8ML+青柠肉豆蔻香型古龙水8ML+白桃芫荽香型古龙水8ML+藏红花鸢尾花香型古龙水8ML",
+            240,
+            this.thisY,
+            296
+          );
+          this.thisY = this.thisY + 30;
+          ctx.fillText("LANCOME", 48, this.thisY);
+          ctx.fillText("箐纯清滢柔肤水", 240, this.thisY);
+          ctx.fillText("CNY 45.00", 568, this.thisY);
+          ctx.fillText("5", 738, this.thisY);
+          this.thisY = this.thisY + 20;
+          ctx.fillText("400ML", 240, this.thisY);
+          ctx.fillText("CNY 45.00", 568, this.thisY);
+          var logo = this.$refs.conf2;
+          ctx.drawImage(logo, 332, 940, 126, 15);
         }
-      },1)
+      }, 1);
     },
-    smallTicket2(){
-      var canvas = document.getElementById("mycanvas")
+    smallTicket2() {
+      var canvas = document.getElementById("mycanvas");
       //  由于弹窗，确保已获取到
-      var a = setInterval(() =>{
+      var a = setInterval(() => {
         //  重复获取
-        canvas = document.getElementById("mycanvas")
-        if(!canvas){
-          return false
+        canvas = document.getElementById("mycanvas");
+        if (!canvas) {
+          return false;
         } else {
-          clearInterval(a)
-          var ctx=canvas.getContext("2d");
+          clearInterval(a);
+          var ctx = canvas.getContext("2d");
 
-          ctx.font="12px Rotunda";
-          ctx.fillText("2021.06.20  SUN.",48,50);
-          ctx.font="12px Rotunda";
-          ctx.fillText("SHOPPING LIST",348,50);
-          ctx.font="ALEX";
-          ctx.fillText("ALEX",716,50);
+          ctx.font = "12px Rotunda";
+          ctx.fillText("2021.06.20  SUN.", 48, 50);
+          ctx.font = "12px Rotunda";
+          ctx.fillText("SHOPPING LIST", 348, 50);
+          ctx.font = "ALEX";
+          ctx.fillText("ALEX", 716, 50);
 
           ctx.beginPath();
-          ctx.lineCap="round";
-          ctx.moveTo(48,72);
-          ctx.lineTo(745,72);
+          ctx.lineCap = "round";
+          ctx.moveTo(48, 72);
+          ctx.lineTo(745, 72);
           ctx.stroke();
           // PLEASE CHECK THE ORDER DETAILS
-          ctx.font="12px Rotunda";
-          ctx.fillText("PLEASE CHECK THE ORDER DETAILS",48,100);
-          ctx.font="12px Rotunda";
-          ctx.fillText("AND KEEP THIS RETURN SLIP FOR REFUND OR EXCHANGES.",48,116);
-          ctx.font="32px Rotunda";
-          ctx.fillText("1",710,110);
-          ctx.font="12px Rotunda";
-          ctx.fillText("/2",730,96);
-          ctx.font="12px Rotunda";
-          ctx.fillText("请仔细核对您购买的商品明细，并保留此清单作为退换货的凭证。",48,132);
+          ctx.font = "12px Rotunda";
+          ctx.fillText("PLEASE CHECK THE ORDER DETAILS", 48, 100);
+          ctx.font = "12px Rotunda";
+          ctx.fillText(
+            "AND KEEP THIS RETURN SLIP FOR REFUND OR EXCHANGES.",
+            48,
+            116
+          );
+          ctx.font = "32px Rotunda";
+          ctx.fillText("1", 710, 110);
+          ctx.font = "12px Rotunda";
+          ctx.fillText("/2", 730, 96);
+          ctx.font = "12px Rotunda";
+          ctx.fillText(
+            "请仔细核对您购买的商品明细，并保留此清单作为退换货的凭证。",
+            48,
+            132
+          );
           // HARMAYCONCEPT.TMALL.COM
-          ctx.font="12px Rotunda";
-          ctx.fillText("HARMAYCONCEPT.TMALL.COM",48,160);
-          ctx.font="12px Rotunda";
-          ctx.fillText("ID:飞行的小宇宙",48,176);
-          ctx.font="12px Rotunda";
-          ctx.fillText("袁女士",48,192);
-          ctx.font="12px Rotunda";
-          ctx.fillText("15298340032",48,208);
-          ctx.font="12px Rotunda";
-          ctx.fillText("SF EXPRESS",48,224);
-          ctx.font="12px Rotunda";
-          ctx.fillText("18293847382938493289",598,180);
-          var img=this.$refs.conf0
-          ctx.drawImage(img,566,190,181,34);
+          ctx.font = "12px Rotunda";
+          ctx.fillText("HARMAYCONCEPT.TMALL.COM", 48, 160);
+          ctx.font = "12px Rotunda";
+          ctx.fillText("ID:飞行的小宇宙", 48, 176);
+          ctx.font = "12px Rotunda";
+          ctx.fillText("袁女士", 48, 192);
+          ctx.font = "12px Rotunda";
+          ctx.fillText("15298340032", 48, 208);
+          ctx.font = "12px Rotunda";
+          ctx.fillText("SF EXPRESS", 48, 224);
+          ctx.font = "12px Rotunda";
+          ctx.fillText("18293847382938493289", 598, 180);
+          var img = this.$refs.conf0;
+          ctx.drawImage(img, 566, 190, 181, 34);
           // 订单列表
-          this.thisY = 270
-          ctx.fillText("MAISON FRANCIS KURKDJIAN",48,this.thisY);
-          ctx.fillText("景润旅行套装MOODY美瞳420度",240,this.thisY);
-          ctx.fillText("CNY 345.00",568,this.thisY);
-          ctx.fillText("优惠",652,this.thisY);
-          ctx.lineWidth="1";
-          ctx.rect(646,this.thisY-12,36,16);
+          this.thisY = 270;
+          ctx.fillText("MAISON FRANCIS KURKDJIAN", 48, this.thisY);
+          ctx.fillText("景润旅行套装MOODY美瞳420度", 240, this.thisY);
+          ctx.fillText("CNY 345.00", 568, this.thisY);
+          ctx.fillText("优惠", 652, this.thisY);
+          ctx.lineWidth = "1";
+          ctx.rect(646, this.thisY - 12, 36, 16);
           ctx.stroke();
-          ctx.fillText("CNY 345.00",568,this.thisY+20);
-          ctx.fillText("1",738,this.thisY);
-          this.drawtext(ctx,'柠檬生姜香型古龙水8ML+红橙罗勒香型古龙水8ML+青柠肉豆蔻香型古龙水8ML+白桃芫荽香型古龙水8ML+藏红花鸢尾花香型古龙水8ML',240,this.thisY,296)
-          this.thisY = this.thisY + 30
-          ctx.fillText("LANCOME",48,this.thisY);
-          ctx.fillText("箐纯清滢柔肤水",240,this.thisY);
-          ctx.fillText("CNY 45.00",568,this.thisY);
-          ctx.fillText("5",738,this.thisY);
-          this.thisY = this.thisY + 20
-          ctx.fillText("400ML",240,this.thisY);
-          ctx.fillText("CNY 45.00",568,this.thisY);
-          this.thisY = this.thisY + 30
-          ctx.fillText("LANCOME",48,this.thisY);
-          ctx.fillText("箐纯清滢柔肤水",240,this.thisY);
-          ctx.fillText("CNY 45.00",568,this.thisY);
-          ctx.fillText("5",738,this.thisY);
-          this.thisY = this.thisY + 20
-          ctx.fillText("400ML",240,this.thisY);
-          ctx.fillText("CNY 45.00",568,this.thisY);
-          this.thisY = this.thisY + 30
-          ctx.fillText("LANCOME",48,this.thisY);
-          ctx.fillText("箐纯清滢柔肤水",240,this.thisY);
-          ctx.fillText("CNY 45.00",568,this.thisY);
-          ctx.fillText("5",738,this.thisY);
-          this.thisY = this.thisY + 20
-          ctx.fillText("400ML",240,this.thisY);
-          ctx.fillText("CNY 45.00",568,this.thisY);
-          var logo=this.$refs.conf2
-          ctx.drawImage(logo,332,940,126,15);
-          this.thisY = this.thisY + 70
-          ctx.font="18px Rotunda";
-          ctx.fillText("TOTAL",48,this.thisY);
-          ctx.fillText("CNY 30025.00",568,this.thisY);
-          ctx.fillText("45",720,this.thisY);
-          this.thisY = this.thisY + 10
+          ctx.fillText("CNY 345.00", 568, this.thisY + 20);
+          ctx.fillText("1", 738, this.thisY);
+          this.drawtext(
+            ctx,
+            "柠檬生姜香型古龙水8ML+红橙罗勒香型古龙水8ML+青柠肉豆蔻香型古龙水8ML+白桃芫荽香型古龙水8ML+藏红花鸢尾花香型古龙水8ML",
+            240,
+            this.thisY,
+            296
+          );
+          this.thisY = this.thisY + 30;
+          ctx.fillText("LANCOME", 48, this.thisY);
+          ctx.fillText("箐纯清滢柔肤水", 240, this.thisY);
+          ctx.fillText("CNY 45.00", 568, this.thisY);
+          ctx.fillText("5", 738, this.thisY);
+          this.thisY = this.thisY + 20;
+          ctx.fillText("400ML", 240, this.thisY);
+          ctx.fillText("CNY 45.00", 568, this.thisY);
+          this.thisY = this.thisY + 30;
+          ctx.fillText("LANCOME", 48, this.thisY);
+          ctx.fillText("箐纯清滢柔肤水", 240, this.thisY);
+          ctx.fillText("CNY 45.00", 568, this.thisY);
+          ctx.fillText("5", 738, this.thisY);
+          this.thisY = this.thisY + 20;
+          ctx.fillText("400ML", 240, this.thisY);
+          ctx.fillText("CNY 45.00", 568, this.thisY);
+          this.thisY = this.thisY + 30;
+          ctx.fillText("LANCOME", 48, this.thisY);
+          ctx.fillText("箐纯清滢柔肤水", 240, this.thisY);
+          ctx.fillText("CNY 45.00", 568, this.thisY);
+          ctx.fillText("5", 738, this.thisY);
+          this.thisY = this.thisY + 20;
+          ctx.fillText("400ML", 240, this.thisY);
+          ctx.fillText("CNY 45.00", 568, this.thisY);
+          var logo = this.$refs.conf2;
+          ctx.drawImage(logo, 332, 940, 126, 15);
+          this.thisY = this.thisY + 70;
+          ctx.font = "18px Rotunda";
+          ctx.fillText("TOTAL", 48, this.thisY);
+          ctx.fillText("CNY 30025.00", 568, this.thisY);
+          ctx.fillText("45", 720, this.thisY);
+          this.thisY = this.thisY + 10;
           ctx.beginPath();
-          ctx.lineWidth=1;
-          ctx.lineCap="butt";
-          ctx.moveTo(48,this.thisY);
-          ctx.lineTo(745,this.thisY);
+          ctx.lineWidth = 1;
+          ctx.lineCap = "butt";
+          ctx.moveTo(48, this.thisY);
+          ctx.lineTo(745, this.thisY);
           ctx.stroke();
-          this.thisY = this.thisY + 20
-          var logo=this.$refs.conf3
-          ctx.drawImage(logo,50,this.thisY,80,80);
-          ctx.font="12px Rotunda";
-          ctx.fillText("应付",570,this.thisY);
-          ctx.fillText("35035.00",632,this.thisY);
-          this.thisY = this.thisY + 18
-          ctx.fillText("优惠",570,this.thisY);
-          ctx.fillText("CNY 1000.00",632,this.thisY);
-          this.thisY = this.thisY + 18
-          ctx.fillText("話梅",570,this.thisY);
-          ctx.fillText("17000 颗",632,this.thisY);
-          this.thisY = this.thisY + 18
-          ctx.fillText("在线付",570,this.thisY);
-          ctx.fillText("CNY 25000.00",632,this.thisY);
-          this.thisY = this.thisY + 44
-          ctx.fillText("微信扫码联系客服",50,this.thisY);
-          this.thisY = this.thisY + 18
-          ctx.fillText("参与调查问卷",50,this.thisY);
-          this.thisY = this.thisY + 18
-          ctx.fillText("解锁50颗話梅积分奖励",50,this.thisY);
+          this.thisY = this.thisY + 20;
+          var logo = this.$refs.conf3;
+          ctx.drawImage(logo, 50, this.thisY, 80, 80);
+          ctx.font = "12px Rotunda";
+          ctx.fillText("应付", 570, this.thisY);
+          ctx.fillText("35035.00", 632, this.thisY);
+          this.thisY = this.thisY + 18;
+          ctx.fillText("优惠", 570, this.thisY);
+          ctx.fillText("CNY 1000.00", 632, this.thisY);
+          this.thisY = this.thisY + 18;
+          ctx.fillText("話梅", 570, this.thisY);
+          ctx.fillText("17000 颗", 632, this.thisY);
+          this.thisY = this.thisY + 18;
+          ctx.fillText("在线付", 570, this.thisY);
+          ctx.fillText("CNY 25000.00", 632, this.thisY);
+          this.thisY = this.thisY + 44;
+          ctx.fillText("微信扫码联系客服", 50, this.thisY);
+          this.thisY = this.thisY + 18;
+          ctx.fillText("参与调查问卷", 50, this.thisY);
+          this.thisY = this.thisY + 18;
+          ctx.fillText("解锁50颗話梅积分奖励", 50, this.thisY);
           // 底部信息
-          this.thisY = this.thisY + 80
-          ctx.fillText('"颗"IS HARMAY’S CREDIT UNIT, 100颗POINTS = CNY 1.00',48,this.thisY);
-          this.thisY = this.thisY + 18
-          ctx.fillText("FOR PRODUCTS HYGIENE AND SAFETY CONSIDERATIONS, ",48,this.thisY);
-          this.thisY = this.thisY + 18
-          ctx.fillText("NO REFUNDS OR RETURNS AFTER PRODUCTS LEAVE THE STORE,",48,this.thisY);
-          this.thisY = this.thisY + 18
-          ctx.fillText("THANK YOU FOR YOUR UNDERSTANDING.",48,this.thisY);
-          this.thisY = this.thisY + 22
-          ctx.fillText('"颗"为話梅积分单位，100颗話梅 = CNY 1.00',48,this.thisY);
-          this.thisY = this.thisY + 18
-          ctx.fillText('出于商品卫生安全考虑，商品离店后非质量问题不支持退换，请你谅解。',48,this.thisY);
-
+          this.thisY = this.thisY + 80;
+          ctx.fillText(
+            '"颗"IS HARMAY’S CREDIT UNIT, 100颗POINTS = CNY 1.00',
+            48,
+            this.thisY
+          );
+          this.thisY = this.thisY + 18;
+          ctx.fillText(
+            "FOR PRODUCTS HYGIENE AND SAFETY CONSIDERATIONS, ",
+            48,
+            this.thisY
+          );
+          this.thisY = this.thisY + 18;
+          ctx.fillText(
+            "NO REFUNDS OR RETURNS AFTER PRODUCTS LEAVE THE STORE,",
+            48,
+            this.thisY
+          );
+          this.thisY = this.thisY + 18;
+          ctx.fillText("THANK YOU FOR YOUR UNDERSTANDING.", 48, this.thisY);
+          this.thisY = this.thisY + 22;
+          ctx.fillText(
+            '"颗"为話梅积分单位，100颗話梅 = CNY 1.00',
+            48,
+            this.thisY
+          );
+          this.thisY = this.thisY + 18;
+          ctx.fillText(
+            "出于商品卫生安全考虑，商品离店后非质量问题不支持退换，请你谅解。",
+            48,
+            this.thisY
+          );
         }
-      },1)
+      }, 1);
     },
-    smallTicket3(){
-      var canvas = document.getElementById("mycanvas")
+    smallTicket3() {
+      var canvas = document.getElementById("mycanvas");
       //  由于弹窗，确保已获取到
-      var a = setInterval(() =>{
+      var a = setInterval(() => {
         //  重复获取
-        canvas = document.getElementById("mycanvas")
-        if(!canvas){
-          return false
+        canvas = document.getElementById("mycanvas");
+        if (!canvas) {
+          return false;
         } else {
-          clearInterval(a)
-          var ctx=canvas.getContext("2d");
-          ctx.fillStyle ="#1A1311";
-          ctx.font="18px Rotunda";
-          ctx.fillText("感 谢 你 选 择 話 梅",322,58);
-          ctx.font="12px Rotunda";
-          ctx.fillText("HARMAY IS A NEW GENERATION RETAIL BRAND WITH A WAREHOUSE CULTURE. HARMAY WAS ORIGINALLY",52,100);
-          ctx.fillText("BORN IN A HUMBLE WAREHOUSE. IT BEGAN AS AN ONLINE COSMETICS STORE, WHERE STAFF RUSHED",52,120);
-          ctx.fillText("BETWEEN EACH SHELF, STAIRCASE AND WORKSTATION EVERY DAY, SORTING, TIDYING, AND PACKAGING",52,140);
-          ctx.fillText("VARIOUS GOODS. LATER, HARMAY TOOK THE \"WAREHOUSE CULTURE\" OFFLINE TO ITS CURRENT",52,160);
-          ctx.fillText("INSPIRATIONAL FORM.",52,180);
-          ctx.fillText("WE ALWAYS ADHERE TO STRICT QUALITY STANDARDS, TO ENSURE THE PRODUCTS ARE SOLD 100% FOR",52,200);
-          ctx.fillText("AUTHENTICITY AND IS COMMITTED TO PROVIDE YOU WITH UNIFIED BRAND, IMPROVE THE SAFE SERVICE",52,220);
-          ctx.fillText("EXPERIENCE",52,240);
-          ctx.fillStyle ="#5F5E5E";
-          ctx.fillText("HARMAY 話梅是仓储型新零售品牌。話梅的最初是在一间不起眼的仓库中开启的。 起初，门店的前身是一家在线化妆品店，",52,270);
-          ctx.fillText("员工每天来回于各个货架、楼梯与操作台之间，忙碌在纷繁复杂的货品之中，反复进行着整理、分类、打包等操作。后来，",52,290);
-          ctx.fillText("話梅开创性地将一直坚持的「仓储文化」带到了线下，才有了如今门店的模样。",52,310);
-          ctx.fillText("我们始终坚持严苛的选品标准，保证所售产品100%为正品，并致力于为你提供品牌统一、完善无忧的服务体验。",52,330);
-          ctx.fillStyle ="#1A1311";
-          ctx.font="18px Rotunda";
-          ctx.fillText("RETURN AND EXCHANGE PROCESS",50,470);
-          ctx.font="12px Rotunda";
-          ctx.fillText("退换货流程",50,490);
-          ctx.fillStyle="#F1F1F1";
-          ctx.fillRect(50,510,695,104);
-          var logo=this.$refs.conf3
-          ctx.drawImage(logo,72,524,80,80);
-          ctx.fillStyle ="#1A1311";
-          ctx.font="12px Rotunda";
-          ctx.fillText("扫码联系客",172,560);
-          ctx.fillText("服",172,580);
-          var next=this.$refs.conf4
-          ctx.drawImage(next,272,552,11,22);
-          ctx.fillText("客服审核通过后",298,550);
-          ctx.fillText("填写退换货登记表",298,570);
-          ctx.fillText("与商品一同寄回",298,590);
-          ctx.drawImage(next,426,552,11,22);
-          ctx.fillText("商品签收后 ",452,560);
-          ctx.fillText("进行退换货条件质检",452,580);
-          ctx.drawImage(next,596,552,11,22);
-          ctx.fillText("退款 ",624,560);
-          ctx.fillText("或补发换货商品",624,580);
-          ctx.font="18px Rotunda";
-          ctx.fillText("REGISTER",50,650);
-          ctx.font="12px Rotunda";
-          ctx.fillText("退换货登记表",50,670);
-          ctx.fillStyle="#F1F1F1";
-          ctx.fillRect(50,690,695,156);
-          ctx.fillStyle ="#1A1311";
-          ctx.font="12px Rotunda";
-          ctx.fillText("服 务 内 容",74,720);
-          ctx.rect(152,704,22,22);
+          clearInterval(a);
+          var ctx = canvas.getContext("2d");
+          ctx.fillStyle = "#1A1311";
+          ctx.font = "18px Rotunda";
+          ctx.fillText("感 谢 你 选 择 話 梅", 322, 58);
+          ctx.font = "12px Rotunda";
+          ctx.fillText(
+            "HARMAY IS A NEW GENERATION RETAIL BRAND WITH A WAREHOUSE CULTURE. HARMAY WAS ORIGINALLY",
+            52,
+            100
+          );
+          ctx.fillText(
+            "BORN IN A HUMBLE WAREHOUSE. IT BEGAN AS AN ONLINE COSMETICS STORE, WHERE STAFF RUSHED",
+            52,
+            120
+          );
+          ctx.fillText(
+            "BETWEEN EACH SHELF, STAIRCASE AND WORKSTATION EVERY DAY, SORTING, TIDYING, AND PACKAGING",
+            52,
+            140
+          );
+          ctx.fillText(
+            'VARIOUS GOODS. LATER, HARMAY TOOK THE "WAREHOUSE CULTURE" OFFLINE TO ITS CURRENT',
+            52,
+            160
+          );
+          ctx.fillText("INSPIRATIONAL FORM.", 52, 180);
+          ctx.fillText(
+            "WE ALWAYS ADHERE TO STRICT QUALITY STANDARDS, TO ENSURE THE PRODUCTS ARE SOLD 100% FOR",
+            52,
+            200
+          );
+          ctx.fillText(
+            "AUTHENTICITY AND IS COMMITTED TO PROVIDE YOU WITH UNIFIED BRAND, IMPROVE THE SAFE SERVICE",
+            52,
+            220
+          );
+          ctx.fillText("EXPERIENCE", 52, 240);
+          ctx.fillStyle = "#5F5E5E";
+          ctx.fillText(
+            "HARMAY 話梅是仓储型新零售品牌。話梅的最初是在一间不起眼的仓库中开启的。 起初，门店的前身是一家在线化妆品店，",
+            52,
+            270
+          );
+          ctx.fillText(
+            "员工每天来回于各个货架、楼梯与操作台之间，忙碌在纷繁复杂的货品之中，反复进行着整理、分类、打包等操作。后来，",
+            52,
+            290
+          );
+          ctx.fillText(
+            "話梅开创性地将一直坚持的「仓储文化」带到了线下，才有了如今门店的模样。",
+            52,
+            310
+          );
+          ctx.fillText(
+            "我们始终坚持严苛的选品标准，保证所售产品100%为正品，并致力于为你提供品牌统一、完善无忧的服务体验。",
+            52,
+            330
+          );
+          ctx.fillStyle = "#1A1311";
+          ctx.font = "18px Rotunda";
+          ctx.fillText("RETURN AND EXCHANGE PROCESS", 50, 470);
+          ctx.font = "12px Rotunda";
+          ctx.fillText("退换货流程", 50, 490);
+          ctx.fillStyle = "#F1F1F1";
+          ctx.fillRect(50, 510, 695, 104);
+          var logo = this.$refs.conf3;
+          ctx.drawImage(logo, 72, 524, 80, 80);
+          ctx.fillStyle = "#1A1311";
+          ctx.font = "12px Rotunda";
+          ctx.fillText("扫码联系客", 172, 560);
+          ctx.fillText("服", 172, 580);
+          var next = this.$refs.conf4;
+          ctx.drawImage(next, 272, 552, 11, 22);
+          ctx.fillText("客服审核通过后", 298, 550);
+          ctx.fillText("填写退换货登记表", 298, 570);
+          ctx.fillText("与商品一同寄回", 298, 590);
+          ctx.drawImage(next, 426, 552, 11, 22);
+          ctx.fillText("商品签收后 ", 452, 560);
+          ctx.fillText("进行退换货条件质检", 452, 580);
+          ctx.drawImage(next, 596, 552, 11, 22);
+          ctx.fillText("退款 ", 624, 560);
+          ctx.fillText("或补发换货商品", 624, 580);
+          ctx.font = "18px Rotunda";
+          ctx.fillText("REGISTER", 50, 650);
+          ctx.font = "12px Rotunda";
+          ctx.fillText("退换货登记表", 50, 670);
+          ctx.fillStyle = "#F1F1F1";
+          ctx.fillRect(50, 690, 695, 156);
+          ctx.fillStyle = "#1A1311";
+          ctx.font = "12px Rotunda";
+          ctx.fillText("服 务 内 容", 74, 720);
+          ctx.rect(152, 704, 22, 22);
           // ctx.stroke();
-          ctx.fillText("退 货",186,720);
-          ctx.rect(230,704,22,22);
-          ctx.fillText("换 货",264,720);
-          ctx.fillText("购 买 平 台",442,720);
-          ctx.rect(520,704,22,22);
-          ctx.fillText("小 程 序",552,720);
-          ctx.rect(614,704,22,22);
-          ctx.fillText("天 猫",646,720);
+          ctx.fillText("退 货", 186, 720);
+          ctx.rect(230, 704, 22, 22);
+          ctx.fillText("换 货", 264, 720);
+          ctx.fillText("购 买 平 台", 442, 720);
+          ctx.rect(520, 704, 22, 22);
+          ctx.fillText("小 程 序", 552, 720);
+          ctx.rect(614, 704, 22, 22);
+          ctx.fillText("天 猫", 646, 720);
           // ctx.stroke();
-          ctx.fillText("订 单 编 号",74,755);
-          ctx.fillText("收件人姓名",74,790);
-          ctx.fillText("收件人电话",442,790);
-          ctx.fillText("退 换 原 因",74,825);
-          ctx.moveTo(152,760);
-          ctx.lineTo(726,760);
-          ctx.moveTo(152,795);
-          ctx.lineTo(360,795);
-          ctx.moveTo(520,795);
-          ctx.lineTo(727,795);
-          ctx.moveTo(152,830);
-          ctx.lineTo(726,830);
+          ctx.fillText("订 单 编 号", 74, 755);
+          ctx.fillText("收件人姓名", 74, 790);
+          ctx.fillText("收件人电话", 442, 790);
+          ctx.fillText("退 换 原 因", 74, 825);
+          ctx.moveTo(152, 760);
+          ctx.lineTo(726, 760);
+          ctx.moveTo(152, 795);
+          ctx.lineTo(360, 795);
+          ctx.moveTo(520, 795);
+          ctx.lineTo(727, 795);
+          ctx.moveTo(152, 830);
+          ctx.lineTo(726, 830);
           ctx.stroke();
-          ctx.fillStyle="#5F5E5E";
-          ctx.fillText("当 发 生 以下情况时，你的退换货申请将被退回：",50,880);
-          ctx.fillText(" ●未与客服取得联系，或订单退货申请审核不通过，私自将商品寄回。●使用平邮、闪送、到付等非HARMAY支",50,900);
-
-
-
-
-
+          ctx.fillStyle = "#5F5E5E";
+          ctx.fillText(
+            "当 发 生 以下情况时，你的退换货申请将被退回：",
+            50,
+            880
+          );
+          ctx.fillText(
+            " ●未与客服取得联系，或订单退货申请审核不通过，私自将商品寄回。●使用平邮、闪送、到付等非HARMAY支",
+            50,
+            900
+          );
         }
-      },1)
+      }, 1);
     },
-    smallTicket4(){
-      var canvas = document.getElementById("mycanvas")
+    smallTicket4() {
+      var canvas = document.getElementById("mycanvas");
       //  由于弹窗，确保已获取到
-      var a = setInterval(() =>{
+      var a = setInterval(() => {
         //  重复获取
-        canvas = document.getElementById("mycanvas")
-        if(!canvas){
-          return false
+        canvas = document.getElementById("mycanvas");
+        if (!canvas) {
+          return false;
         } else {
-          clearInterval(a)
-          var ctx=canvas.getContext("2d");
-          ctx.fillStyle ="#1A1311";
-          ctx.font="12px Rotunda";
-          ctx.fillText("2021.06.20  SUN.",48,50);
-          ctx.font="12px Rotunda";
-          ctx.fillText("SHOPPING LIST",348,50);
-          ctx.font="ALEX";
-          ctx.fillText("ALEX",716,50);
+          clearInterval(a);
+          var ctx = canvas.getContext("2d");
+          ctx.fillStyle = "#1A1311";
+          ctx.font = "12px Rotunda";
+          ctx.fillText("2021.06.20  SUN.", 48, 50);
+          ctx.font = "12px Rotunda";
+          ctx.fillText("SHOPPING LIST", 348, 50);
+          ctx.font = "ALEX";
+          ctx.fillText("ALEX", 716, 50);
 
           ctx.beginPath();
-          ctx.lineCap="round";
-          ctx.moveTo(48,72);
-          ctx.lineTo(745,72);
+          ctx.lineCap = "round";
+          ctx.moveTo(48, 72);
+          ctx.lineTo(745, 72);
           ctx.stroke();
           // PLEASE CHECK THE ORDER DETAILS
-          ctx.font="12px Rotunda";
-          ctx.fillText("PLEASE CHECK THE ORDER DETAILS",48,100);
-          ctx.font="12px Rotunda";
-          ctx.fillText("AND KEEP THIS RETURN SLIP FOR REFUND OR EXCHANGES.",48,116);
-          ctx.font="32px Rotunda";
-          ctx.fillText("1",710,110);
-          ctx.font="12px Rotunda";
-          ctx.fillText("/2",730,96);
-          ctx.fillStyle ="#5F5E5E";
-          ctx.font="12px Rotunda";
-          ctx.fillText("请仔细核对您购买的商品明细，并保留此清单作为退换货的凭证。",48,132);
+          ctx.font = "12px Rotunda";
+          ctx.fillText("PLEASE CHECK THE ORDER DETAILS", 48, 100);
+          ctx.font = "12px Rotunda";
+          ctx.fillText(
+            "AND KEEP THIS RETURN SLIP FOR REFUND OR EXCHANGES.",
+            48,
+            116
+          );
+          ctx.font = "32px Rotunda";
+          ctx.fillText("1", 710, 110);
+          ctx.font = "12px Rotunda";
+          ctx.fillText("/2", 730, 96);
+          ctx.fillStyle = "#5F5E5E";
+          ctx.font = "12px Rotunda";
+          ctx.fillText(
+            "请仔细核对您购买的商品明细，并保留此清单作为退换货的凭证。",
+            48,
+            132
+          );
           // HARMAYCONCEPT.TMALL.COM
-          ctx.fillStyle ="#1A1311";
-          ctx.font="12px Rotunda";
-          ctx.fillText("BEIJING SANLITUN",48,160);
-          ctx.font="12px Rotunda";
-          ctx.fillText("2 WORKERS' SPORTS COMPLEX N RD, CHAOYANG DISTRICT, BEIJING",48,176);
-          ctx.fillText("BUSINESS HOUR: 10:00-22:00",48,192);
-          ctx.fillText("CONTACT: 15210678315",48,208);
-          ctx.fillStyle ="#5F5E5E";
-          ctx.fillText("北京三里屯店：朝阳区工体北路首北兆龙饭店一层",48,230);
-          ctx.fillText("营业时间：10:00-22:00",48,250);
-          ctx.fillText("电话：15210678315",48,270);
-          ctx.fillStyle ="#1A1311";
-          ctx.fillText("MD1571576228",654,230);
-          var img=this.$refs.conf0
-          ctx.drawImage(img,566,240,181,34);
+          ctx.fillStyle = "#1A1311";
+          ctx.font = "12px Rotunda";
+          ctx.fillText("BEIJING SANLITUN", 48, 160);
+          ctx.font = "12px Rotunda";
+          ctx.fillText(
+            "2 WORKERS' SPORTS COMPLEX N RD, CHAOYANG DISTRICT, BEIJING",
+            48,
+            176
+          );
+          ctx.fillText("BUSINESS HOUR: 10:00-22:00", 48, 192);
+          ctx.fillText("CONTACT: 15210678315", 48, 208);
+          ctx.fillStyle = "#5F5E5E";
+          ctx.fillText("北京三里屯店：朝阳区工体北路首北兆龙饭店一层", 48, 230);
+          ctx.fillText("营业时间：10:00-22:00", 48, 250);
+          ctx.fillText("电话：15210678315", 48, 270);
+          ctx.fillStyle = "#1A1311";
+          ctx.fillText("MD1571576228", 654, 230);
+          var img = this.$refs.conf0;
+          ctx.drawImage(img, 566, 240, 181, 34);
           // 订单列表
-          this.thisY = 320
-          ctx.fillStyle ="#1A1311";
-          ctx.fillText("MAISON FRANCIS KURKDJIAN",48,this.thisY);
-          ctx.fillText("景润旅行套装MOODY美瞳420度",240,this.thisY);
-          ctx.fillText("CNY 345.00",568,this.thisY);
-          ctx.fillText("优惠",652,this.thisY);
-          ctx.lineWidth="1";
-          ctx.rect(646,this.thisY-12,36,16);
+          this.thisY = 320;
+          ctx.fillStyle = "#1A1311";
+          ctx.fillText("MAISON FRANCIS KURKDJIAN", 48, this.thisY);
+          ctx.fillText("景润旅行套装MOODY美瞳420度", 240, this.thisY);
+          ctx.fillText("CNY 345.00", 568, this.thisY);
+          ctx.fillText("优惠", 652, this.thisY);
+          ctx.lineWidth = "1";
+          ctx.rect(646, this.thisY - 12, 36, 16);
           ctx.stroke();
-          ctx.fillText("CNY 345.00",568,this.thisY+20);
-          ctx.fillText("1",738,this.thisY);
-          this.drawtext(ctx,'柠檬生姜香型古龙水8ML+红橙罗勒香型古龙水8ML+青柠肉豆蔻香型古龙水8ML+白桃芫荽香型古龙水8ML+藏红花鸢尾花香型古龙水8ML',240,this.thisY,296)
-          this.thisY = this.thisY + 30
-          ctx.fillText("LANCOME",48,this.thisY);
-          ctx.fillText("箐纯清滢柔肤水",240,this.thisY);
-          ctx.fillText("CNY 45.00",568,this.thisY);
-          ctx.fillText("5",738,this.thisY);
-          this.thisY = this.thisY + 20
-          ctx.fillText("400ML",240,this.thisY);
-          ctx.fillText("CNY 45.00",568,this.thisY);
-          this.thisY = this.thisY + 30
-          ctx.fillText("LANCOME",48,this.thisY);
-          ctx.fillText("箐纯清滢柔肤水",240,this.thisY);
-          ctx.fillText("CNY 45.00",568,this.thisY);
-          ctx.fillText("5",738,this.thisY);
-          this.thisY = this.thisY + 20
-          ctx.fillText("400ML",240,this.thisY);
-          ctx.fillText("CNY 45.00",568,this.thisY);
+          ctx.fillText("CNY 345.00", 568, this.thisY + 20);
+          ctx.fillText("1", 738, this.thisY);
+          this.drawtext(
+            ctx,
+            "柠檬生姜香型古龙水8ML+红橙罗勒香型古龙水8ML+青柠肉豆蔻香型古龙水8ML+白桃芫荽香型古龙水8ML+藏红花鸢尾花香型古龙水8ML",
+            240,
+            this.thisY,
+            296
+          );
+          this.thisY = this.thisY + 30;
+          ctx.fillText("LANCOME", 48, this.thisY);
+          ctx.fillText("箐纯清滢柔肤水", 240, this.thisY);
+          ctx.fillText("CNY 45.00", 568, this.thisY);
+          ctx.fillText("5", 738, this.thisY);
+          this.thisY = this.thisY + 20;
+          ctx.fillText("400ML", 240, this.thisY);
+          ctx.fillText("CNY 45.00", 568, this.thisY);
+          this.thisY = this.thisY + 30;
+          ctx.fillText("LANCOME", 48, this.thisY);
+          ctx.fillText("箐纯清滢柔肤水", 240, this.thisY);
+          ctx.fillText("CNY 45.00", 568, this.thisY);
+          ctx.fillText("5", 738, this.thisY);
+          this.thisY = this.thisY + 20;
+          ctx.fillText("400ML", 240, this.thisY);
+          ctx.fillText("CNY 45.00", 568, this.thisY);
 
-          this.thisY = this.thisY + 60
-          ctx.font="18px Rotunda";
-          ctx.fillText("TOTAL",48,this.thisY);
-          ctx.fillText("CNY 30025.00",568,this.thisY);
-          ctx.fillText("45",720,this.thisY);
-          this.thisY = this.thisY + 10
+          this.thisY = this.thisY + 60;
+          ctx.font = "18px Rotunda";
+          ctx.fillText("TOTAL", 48, this.thisY);
+          ctx.fillText("CNY 30025.00", 568, this.thisY);
+          ctx.fillText("45", 720, this.thisY);
+          this.thisY = this.thisY + 10;
           ctx.beginPath();
-          ctx.lineWidth=1;
-          ctx.lineCap="butt";
-          ctx.moveTo(48,this.thisY);
-          ctx.lineTo(745,this.thisY);
+          ctx.lineWidth = 1;
+          ctx.lineCap = "butt";
+          ctx.moveTo(48, this.thisY);
+          ctx.lineTo(745, this.thisY);
           ctx.stroke();
-          this.thisY = this.thisY + 20
-          var logo=this.$refs.conf3
-          ctx.drawImage(logo,50,this.thisY,80,80);
-          ctx.font="12px Rotunda";
-          ctx.fillText("应付",570,this.thisY);
-          ctx.fillText("35035.00",632,this.thisY);
-          this.thisY = this.thisY + 18
-          ctx.fillText("优惠",570,this.thisY);
-          ctx.fillText("CNY 1000.00",632,this.thisY);
-          this.thisY = this.thisY + 18
-          ctx.fillText("話梅",570,this.thisY);
-          ctx.fillText("17000 颗",632,this.thisY);
-          this.thisY = this.thisY + 18
-          ctx.fillText("在线付",570,this.thisY);
-          ctx.fillText("CNY 25000.00",632,this.thisY);
-          this.thisY = this.thisY + 44
-          ctx.fillText("微信扫码开票",50,this.thisY);
-          this.thisY = this.thisY + 18
-          ctx.fillText("参与调查问卷",50,this.thisY);
-          this.thisY = this.thisY + 18
-          ctx.fillText("解锁50颗話梅积分奖励",50,this.thisY);
+          this.thisY = this.thisY + 20;
+          var logo = this.$refs.conf3;
+          ctx.drawImage(logo, 50, this.thisY, 80, 80);
+          ctx.font = "12px Rotunda";
+          ctx.fillText("应付", 570, this.thisY);
+          ctx.fillText("35035.00", 632, this.thisY);
+          this.thisY = this.thisY + 18;
+          ctx.fillText("优惠", 570, this.thisY);
+          ctx.fillText("CNY 1000.00", 632, this.thisY);
+          this.thisY = this.thisY + 18;
+          ctx.fillText("話梅", 570, this.thisY);
+          ctx.fillText("17000 颗", 632, this.thisY);
+          this.thisY = this.thisY + 18;
+          ctx.fillText("在线付", 570, this.thisY);
+          ctx.fillText("CNY 25000.00", 632, this.thisY);
+          this.thisY = this.thisY + 44;
+          ctx.fillText("微信扫码开票", 50, this.thisY);
+          this.thisY = this.thisY + 18;
+          ctx.fillText("参与调查问卷", 50, this.thisY);
+          this.thisY = this.thisY + 18;
+          ctx.fillText("解锁50颗話梅积分奖励", 50, this.thisY);
           // 底部信息
-          this.thisY = this.thisY + 80
-          ctx.fillText('"颗"IS HARMAY’S CREDIT UNIT, 100颗POINTS = CNY 1.00',48,this.thisY);
-          this.thisY = this.thisY + 18
-          ctx.fillText("FOR PRODUCTS HYGIENE AND SAFETY CONSIDERATIONS, ",48,this.thisY);
-          this.thisY = this.thisY + 18
-          ctx.fillText("NO REFUNDS OR RETURNS AFTER PRODUCTS LEAVE THE STORE,",48,this.thisY);
-          this.thisY = this.thisY + 18
-          ctx.fillText("THANK YOU FOR YOUR UNDERSTANDING.",48,this.thisY);
-          this.thisY = this.thisY + 22
-          ctx.fillText('"颗"为話梅积分单位，100颗話梅 = CNY 1.00',48,this.thisY);
-          this.thisY = this.thisY + 18
-          ctx.fillText('出于商品卫生安全考虑，商品离店后非质量问题不支持退换，请你谅解。',48,this.thisY);
-          var conf2=this.$refs.conf2
-          ctx.drawImage(conf2,332,940,126,15);
-
+          this.thisY = this.thisY + 80;
+          ctx.fillText(
+            '"颗"IS HARMAY’S CREDIT UNIT, 100颗POINTS = CNY 1.00',
+            48,
+            this.thisY
+          );
+          this.thisY = this.thisY + 18;
+          ctx.fillText(
+            "FOR PRODUCTS HYGIENE AND SAFETY CONSIDERATIONS, ",
+            48,
+            this.thisY
+          );
+          this.thisY = this.thisY + 18;
+          ctx.fillText(
+            "NO REFUNDS OR RETURNS AFTER PRODUCTS LEAVE THE STORE,",
+            48,
+            this.thisY
+          );
+          this.thisY = this.thisY + 18;
+          ctx.fillText("THANK YOU FOR YOUR UNDERSTANDING.", 48, this.thisY);
+          this.thisY = this.thisY + 22;
+          ctx.fillText(
+            '"颗"为話梅积分单位，100颗話梅 = CNY 1.00',
+            48,
+            this.thisY
+          );
+          this.thisY = this.thisY + 18;
+          ctx.fillText(
+            "出于商品卫生安全考虑，商品离店后非质量问题不支持退换，请你谅解。",
+            48,
+            this.thisY
+          );
+          var conf2 = this.$refs.conf2;
+          ctx.drawImage(conf2, 332, 940, 126, 15);
         }
-      },1)
+      }, 1);
+    },
+    // 打印机下拉框
+    choice() {
+      console.log(this.printer);
+    },
+    // 连接打印机
+    connectThermal() {
+      console.log("123");
+    },
+    reSearch() {
+      printerList(this.alg).then((res) => {
+        this.printOptions = res.data;
+    
+      });
     },
   },
   created() {
@@ -1069,22 +1362,22 @@ export default {
     // window.localStorage.removeItem("ipAddress")
     // window.localStorage.removeItem("port")
     // window.localStorage.removeItem("deviceID")
-    if(window.localStorage.getItem("ipAddress") != null){
-      this.ipAddress = window.localStorage.getItem("ipAddress")
+    if (window.localStorage.getItem("ipAddress") != null) {
+      this.ipAddress = window.localStorage.getItem("ipAddress");
     }
-    if(window.localStorage.getItem("port") != null){
-      this.port = window.localStorage.getItem("port")
+    if (window.localStorage.getItem("port") != null) {
+      this.port = window.localStorage.getItem("port");
     }
-    if(window.localStorage.getItem("deviceID") != null){
-      this.deviceID = window.localStorage.getItem("deviceID")
+    if (window.localStorage.getItem("deviceID") != null) {
+      this.deviceID = window.localStorage.getItem("deviceID");
     }
-    shopDetail(this.orderId).then(res=>{
+    shopDetail(this.orderId).then((res) => {
       // console.log(res)
-      this.shopList = res.data
-    })
-    orderDetail(this.orderId).then(res=>{
+      this.shopList = res.data;
+    });
+    orderDetail(this.orderId).then((res) => {
       // console.log(res)
-      this.orderdetail = res.data.data
+      this.orderdetail = res.data.data;
       // console.log('打印订单详情')
       // console.log(this.orderdetail)
       // for(var i = 0;i<this.shopList.length;i++){
@@ -1092,47 +1385,53 @@ export default {
       //     this.thisShop = this.shopList[i]
       //   }
       // }
-      this.thisShop = this.shopList[0]
-      this.payable_amount = this.orderdetail.payable_amount.substring(0,this.orderdetail.payable_amount.length-2)
-      this.paid = this.orderdetail.paid.substring(0,this.orderdetail.paid.length-2)
-      if(this.orderdetail.pay_type=='wechat'){
-        this.payMent='微信'
-      }else if(this.orderdetail.pay_type=='alipay'){
-        this.payMent='支付宝'
-      }else if(this.orderdetail.pay_type=='card'){
-        this.payMent='银行卡'
-      }else if(this.orderdetail.pay_type=='cash'){
-        this.payMent='现金'
-      }else if(this.orderdetail.pay_type=='combined'){
-        this.payMent='组合支付'
+      this.thisShop = this.shopList[0];
+      this.payable_amount = this.orderdetail.payable_amount.substring(
+        0,
+        this.orderdetail.payable_amount.length - 2
+      );
+      this.paid = this.orderdetail.paid.substring(
+        0,
+        this.orderdetail.paid.length - 2
+      );
+      if (this.orderdetail.pay_type == "wechat") {
+        this.payMent = "微信";
+      } else if (this.orderdetail.pay_type == "alipay") {
+        this.payMent = "支付宝";
+      } else if (this.orderdetail.pay_type == "card") {
+        this.payMent = "银行卡";
+      } else if (this.orderdetail.pay_type == "cash") {
+        this.payMent = "现金";
+      } else if (this.orderdetail.pay_type == "combined") {
+        this.payMent = "组合支付";
       }
       JsBarcode("#barcode", this.orderdetail.tid, {
-        displayValue:false,//是否在条形码下方显示文字
+        displayValue: false, //是否在条形码下方显示文字
       });
       // console.log(document.getElementById("barcode").src)
-      this.barcode = document.getElementById("barcode").src
-      orderSync(this.id).then(res=>{
+      this.barcode = document.getElementById("barcode").src;
+      orderSync(this.id).then((res) => {
         // console.log('打印二维码')
         // console.log(res.data.data)
         // document.getElementById('qrcode').innerHTML = ''
-        var codeUrl = res.data.data
+        var codeUrl = res.data.data;
         // this.qrCode(codeUrl)
-        this.qrcode(codeUrl)
+        this.qrcode(codeUrl);
         // this.connect()
-      })
-    })
+      });
+    });
     // this.smallTicket1()
     // this.smallTicket2()
     // this.smallTicket3()
+    
   },
-
-}
+};
 </script>
 
 <style lang="scss" scoped>
 .device-container {
-  padding: 12px 20px!important;
-  background: #F8F8F8;
+  padding: 12px 20px !important;
+  background: #f8f8f8;
   .device-content-group {
     padding: 20px 24px;
     background: #fff;
@@ -1163,7 +1462,8 @@ export default {
   .noconnect-btn {
     background: #fff;
     border: 1px solid #000;
-    &.el-button:focus, &.el-button:hover {
+    &.el-button:focus,
+    &.el-button:hover {
       color: #000;
     }
   }
@@ -1177,7 +1477,7 @@ export default {
         margin-left: 60px;
       }
       width: 262px;
-      border: 1px solid #D9D9D9;
+      border: 1px solid #d9d9d9;
       border-radius: 2px;
       .item-info {
         padding: 24px 0;
@@ -1192,7 +1492,7 @@ export default {
       p {
         height: 42px;
         line-height: 42px;
-        background: #F7F9FA;
+        background: #f7f9fa;
         font-size: 14px;
         font-weight: bold;
         margin: 0;
@@ -1203,5 +1503,15 @@ export default {
 }
 #mycanvas {
   border: 1px solid rgb(199, 198, 198);
+}
+::v-deep.Select-device {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  .el-input__inner {
+    border: none;
+    font-size: 18px;
+    font-weight: 500;
+  }
 }
 </style>
