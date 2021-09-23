@@ -17,8 +17,13 @@
       <p class="temporaryTitle">优惠备注</p>
       <el-input style="width: 345px;margin-left: 30px;" v-model="input" placeholder="请输入订单备注"></el-input>
       <div class="discountFooter">
+<<<<<<< HEAD
         <p style="font-size: 24px;color: #000;margin-left: 30px;font-weight: bold;">¥0</p>
         <p style="font-size: 16px;color: #969696;margin-left: 16px;flex: 1;text-decoration: line-through;">¥0</p>
+=======
+        <p style="font-size: 24px;color: #000;margin-left: 30px;font-weight: bold;">¥279</p>
+        <p style="font-size: 16px;color: #969696;margin-left: 16px;flex: 1;text-decoration: line-through;">¥350</p>
+>>>>>>> faa4eb0e90948d23333d55a27bb9c40495d03848
         <el-button @click="close" style="width: 114px;height: 54px;border-radius: 10px;background:#000;font-size: 18px;color: #fff;margin-right: 30px;">确定</el-button>
       </div>
     </div>

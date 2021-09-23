@@ -232,7 +232,11 @@
               font-weight: bold;
             "
           >
+<<<<<<< HEAD
             ¥0
+=======
+            ¥279
+>>>>>>> faa4eb0e90948d23333d55a27bb9c40495d03848
           </p>
           <p
             style="
@@ -244,7 +248,11 @@
               text-decoration: line-through;
             "
           >
+<<<<<<< HEAD
             ¥0
+=======
+            ¥350
+>>>>>>> faa4eb0e90948d23333d55a27bb9c40495d03848
           </p>
           <el-button
             @click="close"
