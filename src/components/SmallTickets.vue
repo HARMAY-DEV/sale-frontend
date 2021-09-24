@@ -184,11 +184,11 @@ export default {
   },
   mounted() {
     this.date = this.getDay()
-    // if(this.orderTableData.length>0){
+    if(this.orderTableData.length>0){
        JsBarcode("#barcode", this.orderTableData[0].id, {
       displayValue: false //是否显示文字信息
     })
-    // }
+    }
    
     this.goodsTableData = [
       {

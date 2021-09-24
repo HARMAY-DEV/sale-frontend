@@ -116,7 +116,7 @@ export function dingLogin(data) {
 // 获取打印机列表
 export function printerList(uid) {
     return axios({
-        url: 'http://172.100.21.86:8703/api/ftl/stamp?uid='+uid,
+        url: 'http://172.100.21.86:8703/ftl/stamp?uid='+uid,
         method: 'get',
         params: {},
         headers: {
@@ -128,7 +128,7 @@ export function printerList(uid) {
 // 打印机打印
 export function setPrint(data) {
     return axios({
-        url: 'http://172.100.21.86:8703/api/ftl/print',
+        url: 'http://172.100.21.86:8703/ftl/print',
         method: 'post',
         data: data,
         headers: {
@@ -140,7 +140,7 @@ export function setPrint(data) {
 // 选择打印机
 export function choosePrint(printerName,uid) {
   return axios({
-      url: `http://172.100.21.86:8703/api/ftl/jointl?printerName=${printerName}&uid=${uid}`,
+      url: `http://172.100.21.86:8703/ftl/jointl?printerName=${printerName}&uid=${uid}`,
       method: 'get',
     
       headers: {
@@ -152,7 +152,7 @@ export function choosePrint(printerName,uid) {
 // 打印机页面展示
 export function pageDisplay(uid) {
   return axios({
-      url: `http://172.100.21.86:8703/api/ftl/oldList?uid=`+uid,
+      url: `http://172.100.21.86:8703/ftl/oldList?uid=`+uid,
       method: 'get',
       headers: {
           'content-type': 'multipart/form-data', // 默认值
