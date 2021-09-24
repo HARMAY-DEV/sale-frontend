@@ -392,14 +392,19 @@ export default {
       return params;
     },
     print() {
-      let printList = this.ConnectionStatus.map((item,index)=>{
-        if(item.printState==1){
-          return item.printName
-        }
-        
-      })
+      let printList ='EPSOND91248'
+      // let printList1 =[]
+      //  printList = this.ConnectionStatus.map((item,index)=>{
+      //   if(item.printState===1){
+      //     printList1.push(item.printName)
+      //     return item.printName 
+      //   }
+      // })
+    // console.log(printList1,"+++");
+    //     console.log(printList,"------");
+
       for(let i = 1; i < this.page+1; i++) {
-        console.log('page',i);
+        // console.log('page',i);
         html2canvas(this.$refs['smallticket'+[i]][0]).then((canvas) => {
           console.log(canvas);
           let dataURL = canvas.toDataURL("image/png");
@@ -408,8 +413,8 @@ export default {
           let file = this.dataURLtoFile(dataURL);
           var params = this.setFormData({
             file: file,
-            printName: printList,
             uid: 2,
+            printName: printList
           });
           setPrint(params).then((res) => {
             console.log(res);
