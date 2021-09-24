@@ -62,11 +62,11 @@
           <p>
             <span style="color: #7f7f7f; margin-right: 3px"
               >店铺优惠：已选择</span
-            ><span style="color: #b51f29; margin-right: 10px">3张优惠卷</span>
+            ><span style="color: #b51f29; margin-right: 10px">0张优惠卷</span>
           </p>
           <p>
             <span style="color: #7f7f7f; margin-right: 3px">共计优惠</span
-            ><span style="color: #b51f29; margin-right: 15px">80元</span>
+            ><span style="color: #b51f29; margin-right: 15px">0元</span>
           </p>
           <p @click="viewDetails">
             <span style="font-weight: 550; margin-right: 3px">查看详情</span>
