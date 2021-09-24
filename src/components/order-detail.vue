@@ -311,16 +311,29 @@
           style="
             width: 381px;
             height: 60px;
-            border: 1px solid #d8d8d8;
+
             margin: 10px 0 0 101px;
           "
         >
-          <div></div>
-          <div></div>
-          <div></div>
-          <div></div>
-          <div></div>
-          <div></div>
+          <div >
+            <input type="text" v-model="password[0]">
+          </div>
+          <div >
+            <input type="text" v-model="password[1]">
+          </div>
+          <div >
+            <input type="text" v-model="password[3]">
+          </div>
+          <div >
+            <input type="text" v-model="password[4]">
+          </div>
+          <div >
+            <input type="text" v-model="password[5]">
+          </div>
+          <div >
+            <input type="text" v-model="password[6]">
+          </div>
+     
         </div>
 
         <div class="keyboard" style="">
@@ -392,17 +405,17 @@
         </p>
           <el-input type="textarea" v-model="a" style="resize: none;" ></el-input>
           <div class="proposal">
-              <p style="width:80px;height:34px;background: #F8F8F8; border-radius: 20px;  text-align: center;line-height: 34PX;  ">
-                价格错误
+              <p style="width:80px;height:34px;background: #F8F8F8; border-radius: 20px;  text-align: center;line-height: 34PX;" @click="reaso">
+                <!-- 价格错误 --> {{this.reason}}
               </p>
-              <p  style="width:108px;height:34px;background: #F8F8F8; border-radius: 20px;  text-align: center;line-height: 34PX;  ">
-                产品质量问题
+              <p  style="width:108px;height:34px;background: #F8F8F8; border-radius: 20px;  text-align: center;line-height: 34PX;"  @click="reas">
+               {{this.reason1}}
               </p>
-              <p  style="width:66px;height:34px;background: #F8F8F8; border-radius: 20px;  text-align: center;line-height: 34PX;  ">
-                不想要
+              <p  style="width:66px;height:34px;background: #F8F8F8; border-radius: 20px;  text-align: center;line-height: 34PX;" @click="rea">
+                 {{this.reason2}}
               </p>
-              <p  style="width:80px;height:34px;background: #F8F8F8; border-radius: 20px;  text-align: center;line-height: 34PX;  ">
-                货品买错
+              <p  style="width:80px;height:34px;background: #F8F8F8; border-radius: 20px;  text-align: center;line-height: 34PX;"  @click="rson">
+               {{this.reason3}}
               </p>
           </div>
           <div class="determine">
@@ -452,7 +465,11 @@ export default {
       refundPassword: false,
       refundReason:false,
       a:"",
-
+      reason:"价格错误",
+      reason1:"产品质量问题",
+      reason2:"不想要",
+      reason3:"货品买错",
+  password:[]
     };
   },
   props: {
@@ -548,6 +565,7 @@ export default {
   
     determine(){
       this.refundPassword=false
+      this.password =[]
        this.refundState = 1
     },
     closeReason(){
@@ -560,7 +578,27 @@ export default {
           type: 'success'
         });
     },
-    empty(){}
+    add(n){
+     this.password +=n
+  
+    },
+    empty(){
+      this.password= []
+    },
+    reaso(){
+      this.a = this.reason 
+      // console.log(this.reason);
+      // console.log(this.a);
+    },
+    reas(){
+      this.a = this.reason1
+    },
+    rea(){
+      this.a = this.reason2
+    },
+    rson(){
+      this.a = this.reason3
+    }
   },
   mounted() {},
   created(){
@@ -672,6 +710,13 @@ p {
     width: 63.5px;
     height: 60px;
     border: 1px solid #d8d8d8;
+    input{
+      width: 50px;
+    height: 50px;
+    border: none;
+    font-size: 30PX;
+    align-items: center;
+    }
   }
 }
 .keyboard {

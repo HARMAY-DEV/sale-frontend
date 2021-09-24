@@ -53,10 +53,7 @@
               <div>
                 <p>
                   CNY  {{item.price | formatPrice}}
-                  <span
-                    style="display:inline-block;padding:0 3px;border:1px solid #1A1311;margin-left:3px;height:14px;line-height:16px;"
-                    >优惠</span
-                  >
+                 
                 </p>
                 <p class="color-2">CNY  {{item.price | formatPrice}}</p>
               </div>
@@ -187,11 +184,11 @@ export default {
   },
   mounted() {
     this.date = this.getDay()
-    if(this.orderTableData.length>0){
+    // if(this.orderTableData.length>0){
        JsBarcode("#barcode", this.orderTableData[0].id, {
       displayValue: false //是否显示文字信息
     })
-    }
+    // }
    
     this.goodsTableData = [
       {

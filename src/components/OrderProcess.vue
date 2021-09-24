@@ -115,9 +115,9 @@
               <div v-if="payTypeItem.nameSign == 'moneypay'">
                 <number-keyboard v-model="amountString" v-if="!qrcodeAlipay">
                   <div slot="money-btn" class="moneypay-btn">
-                    <span>¥{{Math.ceil(amountString)}}</span>
-                    <span>¥{{Math.ceil(amountString)}}</span>
-                    <span>¥{{Math.ceil(amountString)}}</span>
+                    <span>¥{{ Math.ceil(amountString) }}</span>
+                    <span>¥{{ Math.ceil(amountString) }}</span>
+                    <span>¥{{ Math.ceil(amountString) }}</span>
                   </div>
                   <img
                     src="../assets/images/keyword-qrcode.png"
@@ -221,7 +221,8 @@
           </template>
           <div class="usable-price active">- <span>可用余额</span> -</div>
           <p class="money active">¥ 0</p>
-          <div class="usable-price">- <span>可用积分</span> -</div>s
+          <div class="usable-price">- <span>可用积分</span> -</div>
+          s
           <p class="money">{{ userObj.integral }}</p>
         </div>
       </div>
@@ -416,7 +417,7 @@ export default {
       console.log(this.isShowPay);
     },
     currentFlowStatus(status) {
-      if (status === FlowStatus.SUCCEED) {
+      // if (status == FlowStatus.SUCCEED) {
         this.showSuccessMask = true;
         this.cancelLoopFlowDetail();
         setTimeout(() => {
@@ -424,7 +425,7 @@ export default {
             this.showSuccessMask = false;
           }
         }, 3000);
-      }
+      // }
 
       if (status === FlowStatus.FAILED) {
         this.showFailMask = true;
@@ -475,7 +476,7 @@ export default {
       this.isShowLogin = false;
     },
     changeIphone(val) {
-      this.iphoneVal = val
+      this.iphoneVal = val;
       console.log(val);
     },
     bindAccount() {
